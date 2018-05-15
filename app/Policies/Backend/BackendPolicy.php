@@ -11,7 +11,7 @@ class BackendPolicy
 
     public function before(User $user, $ability)
     {
-        if ($user->hasRole('administrator')) return true;
+        //if ($user->hasRole('administrator')) return true;
         if (!$user->active) return false;
 
         return null;
@@ -29,6 +29,6 @@ class BackendPolicy
          * Add roles, who can view backend
          * Administrator fill as example
          */
-        return $user->hasRoles(['administrator']);
+        return true; //$user->hasRoles(['administrator']);
     }
 }

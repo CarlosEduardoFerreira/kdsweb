@@ -25,5 +25,7 @@ class HomeController extends Controller
     public function index()
     {
         return view('welcome');
+        //return Redirect::route('admin.dashboard');
+        //return view('admin.dashboard');
     }
 }

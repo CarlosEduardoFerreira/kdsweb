@@ -1,18 +1,12 @@
 @extends('layouts.welcome')
 
 @section('content')
-
-
-    <?php
-        Redirect::to('dashboard');
-    ?>
-
-    <div class="title m-b-md">
+    <div class="title m-b-md" id="main_title">
         {{ config('app.name') }}
     </div>
-    <div class="m-b-md">
+    <!-- <div class="m-b-md">
         Sample users:<br/>
         Admin user: admin.laravel@labs64.com / password: admin<br/>
         Demo user: demo.laravel@labs64.com / password: demo
-    </div>
+    </div> -->
 @endsection

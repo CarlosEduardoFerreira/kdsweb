@@ -14,7 +14,7 @@
                 <img src="{{ auth()->user()->avatar }}" alt="..." class="img-circle profile_img">
             </div>
             <div class="profile_info">
-                <h2>{{ auth()->user()->name }}</h2>
+                <h2>{{ auth()->user()->username }}</h2>
             </div>
         </div>
         <!-- /menu profile quick info -->
@@ -37,20 +37,40 @@
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
+                		<?php if(auth()->user()->hasRole('administrator')) { ?>
+                        <li>
+                            <a href="{{ route('admin.resellers', ['adminId' => '0']) }}">
+                                <i class="fa fa-briefcase" aria-hidden="true"></i>
+                                {{ __('views.backend.section.navigation.menu_1_1') }}
+                            </a>
+                        </li>
+                    <?php } ?>
+                    <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')) { ?>
+                        <li>
+                            <a href="{{ route('admin.storegroups', ['resellerId' => '0']) }}">
+                                <i class="fa fa-sitemap" aria-hidden="true"></i>
+                                {{ __('views.backend.section.navigation.menu_1_2') }}
+                            </a>
+                        </li>
+                    <?php } ?>
                     <li>
-                        <a href="{{ route('admin.users') }}">
-                            <i class="fa fa-users" aria-hidden="true"></i>
-                            {{ __('views.backend.section.navigation.menu_1_1') }}
+                        <a href="{{ route('admin.stores', ['storegroupId' => '0']) }}">
+                            <i class="fa fa-cutlery" aria-hidden="true"></i>
+                            {{ __('views.backend.section.navigation.menu_1_3') }}
                         </a>
                     </li>
+                    <!--
                     <li>
                         <a href="{{ route('admin.permissions') }}">
                             <i class="fa fa-key" aria-hidden="true"></i>
                             {{ __('views.backend.section.navigation.menu_1_2') }}
                         </a>
                     </li>
+                    -->
                 </ul>
             </div>
+
+            <!--
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_2') }}</h3>
 
@@ -67,23 +87,27 @@
                                     {{ __('views.backend.section.navigation.menu_2_2') }}
                                 </a>
                             </li>
+
                             <li>
                                 <a href="{{ route('log-viewer::logs.list') }}">
                                     {{ __('views.backend.section.navigation.menu_2_3') }}
                                 </a>
                             </li>
+
                         </ul>
                     </li>
                 </ul>
             </div>
+            -->
+
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_3') }}</h3>
                 <ul class="nav side-menu">
                   <li>
-                      <a href="http://netlicensing.io/?utm_source=Laravel_Boilerplate&utm_medium=github&utm_campaign=laravel_boilerplate&utm_content=credits" target="_blank" title="Online Software License Management"><i class="fa fa-lock" aria-hidden="true"></i>NetLicensing</a>
+                      <a href="http://bematechus.com" target="_blank" title="Bematech"><i class="fa fa-building" aria-hidden="true"></i>Bematech</a>
                   </li>
                   <li>
-                      <a href="https://photolancer.zone/?utm_source=Laravel_Boilerplate&utm_medium=github&utm_campaign=laravel_boilerplate&utm_content=credits" target="_blank" title="Individual digital content for your next campaign"><i class="fa fa-camera-retro" aria-hidden="true"></i>Photolancer Zone</a>
+                      <a href="https://totvs.com" target="_blank" title="Totvs"><i class="fa fa-building-o" aria-hidden="true"></i>Totvs</a>
                   </li>
                 </ul>
             </div>

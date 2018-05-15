@@ -98,6 +98,8 @@ class UserController extends Controller
 
         $user->active = $request->get('active', 0);
         $user->confirmed = $request->get('confirmed', 0);
+        
+        //$user->licenses_quatity = $request->get('licenses_quantity', 0);
 
         $user->save();
 

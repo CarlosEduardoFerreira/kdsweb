@@ -17,6 +17,10 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('parent_id');
+            $table->string('username');
+            $table->string('business_name');
+            $table->string('licenses_quantity');
             $table->string('password');
             $table->tinyInteger('active')->default(1)->unsigned();
             $table->uuid('confirmation_code')->nullable();
@@ -25,6 +29,7 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
     }
 
     /**

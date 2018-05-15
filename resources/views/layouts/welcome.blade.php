@@ -81,7 +81,26 @@
     <body>
         <div class="flex-center position-ref full-height">
 
+            <script language="javascript" type="text/javascript">
+      
+                 window.setTimeout('window.open("/admin", "_self")',1000); // miliseconds
+                 
+                 <!--
+                // $( document ).ready(function() {
+                //     $("#main_title").fadeOut("slow");
+                // });
+                // $( document ).ready(function() {
+                //     var s = document.getElementById('main_title').style;
+                //     s.opacity = 1;
+                //     (function fade(){(s.opacity-=.1)<0?s.display="none":setTimeout(fade,40)})();
+                // });
+
+                 // -->
+             </script>
+
                 <div class="top-right links">
+                    <!--
+
                     <a href="{{ route('protection.membership') }}">{{ __('views.welcome.member_area') }}</a>
 
                     @if (Route::has('login'))
@@ -97,15 +116,18 @@
                             <a href="{{ url('/logout') }}">{{ __('views.welcome.logout') }}</a>
                         @endif
                     @endif
+
+                     -->
+
                 </div>
 
             <div class="content">
                 @yield('content')
-                <div class="footer">
+                <!-- <div class="footer">
                     Credits:&nbsp;
                     <a href="http://netlicensing.io/?utm_source=Laravel_Boilerplate&amp;utm_medium=github&amp;utm_campaign=laravel_boilerplate&amp;utm_content=credits" target="_blank" title="Online Software License Management"><i class="fa fa-lock" aria-hidden="true"></i>NetLicensing</a>&nbsp;&bull;&nbsp;
                     <a href="https://photolancer.zone/?utm_source=Laravel_Boilerplate&amp;utm_medium=github&amp;utm_campaign=laravel_boilerplate&amp;utm_content=credits" target="_blank" title="Individual digital content for your next campaign"><i class="fa fa-camera-retro" aria-hidden="true"></i>Photolancer Zone</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </body>

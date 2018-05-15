@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Auth\User\User;
+use App\Models\Auth\Role\Role;
 use Arcanedev\LogViewer\Entities\Log;
 use Arcanedev\LogViewer\Entities\LogEntry;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Routing\Route;
 
@@ -29,20 +31,55 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $counts = [
-            'users' => \DB::table('users')->count(),
-            'users_unconfirmed' => \DB::table('users')->where('confirmed', false)->count(),
-            'users_inactive' => \DB::table('users')->where('active', false)->count(),
-            'protected_pages' => 0,
-        ];
+        $me = Auth::user();
 
-        foreach (\Route::getRoutes() as $route) {
-            foreach ($route->middleware() as $middleware) {
-                if (preg_match("/protection/", $middleware, $matches)) $counts['protected_pages']++;
+        $users = User::with('roles')->sortable(['email' => 'asc'])->paginate();
+
+//          Roles -------------------------------------
+//          id  name            weight     role
+//          1   administrator   1000    -> Admin
+//          2   reseller         900    -> Reseller
+//          3   controller       800    -> Store Group
+//          4   manager          700    -> Store
+//          5   employee           1    -> Employee
+//          7   authenticated      0    -> Undefined
+
+
+        //echo "count: " . count(array($users));
+
+        $resellers   = 0;
+        $storegroups = 0;
+        $stores      = 0;
+        $employees   = 0;
+        $licenses    = 0;
+        $devices     = 0;
+
+        foreach ($users as $user) {
+            if ($user->roles[0]["id"] == 2) {
+                $resellers++;
+
+            } else if ($user->roles[0]["id"] == 3) {
+                $storegroups++;
+
+            } else if ($user->roles[0]["id"] == 4) {
+                $stores++;
+
+            } else if ($user->roles[0]["id"] == 5) {
+                $employees++;
+
             }
         }
 
-        return view('admin.dashboard', ['counts' => $counts]);
+        $counts = [
+            'resellers'   => $resellers,
+            'storegroups' => $storegroups,
+            'stores'      => $stores,
+            'employees'   => $employees,
+            'licenses'    => $licenses,
+            'devices'     => $devices
+        ];
+
+        return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
     }
 
 

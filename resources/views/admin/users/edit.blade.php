@@ -42,6 +42,26 @@
                         @endif
                     </div>
                 </div>
+                
+                <!-- 
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="licenses_quantity">
+                        Licenses Quantity:
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <input id="licenses_quantity" type="number" class="form-control col-md-7 col-xs-12"
+                               name="licenses_quantity" value="{{ $user->licenses_quantity }}" required>
+                        @if($errors->has('licenses_quantity'))
+                            <ul class="parsley-errors-list filled">
+                                @foreach($errors->get('licenses_quantity') as $error)
+                                    <li class="parsley-required">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                </div>
+                -->
 
                 @if(!$user->hasRole('administrator'))
                     <div class="form-group">
@@ -65,6 +85,7 @@
                         </div>
                     </div>
 
+					<!-- 
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="confirmed" >
                             {{ __('views.admin.users.edit.confirmed') }}
@@ -85,6 +106,7 @@
                             </div>
                         </div>
                     </div>
+                    -->
                 @endif
 
                 <div class="form-group">
