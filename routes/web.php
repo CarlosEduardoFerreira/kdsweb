@@ -73,6 +73,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('stores/{store}/edit', 'StoreController@edit')->name('stores.edit');
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
+    Route::delete('stores/{store}/config', 'StoreController@destroy')->name('stores.config');
 
     // Users (Users is every system user. Even Admin)
     Route::get('users', 'UserController@index')->name('users');
