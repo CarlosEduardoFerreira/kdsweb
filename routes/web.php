@@ -69,11 +69,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Stores
     Route::get('stores/{storegroupId}', 'StoreController@index')->name('stores');
-    Route::get('stores/{store}', 'StoreController@show')->name('stores.show');
+    Route::get('stores/{store}/show', 'StoreController@show')->name('stores.show');
     Route::get('stores/{store}/edit', 'StoreController@edit')->name('stores.edit');
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
-    Route::delete('stores/{store}/config', 'StoreController@destroy')->name('stores.config');
+    Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
 
     // Users (Users is every system user. Even Admin)
     Route::get('users', 'UserController@index')->name('users');
