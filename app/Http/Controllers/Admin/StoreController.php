@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Validator;
+use DB;
 
 class StoreController extends Controller
 {
@@ -70,7 +71,11 @@ class StoreController extends Controller
 
     public function config(User $store)
     {
-        return view('admin.stores.config', ['store' => $store]);
+        $devices  = DB::select("select * from device order by id_");
+        $settings = DB::select("select * from settings")[0];
+        //$settings = $settings[0];
+        //DB::table('users')->simplePaginate(15);
+        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings]);
     }
 
     /**
