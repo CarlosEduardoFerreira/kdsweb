@@ -37,7 +37,8 @@
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
-                		<?php if(auth()->user()->hasRole('administrator')) { ?>
+
+                	<?php if(auth()->user()->hasRole('administrator')) { ?>
                         <li>
                             <a href="{{ route('admin.resellers', ['adminId' => '0']) }}">
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
@@ -45,6 +46,7 @@
                             </a>
                         </li>
                     <?php } ?>
+
                     <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')) { ?>
                         <li>
                             <a href="{{ route('admin.storegroups', ['resellerId' => '0']) }}">
@@ -53,12 +55,24 @@
                             </a>
                         </li>
                     <?php } ?>
+
                     <li>
                         <a href="{{ route('admin.stores', ['storegroupId' => '0']) }}">
                             <i class="fa fa-cutlery" aria-hidden="true"></i>
                             {{ __('views.backend.section.navigation.menu_1_3') }}
                         </a>
                     </li>
+
+                    <?php if(auth()->user()->hasRole('administrator')) { ?>
+                    <!-- 
+                        <li>
+                            <a href="{{ route('admin.users', ['user' => '0']) }}">
+                                <i class="fa fa-users" aria-hidden="true"></i>
+                                New Users
+                            </a>
+                        </li>
+                    -->
+                    <?php } ?>
                     <!--
                     <li>
                         <a href="{{ route('admin.permissions') }}">

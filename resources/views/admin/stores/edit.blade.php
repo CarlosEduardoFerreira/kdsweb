@@ -6,6 +6,23 @@
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             {{ Form::open(['route'=>['admin.stores.update', $store->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+            
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="storegroup_id">
+                    Store Group:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <select id="storegroup_id" name="storegroup_id" class="select2" style="width: 100%" autocomplete="off">
+                    		<option>Select the Store Group</option>
+                        	@foreach ($storegroups as $storegroup)
+                        		<?php 
+                        		  $selected = $store->parent_id == $storegroup->id ? "selected" : "";
+                        		?>
+                            	<option value="{{ $storegroup->id }}" <?=$selected?>>{{ $storegroup->name }}</option>
+                        	@endforeach;
+                    </select>
+                </div>
+            </div>
 
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="business_name" >
@@ -121,15 +138,18 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <textarea id="address" class="form-control col-md-7 col-xs-12 @if($errors->has('address')) parsley-error @endif"
-                           name="address" cols="30" rows="3" required>{{ $store->address }}</textarea>
-                    @if($errors->has('address'))
-                        <ul class="parsley-errors-list filled">
-                            @foreach($errors->get('address') as $error)
-                                    <li class="parsley-required">{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
+                    <input id="address" type="text" class="form-control col-md-7 col-xs-12 @if($errors->has('address')) parsley-error @endif"
+                           name="address" value="{{ $store->address }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="address2" >
+                    Address 2:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input id="address2" type="text" class="form-control col-md-7 col-xs-12 @if($errors->has('address2')) parsley-error @endif"
+                           name="address2" value="{{ $store->address2 }}">
                 </div>
             </div>
 

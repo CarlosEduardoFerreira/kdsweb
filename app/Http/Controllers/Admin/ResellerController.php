@@ -7,8 +7,11 @@ use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Validator;
+use Illuminate\Support\Facades\Validator;
+use DateTime;
+use DateTimeZone;
 
 
 class ResellerController extends Controller
@@ -21,9 +24,9 @@ class ResellerController extends Controller
     public function index(Request $request, string $adminId)
     {
 
-        $users = Controller::filterUsers(2, $adminId);
+        $resellers = Controller::filterUsers(2, $adminId);
 
-        return view('admin.resellers.index', ['users' => $users]);
+        return view('admin.resellers.index', ['resellers' => $resellers]);
     }
 
     /**
@@ -31,9 +34,61 @@ class ResellerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(User $admin)
     {
-        //
+        return view('admin.resellers.new');
+    }
+    
+    public function insert(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'business_name' => 'required|max:200',
+            'name'          => 'required|max:200',
+            'email'         => 'required|email|max:255',
+            'phone_number'  => 'required|max:45',
+            'address'       => 'required',
+            'city'          => 'required|max:100',
+            'state'         => 'required|max:100',
+            'country'       => 'required|max:100',
+            'zipcode'       => 'required|max:30',
+            'username'      => 'required|max:45'
+        ]);
+        
+        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+            return $input->password;
+        });
+            
+        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+        
+        $created_at = new DateTime();
+        $created_at->setTimezone(new DateTimeZone("America/New_York"));
+        
+        $usersTable = DB::table('users');
+        
+        $data = [
+            'business_name'   => $request->get('business_name'),    // Reseller Name
+            'name'            => $request->get('name'),             // Contact Name
+            'email'           => $request->get('email'),
+            'phone_number'    => $request->get('phone_number'),
+            'address'         => $request->get('address'),
+            'address2'        => $request->get('address2'),
+            'city'            => $request->get('city'),
+            'state'           => $request->get('state'),
+            'country'         => $request->get('country'),
+            'zipcode'         => $request->get('zipcode'),
+            'username'        => $request->get('username'),
+            'created_at'      => $created_at,
+            'updated_at'      => $created_at
+        ];
+        
+        if ($request->has('password')) {
+            $data['password'] = bcrypt($request->get('password'));
+        }
+        
+        $id = $usersTable->insertGetId($data);
+        DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 2]);
+        
+        return redirect()->intended(route('admin.resellers', 0));
     }
 
     /**
@@ -53,9 +108,9 @@ class ResellerController extends Controller
      * @param User $user
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function show(User $user)
+    public function show(User $reseller)
     {
-        return view('admin.resellers.show', ['user' => $user]);
+        return view('admin.resellers.show', ['reseller' => $reseller]);
     }
 
     /**
@@ -64,10 +119,9 @@ class ResellerController extends Controller
      * @param User $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
+    public function edit(User $reseller)
     {
-        return view('admin.resellers.edit', ['user' => $user, 'roles' => Role::get()]);
-        //return view('admin.users.edit', ['user' => $user, 'roles' => Role::get()]);
+        return view('admin.resellers.edit', ['reseller' => $reseller, 'roles' => Role::get()]);
     }
 
     /**
@@ -77,17 +131,23 @@ class ResellerController extends Controller
      * @param User $user
      * @return mixed
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $reseller)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'email' => 'required|email|max:255',
-            'active' => 'sometimes|boolean',
-            'confirmed' => 'sometimes|boolean',
+            'business_name' => 'required|max:200',
+            'name'          => 'required|max:200',
+            'email'         => 'required|email|max:255',
+            'phone_number'  => 'required|max:45',
+            'address'       => 'required',
+            'city'          => 'required|max:100',
+            'state'         => 'required|max:100',
+            'country'       => 'required|max:100',
+            'zipcode'       => 'required|max:30',
+            'username'      => 'required|max:45'
         ]);
 
-        $validator->sometimes('email', 'unique:users', function ($input) use ($user) {
-            return strtolower($input->email) != strtolower($user->email);
+        $validator->sometimes('email', 'unique:users', function ($input) use ($reseller) {
+            return strtolower($input->email) != strtolower($reseller->email);
         });
 
         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
@@ -95,29 +155,45 @@ class ResellerController extends Controller
         });
 
         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+        
+        $reseller->name            = $request->get('name');
+        $reseller->email           = $request->get('email');
 
-        $user->name = $request->get('name');
-        $user->email = $request->get('email');
+        $reseller->username        = $request->get('username');
+        $reseller->last_name       = $request->get('last_name');
+        $reseller->business_name   = $request->get('business_name');
+        $reseller->dba             = $request->get('dba');
+        $reseller->phone_number    = $request->get('phone_number');
+        $reseller->address         = $request->get('address');
+        $reseller->address2        = $request->get('address2');
+        $reseller->city            = $request->get('city');
+        $reseller->state           = $request->get('state');
+        $reseller->country         = $request->get('country');
+        $reseller->zipcode         = $request->get('zipcode');
+        
+        $updated_at = new DateTime();
+        $updated_at->setTimezone(new DateTimeZone("America/New_York"));
+        $reseller->updated_at      = $updated_at;
 
         if ($request->has('password')) {
-            $user->password = bcrypt($request->get('password'));
+            $reseller->password = bcrypt($request->get('password'));
         }
 
-        $user->active = $request->get('active', 0);
-        $user->confirmed = $request->get('confirmed', 0);
+        $reseller->active      = $request->get('active', 0);
+        $reseller->confirmed   = $request->get('confirmed', 0);
 
-        $user->save();
+        $reseller->save();
 
         //roles
         if ($request->has('roles')) {
-            $user->roles()->detach();
+            $reseller->roles()->detach();
 
             if ($request->get('roles')) {
-                $user->roles()->attach($request->get('roles'));
+                $reseller->roles()->attach($request->get('roles'));
             }
         }
 
-        return redirect()->intended(route('admin.resellers'));
+        return redirect()->intended(route('admin.resellers', 0));
     }
 
     /**

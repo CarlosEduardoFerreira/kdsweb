@@ -29,11 +29,11 @@
                 <input id="password" type="password" class="form-control" name="password"
                        placeholder="{{ __('views.auth.login.input_1') }}" required>
             </div>
-            <div class="checkbox al_left">
-                <label>
-                    <input type="checkbox"
-                           name="remember" {{ old('remember') ? 'checked' : '' }}> {{ __('views.auth.login.input_2') }}
-                </label>
+            <div style="width:350px;padding-bottom:10px;">
+                <div style="display:inline-table;width:270px;text-align:left;">
+                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> {{ __('views.auth.login.input_2') }}
+                </div>
+                <button class="btn btn-success" type="submit">{{ __('views.auth.login.action_0') }}</button>
             </div>
 
             @if (session('status'))
@@ -48,11 +48,10 @@
                 </div>
             @endif
 
-            <div>
-                <button class="btn btn-default submit" type="submit">{{ __('views.auth.login.action_0') }}</button>
-                <a class="reset_pass" href="{{ route('password.request') }}">
-                    {{ __('views.auth.login.action_1') }}
-                </a>
+            <div style="text-align:left;">
+            		<div style="display:inline-table;width:200px;padding-left:10px;">
+                    <a href="{{ route('password.request') }}">{{ __('views.auth.login.action_1') }}</a>
+                </div>
             </div>
 
             <div class="clearfix"></div>
@@ -76,10 +75,12 @@
             </div> -->
 
             @if(config('auth.users.registration'))
-                <div class="separator">
+                <!-- <div class="separator">  -->
+                		<!-- 
                     <p class="change_link">{{ __('views.auth.login.message_1') }}
                         <a href="{{ route('register') }}" class="to_register"> {{ __('views.auth.login.action_2') }} </a>
                     </p>
+                    -->
 
                     <div class="clearfix"></div>
                     <br/>
@@ -90,7 +91,7 @@
                         <p>&copy; {{ date('Y') }} {{ config('app.name') }}. {{ __('views.auth.login.copyright') }}</p>
                     </div>
                 -->
-                </div>
+                <!-- </div> -->
             @endif
         {{ Form::close() }}
 

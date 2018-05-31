@@ -5,71 +5,61 @@
 <!-- @section('title', __('views.admin.users.index.title')) -->
 
 @section('content')
-    <div class="row">
-        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
-               width="100%">
+    <div class="row" style="min-height:700px;">
+    
+    		<div style="text-align:right;padding:10px;">
+    			<a class="btn btn-success" type="button" href="{{ route('admin.storegroups.new') }}">New</a>
+    		</div>
+    		
+        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
             <thead>
             <tr>
-            	<th>@sortablelink('name',  __('views.admin.users.index.table_header_1'),['page' => $users->currentPage()])</th>
-                <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $users->currentPage()])</th>
-                <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $users->currentPage()])</th>
-                <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $users->currentPage()])</th>
-                <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $users->currentPage()])</th>
+            	<th>@sortablelink('name',  __('views.admin.users.index.table_header_1'),['page' => $storegroups->currentPage()])</th>
+                <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $storegroups->currentPage()])</th>
+                <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $storegroups->currentPage()])</th>
+                <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $storegroups->currentPage()])</th>
+                <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $storegroups->currentPage()])</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
 
-            @foreach($users as $user)
+            @foreach($storegroups as $storegroup)
                 <tr>
-                		<td>{{ $user->name }}</td>
-                    	<td>{{ $user->email }}</td>
+                		<td>{{ $storegroup->name }}</td>
+                    	<td>{{ $storegroup->email }}</td>
                     <td>
-                        @if($user->active)
+                        @if($storegroup->active)
                             <span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
                         @else
                             <span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
                         @endif
                     </td>
-                    <td>{{ $user->created_at }}</td>
-                    <td>{{ $user->updated_at }}</td>
+                    <td>{{ $storegroup->created_at }}</td>
+                    <td>{{ $storegroup->updated_at }}</td>
                     <td>
-                    		<?php
-                    		  $role = $user->roles[0]->name;
 
-                    		  $action = route('admin.storegroups', ['resellerId' => $user->id]);
-                    		  $dataTitle  = "Store Groups";
-                    		  $icon = "fa-sitemap";
+                        <a class="btn btn-xs btn-info" href="{{ route('admin.storegroups.show', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.show') }}">
+                            <i class="fa fa-eye"></i>
+                        </a>
 
-                    		  if ($role == 'controller') {
-                    		      $action = route('admin.stores', ['storegroupId' => $user->id]);
-                    		      $dataTitle  = "Stores";
-                    		      $icon = "fa-cutlery";
-                    		  }
-                    		  //echo "role : " . $role;
-                    		?>
+                        <a class="btn btn-xs btn-warning" href="{{ route('admin.storegroups.edit', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
+                            <i class="fa fa-pencil"></i>
+                        </a>
 
-                            <a class="btn btn-xs btn-info" href="{{ route('admin.users.show', [$user->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.show') }}">
-                                <i class="fa fa-eye"></i>
+                        {{--@if(!$storegroup->hasRole('administrator'))--}}
+                            {{--<button class="btn btn-xs btn-danger user_destroy"--}}
+                                    {{--data-url="{{ route('admin.storegroups.destroy', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.delete') }}">--}}
+                                {{--<i class="fa fa-trash"></i>--}}
+                            {{--</button>--}}
+                        {{--@endif--}}
+
+                        <?php if ($storegroup->role_id == 2 || $storegroup->role_id == 3) { ?>
+                            <a class="btn btn-xs btn-primary" href="{{ route('admin.stores', ['storegroupId' => $storegroup->id]) }}"
+                            				data-toggle="tooltip" data-placement="top" data-title="Stores">
+                                <i class="fa fa-cutlery"></i>
                             </a>
-
-                            <a class="btn btn-xs btn-warning" href="{{ route('admin.users.edit', [$user->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-
-                            {{--@if(!$user->hasRole('administrator'))--}}
-                                {{--<button class="btn btn-xs btn-danger user_destroy"--}}
-                                        {{--data-url="{{ route('admin.users.destroy', [$user->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.delete') }}">--}}
-                                    {{--<i class="fa fa-trash"></i>--}}
-                                {{--</button>--}}
-                            {{--@endif--}}
-
-                            <?php if ($role == 'reseller' || $role == 'controller') { ?>
-                                <a class="btn btn-xs btn-primary" href="<?php echo $action; ?>"
-                                				data-toggle="tooltip" data-placement="top" data-title="<?php echo $dataTitle; ?>">
-                                    <i class="fa <?php echo $icon; ?>"></i>
-                                </a>
-                            <?php } ?>
+                        <?php } ?>
 
                     </td>
                 </tr>
@@ -77,7 +67,7 @@
             </tbody>
         </table>
         <div class="pull-right">
-            {{ $users->links() }}
+            {{ $storegroups->links() }}
         </div>
     </div>
 @endsection

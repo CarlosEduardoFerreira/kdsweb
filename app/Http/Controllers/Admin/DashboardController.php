@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Routing\Route;
+use DB;
 
 class DashboardController extends Controller
 {
@@ -33,19 +34,22 @@ class DashboardController extends Controller
     {
         $me = Auth::user();
 
-        $users = User::with('roles')->sortable(['email' => 'asc'])->paginate();
+        // if($me->roles[0]->name == 'authenticated') {
+        //     return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
+        // }
+
+        $users = User::with('roles')->paginate();
 
 //          Roles -------------------------------------
 //          id  name            weight     role
 //          1   administrator   1000    -> Admin
 //          2   reseller         900    -> Reseller
-//          3   controller       800    -> Store Group
-//          4   manager          700    -> Store
+//          3   storegroup       800    -> Store Group
+//          4   stores           700    -> Store
 //          5   employee           1    -> Employee
 //          7   authenticated      0    -> Undefined
 
-
-        //echo "count: " . count(array($users));
+        echo "count users: " . count($users);
 
         $resellers   = 0;
         $storegroups = 0;
@@ -54,19 +58,24 @@ class DashboardController extends Controller
         $licenses    = 0;
         $devices     = 0;
 
-        foreach ($users as $user) {
-            if ($user->roles[0]["id"] == 2) {
-                $resellers++;
+        if($me->roles[0]->name != 'authenticated') {
 
-            } else if ($user->roles[0]["id"] == 3) {
-                $storegroups++;
-
-            } else if ($user->roles[0]["id"] == 4) {
-                $stores++;
-
-            } else if ($user->roles[0]["id"] == 5) {
-                $employees++;
-
+            foreach ($users as $user) {
+                if(isset($user->roles[0])) {
+                    if ($user->roles[0]["id"] == 2) {
+                        $resellers++;
+    
+                    } else if ($user->roles[0]["id"] == 3) {
+                        $storegroups++;
+    
+                    } else if ($user->roles[0]["id"] == 4) {
+                        $stores++;
+    
+                    } else if ($user->roles[0]["id"] == 5) {
+                        $employees++;
+    
+                    }
+                }
             }
         }
 

@@ -27,7 +27,7 @@
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_3') }}</th>
                 <td>
-                    {{ $user->roles->pluck('name')->implode(',') }}
+                    {{ $user->roles->pluck('display')->implode(',') }}
                 </td>
             </tr>
             <tr>
@@ -38,17 +38,6 @@
                     @else
                         <span class="label label-danger">{{ __('views.admin.users.show.inactive') }}</span>
                     @endif
-                </td>
-            </tr>
-
-            <tr>
-                <th>{{ __('views.admin.users.show.table_header_5') }}</th>
-                <td>
-                    @if($user->confirmed)
-                        <span class="label label-success">{{ __('views.admin.users.show.confirmed') }}</span>
-                    @else
-                        <span class="label label-warning">{{ __('views.admin.users.show.not_confirmed') }}</span>
-                    @endif</td>
                 </td>
             </tr>
 

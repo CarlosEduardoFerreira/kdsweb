@@ -42,8 +42,8 @@
                         @endif
                     </div>
                 </div>
-                
-                <!-- 
+
+                <!--
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="licenses_quantity">
                         Licenses Quantity:
@@ -85,7 +85,7 @@
                         </div>
                     </div>
 
-					<!-- 
+					<!--
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="confirmed" >
                             {{ __('views.admin.users.edit.confirmed') }}
@@ -148,9 +148,9 @@
                         {{ __('views.admin.users.edit.roles') }}
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="roles" name="roles[]" class="select2" multiple="multiple" style="width: 100%" autocomplete="off">
+                        <select id="roles" name="roles[]" class="select2" style="width: 100%" autocomplete="off">
                             @foreach($roles as $role)
-                                <option @if($user->roles->find($role->id)) selected="selected" @endif value="{{ $role->id }}">{{ $role->name }}</option>
+                                <option @if($user->roles->find($role->id)) selected="selected" @endif value="{{ $role->id }}">{{ $role->display }}</option>
                             @endforeach
                         </select>
                     </div>

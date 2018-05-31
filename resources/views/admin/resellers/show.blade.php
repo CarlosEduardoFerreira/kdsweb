@@ -1,39 +1,77 @@
 @extends('admin.layouts.admin')
 
-@section('title', __('views.admin.users.show.title', ['name' => $user->name]))
+@section('title', "Reseller View")
 
 @section('content')
     <div class="row">
         <table class="table table-striped table-hover">
             <tbody>
+
+            <!--
             <tr>
-                <th>{{ __('views.admin.users.show.table_header_0') }}</th>
-                <td><img src="{{ $user->avatar }}" class="user-profile-image"></td>
+                <th>reseller:</th>
+                <td><img src="{{ $reseller->avatar }}" class="user-profile-image"></td>
             </tr>
+            -->
 
             <tr>
-                <th>{{ __('views.admin.users.show.table_header_1') }}</th>
-                <td>{{ $user->name }}</td>
+                <th>Reseller Name</th>
+                <td>{{ $reseller->business_name }}</td>
             </tr>
-
+            <tr>
+                <th>Contact Name</th>
+                <td>{{ $reseller->name }}</td>
+            </tr>
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_2') }}</th>
                 <td>
-                    <a href="mailto:{{ $user->email }}">
-                        {{ $user->email }}
+                    <a href="mailto:{{ $reseller->email }}">
+                        {{ $reseller->email }}
                     </a>
                 </td>
             </tr>
             <tr>
+                <th>Contact Phone Number</th>
+                <td>{{ $reseller->phone_number }}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{ $reseller->address }}</td>
+            </tr>
+            <tr>
+                <th>Address 2</th>
+                <td>{{ $reseller->address }}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{ $reseller->city }}</td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td>{{ $reseller->state }}</td>
+            </tr>
+            <tr>
+                <th>Country</th>
+                <td>{{ $reseller->country }}</td>
+            </tr>
+            <tr>
+                <th>Zip Code</th>
+                <td>{{ $reseller->zipcode }}</td>
+            </tr>
+
+            <!--
+            <tr>
                 <th>{{ __('views.admin.users.show.table_header_3') }}</th>
                 <td>
-                    {{ $user->roles->pluck('name')->implode(',') }}
+                    {{ $reseller->roles->pluck('name')->implode(',') }}
                 </td>
             </tr>
+            -->
+
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_4') }}</th>
                 <td>
-                    @if($user->active)
+                    @if($reseller->active)
                         <span class="label label-primary">{{ __('views.admin.users.show.active') }}</span>
                     @else
                         <span class="label label-danger">{{ __('views.admin.users.show.inactive') }}</span>
@@ -42,24 +80,31 @@
             </tr>
 
             <tr>
+                <th>Username</th>
+                <td>{{ $reseller->username }}</td>
+            </tr>
+
+            <!--
+            <tr>
                 <th>{{ __('views.admin.users.show.table_header_5') }}</th>
                 <td>
-                    @if($user->confirmed)
+                    @if($reseller->confirmed)
                         <span class="label label-success">{{ __('views.admin.users.show.confirmed') }}</span>
                     @else
                         <span class="label label-warning">{{ __('views.admin.users.show.not_confirmed') }}</span>
                     @endif</td>
                 </td>
             </tr>
+            -->
 
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_6') }}</th>
-                <td>{{ $user->created_at }} ({{ $user->created_at->diffForHumans() }})</td>
+                <td>{{ $reseller->created_at }} ({{ $reseller->created_at->diffForHumans() }})</td>
             </tr>
 
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_7') }}</th>
-                <td>{{ $user->updated_at }} ({{ $user->updated_at->diffForHumans() }})</td>
+                <td>{{ $reseller->updated_at }} ({{ $reseller->updated_at->diffForHumans() }})</td>
             </tr>
             </tbody>
         </table>

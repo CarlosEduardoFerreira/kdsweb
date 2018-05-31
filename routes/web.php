@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+use Illuminate\Support\Facades\Route;
 
 /**
  * Auth routes
@@ -18,6 +18,7 @@
 Route::group(['namespace' => 'Auth'], function () {
 
     // Authentication Routes...
+    Route::get('welcome_first', 'LoginController@welcome_first')->name('welcome_first');
     Route::get('login', 'LoginController@showLoginForm')->name('login');
     Route::post('login', 'LoginController@login');
     Route::get('logout', 'LoginController@logout')->name('logout');
@@ -55,17 +56,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Resellers
     Route::get('resellers/{adminId}', 'ResellerController@index')->name('resellers');
-    Route::get('resellers/{reseller}', 'ResellerController@show')->name('resellers.show');
+    Route::get('resellers/{reseller}/show', 'ResellerController@show')->name('resellers.show');
     Route::get('resellers/{reseller}/edit', 'ResellerController@edit')->name('resellers.edit');
     Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
     Route::delete('resellers/{reseller}', 'ResellerController@destroy')->name('resellers.destroy');
+    // url will show                function on controller              how to call
+    Route::get('resellers/0/new', 'ResellerController@create')->name('resellers.new');
+    Route::put('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
 
     // Store Groups
     Route::get('storegroups/{resellerId}', 'StoreGroupController@index')->name('storegroups');
-    Route::get('storegroups/{storegroup}', 'StoreGroupController@show')->name('storegroups.show');
+    Route::get('storegroups/{storegroup}/show', 'StoreGroupController@show')->name('storegroups.show');
     Route::get('storegroups/{storegroup}/edit', 'StoreGroupController@edit')->name('storegroups.edit');
     Route::put('storegroups/{storegroup}', 'StoreGroupController@update')->name('storegroups.update');
     Route::delete('storegroups/{storegroup}', 'StoreGroupController@destroy')->name('storegroups.destroy');
+    Route::get('storegroups/0/new', 'StoreGroupController@create')->name('storegroups.new');
+    Route::put('storegroups/0/insert', 'StoreGroupController@insert')->name('storegroups.insert');
 
     // Stores
     Route::get('stores/{storegroupId}', 'StoreController@index')->name('stores');
@@ -74,6 +80,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
     Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
+    Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
+    Route::get('stores/0/new', 'StoreController@create')->name('stores.new');
+    Route::put('stores/0/insert', 'StoreController@insert')->name('stores.insert');
 
     // Users (Users is every system user. Even Admin)
     Route::get('users', 'UserController@index')->name('users');
@@ -100,3 +109,9 @@ Route::group(['as' => 'protection.'], function () {
     Route::get('membership/access-denied', 'MembershipController@failed')->name('membership.failed');
     Route::get('membership/clear-cache/', 'MembershipController@clearValidationCache')->name('membership.clear_validation_cache');
 });
+
+
+
+
+
+

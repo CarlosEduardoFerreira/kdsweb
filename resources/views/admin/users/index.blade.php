@@ -39,13 +39,13 @@
                     <td>{{ $user->updated_at }}</td>
                     <td>
                     		<?php
-                    		  $role = $user->roles[0]->name;
+                    		  $role = $user->role_id;
 
                     		  $action = route('admin.storegroups', ['resellerId' => $user->id]);
                     		  $dataTitle  = "Store Groups";
                     		  $icon = "fa-sitemap";
 
-                    		  if ($role == 'controller') {
+                    		  if ($role == 'storegroup') {
                     		      $action = route('admin.stores', ['storegroupId' => $user->id]);
                     		      $dataTitle  = "Stores";
                     		      $icon = "fa-cutlery";
@@ -68,7 +68,7 @@
                                 {{--</button>--}}
                             {{--@endif--}}
 
-                            <?php if ($role == 'reseller' || $role == 'controller') { ?>
+                            <?php if ($role == 'reseller' || $role == 'storegroup') { ?>
                                 <a class="btn btn-xs btn-primary" href="<?php echo $action; ?>"
                                 				data-toggle="tooltip" data-placement="top" data-title="<?php echo $dataTitle; ?>">
                                     <i class="fa <?php echo $icon; ?>"></i>

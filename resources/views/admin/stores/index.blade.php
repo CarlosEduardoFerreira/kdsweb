@@ -2,22 +2,26 @@
 
 @section('title', "Stores")
 
-<!-- @section('title', __('views.admin.users.index.title')) -->
-
 @section('content')
-    <div class="row">
-        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
-               width="100%">
+    <div class="row" style="min-height:700px;">
+    
+    		<div style="text-align:right;padding:10px;">
+    			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new') }}">New</a>
+    		</div>
+    
+        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+        
             <thead>
-            <tr>
-            	<th>@sortablelink('name',  __('views.admin.users.index.table_header_1'),['page' => $stores->currentPage()])</th>
-                <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
-                <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
-                <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
-                <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                	<th>@sortablelink('name',  __('views.admin.users.index.table_header_1'),['page' => $stores->currentPage()])</th>
+                    <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
+                    <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
+                    <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
+                    <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
+            
             <tbody>
 
             @foreach($stores as $store)
@@ -57,7 +61,9 @@
                         			data-toggle="tooltip" data-placement="top" data-title="Config Store">
                             <i class="fa fa-sign-in"></i>
                         </a>
-
+						<?php 
+						  //echo "store_guid: " . $store->store_guid;
+						?>
                     </td>
                 </tr>
             @endforeach

@@ -38,6 +38,11 @@ class LoginController extends Controller
         $this->middleware('guest', ['except' => 'logout']);
     }
 
+
+    public function welcome_first() {
+        return view('welcome_first');
+    }
+
     /**
      * Log the user out of the application.
      *

@@ -21,10 +21,10 @@ class RolesSeeder extends Seeder
         $this->truncate('roles');
 
         $roles = [
-            ['name' => 'administrator'], 
-            ['name' => 'reseller'], 
-            ['name' => 'controller'], 
-            ['name' => 'manager'], 
+            ['name' => 'administrator'],
+            ['name' => 'reseller'],
+            ['name' => 'storegroup'],
+            ['name' => 'store'], 
             ['name' => 'employee'],
             ['name' => 'authenticated']
         ];

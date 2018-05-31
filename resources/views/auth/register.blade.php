@@ -10,14 +10,24 @@
                     {{ Form::open(['route' => 'register']) }}
                         <h1>{{ __('views.auth.register.header') }}</h1>
                         <div>
+                            <input type="text" name="name" class="form-control"
+                                   placeholder="First Name"
+                                   value="{{ old('name') }}" required autofocus/>
+                        </div>
+                        <div>
+                            <input type="text" name="last_name" class="form-control"
+                                   placeholder="Last Name"
+                                   value="{{ old('last_name') }}" required/>
+                        </div>
+                        <div>
                             <input type="text" name="username" class="form-control"
                                    placeholder="{{ __('views.auth.register.input_0') }}"
-                                   value="{{ old('username') }}" required autofocus/>
+                                   value="{{ old('username') }}" required/>
                         </div>
                         <div>
                             <input type="email" name="email" class="form-control"
                                    placeholder="{{ __('views.auth.register.input_1') }}"
-                                   required/>
+                                   value="{{ old('email') }}" required/>
                         </div>
                         <div>
                             <input type="password" name="password" class="form-control"

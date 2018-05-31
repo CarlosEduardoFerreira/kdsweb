@@ -7,6 +7,7 @@ use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
+use DB;
 
 class UserController extends Controller
 {
@@ -17,7 +18,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return view('admin.users.index', ['users' => User::with('roles')->sortable(['email' => 'asc'])->paginate()]);
+        $users = Controller::filterUsers(7, 0);
+
+        return view('admin.users.index', ['users' => $users]);
     }
 
     /**
@@ -98,8 +101,10 @@ class UserController extends Controller
 
         $user->active = $request->get('active', 0);
         $user->confirmed = $request->get('confirmed', 0);
-        
+
         //$user->licenses_quatity = $request->get('licenses_quantity', 0);
+        
+        //$user->store_guid = unqid();
 
         $user->save();
 
