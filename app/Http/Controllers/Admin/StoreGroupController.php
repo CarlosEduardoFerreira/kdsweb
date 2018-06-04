@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +23,7 @@ class StoreGroupController extends Controller
     public function index(Request $request, string $resellerId)
     {
 
-        $storegroups = Controller::filterUsers(3, $resellerId);
+        $storegroups = Controller::filterUsers($request, 3, $resellerId);
 
         return view('admin.storegroups.index', ['storegroups' => $storegroups]);
     }
@@ -41,7 +40,9 @@ class StoreGroupController extends Controller
                                     where role_id = 2
                                     order by name");
         
-        return view('admin.storegroups.new', ['resellers' => $resellers]);
+        $countries = DB::select("select * from countries order by name");
+        
+        return view('admin.storegroups.new', ['resellers' => $resellers, 'countries' => $countries]);
     }
     
     
@@ -86,7 +87,7 @@ class StoreGroupController extends Controller
             'updated_at'      => $created_at
         ];
         
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $data['password'] = bcrypt($request->get('password'));
         }
         
@@ -130,7 +131,13 @@ class StoreGroupController extends Controller
                                     join users_roles on id = user_id 
                                     where role_id = 2
                                     order by name");
-        return view('admin.storegroups.edit', ['storegroup' => $storegroup, 'roles' => Role::get(), 'resellers' => $resellers]);
+        
+        $countries  = DB::select("select * from countries order by name");
+        $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
+        $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
+        
+        return view('admin.storegroups.edit', ['storegroup' => $storegroup, 'roles' => Role::get(), 'resellers' => $resellers,
+            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
         //return view('admin.users.edit', ['user' => $user, 'roles' => Role::get()]);
     }
 
@@ -177,7 +184,7 @@ class StoreGroupController extends Controller
         $storegroup->zipcode         = $request->get('zipcode');
         $storegroup->parent_id       = $request->get('reseller_id');
 
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $storegroup->password = bcrypt($request->get('password'));
         }
 

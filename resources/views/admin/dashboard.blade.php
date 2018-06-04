@@ -8,7 +8,7 @@
 
         $roleId = $me->roles[0]["id"];
 
-        // for Admin
+        // for Admin // resellers, storegroups, stores, employees, devices, licenses
         $dashshow = ['dashshow','dashshow','dashshow','dashshow','dashshow','dashshow'];
 
         // Bootstrap -------------------------------------------------------------------------- //
@@ -20,38 +20,38 @@
         // -------------------------------------------------------------------------- Bootstrap //
 
         if ($roleId == 2) { // reseller
-            $dashshow = ['dashhide','dashshow','dashshow','dashshow','dashshow','dashshow'];
-            $colwidth = "col-xs-12 col-sm-4 col-md-4 col-lg-2"; // 5 columns
-
-        } else if ($roleId == 3) { // storegroup
-            $dashshow = ['dashhide','dashhide','dashshow','dashshow','dashshow','dashshow'];
+            $dashshow = ['dashhide','dashshow','dashshow','dashhide','dashshow','dashshow'];
             $colwidth = "col-xs-12 col-sm-6 col-md-3 col-lg-3"; // 4 columns
 
-        } else if ($roleId == 4) { // store
-            $dashshow = ['dashhide','dashhide','dashhide','dashshow','dashshow','dashshow'];
+        } else if ($roleId == 3) { // storegroup
+            $dashshow = ['dashhide','dashhide','dashshow','dashhide','dashshow','dashshow'];
             $colwidth = "col-xs-12 col-sm-4 col-md-4 col-lg-4"; // 3 columns
+
+        } else if ($roleId == 4) { // store
+            $dashshow = ['dashhide','dashhide','dashhide','dashhide','dashshow','dashshow'];
+            $colwidth = "col-xs-6 col-sm-6 col-md-6 col-lg-6"; // 2 columns
         }
 
     ?>
 
     <style>
-        .dashshow { display:inline-table; }
-        .dashhide { display:none; }
-        .dashtext { float:left; }
-        .dashnum  { clear:both;}
-        .tile_stats_count { cursor:pointer; }
+        .dashshow   { display:inline-table; }
+        .dashhide   { display:none; }
+        .dashtext   { float:left; }
+        .dashnum    { clear:both;}
+        .link_page  { cursor:pointer; }
     </style>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $(".tile_stats_count").hover(function() {
+            $(".link_page").hover(function() {
                     $(this).find(".dashtext").css("color","#2e3f52");
                 }, function() {
                     $(this).find(".dashtext").css("color","#76879a");
                 }
              );
-             $(".tile_stats_count").click(function(){
+             $(".link_page").click(function(){
                  var $link = $(this).attr("goto");
                  if($link != "") {
                     window.open($link, "_self");
@@ -61,15 +61,15 @@
     </script>
 
     <div class="row tile_count" style="text-align:center;">
-        <div class="tile_stats_count {{ $dashshow[0] }} {{ $colwidth }}" goto="{{ route('admin.resellers',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[0] }} {{ $colwidth }}" goto="{{ route('admin.resellers',0) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-briefcase"></i> Resellers</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['resellers'] }}</div>
         </div>
-        <div class="tile_stats_count {{ $dashshow[1] }} {{ $colwidth }}" goto="{{ route('admin.storegroups',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[1] }} {{ $colwidth }}" goto="{{ route('admin.storegroups',0) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-sitemap"></i> Store Groups</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['storegroups'] }}</div>
         </div>
-        <div class="tile_stats_count {{ $dashshow[2] }} {{ $colwidth }}" goto="{{ route('admin.stores',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[2] }} {{ $colwidth }}" goto="{{ route('admin.stores',0) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-cutlery"></i> Stores</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['stores'] }}</div>
         </div>
@@ -78,12 +78,12 @@
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['employees'] }}</div>
         </div>
         <div class="tile_stats_count {{ $dashshow[4] }} {{ $colwidth }}" goto="">
-            <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-key"></i> Licenses</span>
-            <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['licenses'] }}</div>
-        </div>
-        <div class="tile_stats_count {{ $dashshow[5] }} {{ $colwidth }}" goto="">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-desktop"></i> Devices</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['devices'] }}</div>
+        </div>
+        <div class="tile_stats_count {{ $dashshow[5] }} {{ $colwidth }}" goto="">
+            <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-key"></i> Licenses</span>
+            <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['licenses'] }}</div>
         </div>
     </div>
     <!-- /top tiles -->
@@ -144,52 +144,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!--
-
-                        <div>
-                            <p>{{ __('views.admin.dashboard.log_level_3') }}</p>
-                            <div class="">
-                                <div class="progress progress_sm" style="width: 76%;">
-                                    <div class="asdasdasd"></div>
-                                    <div class="progress-bar log-error" role="progressbar" data-transitiongoal="0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p>{{ __('views.admin.dashboard.log_level_4') }}</p>
-                            <div class="">
-                                <div class="progress progress_sm" style="width: 76%;">
-                                    <div class="progress-bar log-warning" role="progressbar" data-transitiongoal="0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p>{{ __('views.admin.dashboard.log_level_5') }}</p>
-                            <div class="">
-                                <div class="progress progress_sm" style="width: 76%;">
-                                    <div class="progress-bar log-notice" role="progressbar" data-transitiongoal="0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p>{{ __('views.admin.dashboard.log_level_6') }}</p>
-                            <div class="">
-                                <div class="progress progress_sm" style="width: 76%;">
-                                    <div class="progress-bar log-info" role="progressbar" data-transitiongoal="0"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <p>{{ __('views.admin.dashboard.log_level_7') }}</p>
-                            <div class="">
-                                <div class="progress progress_sm" style="width: 76%;">
-                                    <div class="progress-bar log-debug" role="progressbar" data-transitiongoal="0"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        -->
 
                     </div>
                 </div>
@@ -328,7 +282,6 @@
 @section('scripts')
     @parent
     {{ Html::script(mix('assets/admin/js/dashboard.js')) }}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 @endsection
 
 @section('styles')

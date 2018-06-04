@@ -96,10 +96,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     Route::get('dashboard/log-chart', 'DashboardController@getLogChartData')->name('dashboard.log.chart');
     Route::get('dashboard/registration-chart', 'DashboardController@getRegistrationChartData')->name('dashboard.registration.chart');
+    
+    //Route::get('location/get_country_list','APIController@getCountryList');
+    Route::get('location/get_state_list','LocationController@getStateList')->name('location.states');
+    Route::get('location/get_city_list','LocationController@getCityList')->name('location.cities');
 });
 
 
 Route::get('/', 'HomeController@index');
+
+
+
 
 /**
  * Membership

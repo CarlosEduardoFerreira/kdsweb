@@ -12,11 +12,15 @@ class ApiUserController {
         $username = $request["username"];
         $password = $request["password"];
 
-        $sql = "SELECT password, licenses_quantity FROM users
+        $sql = "SELECT 
+                    password,
+                    store_guid, 
+                    licenses_quantity 
+                FROM users
                 WHERE username = '$username'";
 
         //echo "sql: " . $sql . "|";
-        //echo "<br>: " . "quarto";
+        
         $result = $db->query($sql);
 
         if ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -26,6 +30,8 @@ class ApiUserController {
             $passMatched = Hash::check($password, $passDataBase);
 
             if ($passMatched) {
+                
+                $response["storeGuid"] = $row["store_guid"];
 
                 if(isset($row["licenses_quantity"])) {
                     $response["licensesQuantity"] = $row["licenses_quantity"];

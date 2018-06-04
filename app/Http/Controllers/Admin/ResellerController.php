@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +23,7 @@ class ResellerController extends Controller
     public function index(Request $request, string $adminId)
     {
 
-        $resellers = Controller::filterUsers(2, $adminId);
+        $resellers = Controller::filterUsers($request, 2, $adminId);
 
         return view('admin.resellers.index', ['resellers' => $resellers]);
     }
@@ -36,7 +35,9 @@ class ResellerController extends Controller
      */
     public function create(User $admin)
     {
-        return view('admin.resellers.new');
+        $countries = DB::select("select * from countries order by name");
+        
+        return view('admin.resellers.new', ['countries' => $countries]);
     }
     
     public function insert(Request $request)
@@ -81,7 +82,7 @@ class ResellerController extends Controller
             'updated_at'      => $created_at
         ];
         
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $data['password'] = bcrypt($request->get('password'));
         }
         
@@ -121,7 +122,12 @@ class ResellerController extends Controller
      */
     public function edit(User $reseller)
     {
-        return view('admin.resellers.edit', ['reseller' => $reseller, 'roles' => Role::get()]);
+        $countries  = DB::select("select * from countries order by name");
+        $states     = DB::select("select * from states where country_id = $reseller->country order by name");
+        $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
+        
+        return view('admin.resellers.edit', ['reseller' => $reseller, 'roles' => Role::get(), 
+            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
     }
 
     /**
@@ -175,7 +181,7 @@ class ResellerController extends Controller
         $updated_at->setTimezone(new DateTimeZone("America/New_York"));
         $reseller->updated_at      = $updated_at;
 
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $reseller->password = bcrypt($request->get('password'));
         }
 

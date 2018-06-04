@@ -165,26 +165,38 @@
             }
         ?>
         <tr>
-            <th>@sortablelink('id',  'ID',['page' => $currentPage])</th>
-            <th>@sortablelink('name', 'Name',['page' => $currentPage])</th>
-            <th>@sortablelink('function', 'Function',['page' => $currentPage])</th>
-            <th>@sortablelink('parent_id', 'Parent ID',['page' => $currentPage])</th>
-            <th>@sortablelink('expeditor', 'Expeditor',['page' => $currentPage])</th>
-            <th>Actions</th>
+            <th>ID</th>
+            <th>KDS Station Name</th>
+            <th>Function</th>
+            <th>Parent ID</th>
+            <th>Expeditor</th>
+            <th>Last Update</th>
+            <th>License</th>
         </tr>
         </thead>
         <tbody>
 
         @foreach($devices as $device)
             <tr>
-                <td>{{ $device->id_ }}</td>
-                <td>{{ $device->name_}}</td>
-                <td>{{ $device->function_ }}</td>
-                <td>{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
-                <td>{{ $device->expeditor_ }}</td>
-                <td>
-
-                </td>
+                	<td>{{ $device->id_ }}</td>
+                	<td>{{ $device->name_}}</td>
+                	<td>{{ $device->function_ }}</td>
+                	<td>{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
+                	<td>{{ $device->expeditor_ }}</td>
+				<td>
+				<?php 
+        				$date = new DateTime();
+        				$date->setTimestamp($device->update_time_);
+				?>
+				{{ $date->format('m/d/Y H:i:s') }}
+				</td>
+                	<td>
+                    	@if($device->login_ == 1)
+                        <span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
+                    @else
+                        <span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
+                    @endif
+                	</td>
             </tr>
         @endforeach
         </tbody>

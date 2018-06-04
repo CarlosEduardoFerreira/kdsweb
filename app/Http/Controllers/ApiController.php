@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 
 class ApiController extends Controller
 {
@@ -57,6 +55,12 @@ class ApiController extends Controller
                 $userController = new ApiUserController();
                 $response = $userController->login($db, $request, $response);
 
+            } else if($req == "GET_DEVICES") {
+                
+                include "Api/ApiDeviceController.php";
+                $deviceController = new ApiDeviceController();
+                $response = $deviceController->getDevices($db, $request, $response);
+                
             }
 
             return response()->json($response);

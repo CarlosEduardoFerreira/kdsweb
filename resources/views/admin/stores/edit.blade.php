@@ -12,7 +12,7 @@
                     Store Group:
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select id="storegroup_id" name="storegroup_id" class="select2" style="width: 100%" autocomplete="off">
+                    <select id="storegroup_id" name="storegroup_id" class="form-control select2" style="width: 100%" autocomplete="off">
                     		<option>Select the Store Group</option>
                         	@foreach ($storegroups as $storegroup)
                         		<?php 
@@ -154,16 +154,24 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city" >
-                    City:
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="country" >
+                    Country:
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="city" type="text" class="form-control col-md-7 col-xs-12 @if($errors->has('city')) parsley-error @endif"
-                           name="city" value="{{ $store->city }}" required>
-                    @if($errors->has('city'))
+                
+                		<select id="country" name="country" class="form-control" style="width:350px;">
+                    @foreach($countries as $country)
+                    		<?php 
+                    		  $selected = $store->country == $country->id ? "selected" : "";
+                    		?>
+                    		<option value="{{$country->id}}" <?=$selected ?>> {{$country->name}}</option>
+                    @endforeach
+                    </select>
+
+                    @if($errors->has('country'))
                         <ul class="parsley-errors-list filled">
-                            @foreach($errors->get('city') as $error)
+                            @foreach($errors->get('country') as $error)
                                     <li class="parsley-required">{{ $error }}</li>
                             @endforeach
                         </ul>
@@ -177,8 +185,16 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="state" type="text" class="form-control col-md-7 col-xs-12 @if($errors->has('state')) parsley-error @endif"
-                           name="state" value="{{ $store->state }}" required>
+                
+                    <select name="state" id="state" class="form-control" style="width:350px">
+                    @foreach($states as $state)
+                    		<?php 
+                    		  $selected = $store->state == $state->id ? "selected" : "";
+                    		?>
+                    		<option value="{{$state->id}}" <?=$selected ?>> {{$state->name}}</option>
+                    @endforeach
+                    </select>
+
                     @if($errors->has('state'))
                         <ul class="parsley-errors-list filled">
                             @foreach($errors->get('state') as $error)
@@ -190,16 +206,24 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="country" >
-                    Country:
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city" >
+                    City:
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="country" type="text" class="form-control col-md-7 col-xs-12 @if($errors->has('country')) parsley-error @endif"
-                           name="country" value="{{ $store->country }}" required>
-                    @if($errors->has('country'))
+                
+                    <select name="city" id="city" class="form-control" style="width:350px">
+                    @foreach($cities as $city)
+                    		<?php 
+                    		$selected = $store->city == $city->id ? "selected" : "";
+                    		?>
+                    		<option value="{{$city->id}}" <?=$selected ?>> {{$city->name}}</option>
+                    @endforeach
+                    </select>
+                    
+                    @if($errors->has('city'))
                         <ul class="parsley-errors-list filled">
-                            @foreach($errors->get('country') as $error)
+                            @foreach($errors->get('city') as $error)
                                     <li class="parsley-required">{{ $error }}</li>
                             @endforeach
                         </ul>
@@ -379,4 +403,5 @@
 @section('scripts')
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
+    {{ Html::script(mix('assets/admin/js/location.js')) }}
 @endsection

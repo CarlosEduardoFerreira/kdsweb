@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Auth\User\User;
-use App\Models\Auth\Role\Role;
-use Arcanedev\LogViewer\Entities\Log;
-use Arcanedev\LogViewer\Entities\LogEntry;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
-use Illuminate\Routing\Route;
-use DB;
+use Illuminate\Support\Facades\Validator;
+use Arcanedev\LogViewer\Facades\LogViewer;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -34,11 +31,7 @@ class DashboardController extends Controller
     {
         $me = Auth::user();
 
-        // if($me->roles[0]->name == 'authenticated') {
-        //     return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
-        // }
-
-        $users = User::with('roles')->paginate();
+        $users = Controller::filterUsers(null, 0, 0);
 
 //          Roles -------------------------------------
 //          id  name            weight     role
@@ -49,33 +42,27 @@ class DashboardController extends Controller
 //          5   employee           1    -> Employee
 //          7   authenticated      0    -> Undefined
 
-        echo "count users: " . count($users);
+        //echo "count users: " . count($users);
 
         $resellers   = 0;
         $storegroups = 0;
         $stores      = 0;
         $employees   = 0;
         $licenses    = 0;
-        $devices     = 0;
+        $devices     = Controller::getDevicesCount();
 
-        if($me->roles[0]->name != 'authenticated') {
+        foreach ($users as $user) {
+            if ($user->role_id == 2) {
+                $resellers++;
 
-            foreach ($users as $user) {
-                if(isset($user->roles[0])) {
-                    if ($user->roles[0]["id"] == 2) {
-                        $resellers++;
-    
-                    } else if ($user->roles[0]["id"] == 3) {
-                        $storegroups++;
-    
-                    } else if ($user->roles[0]["id"] == 4) {
-                        $stores++;
-    
-                    } else if ($user->roles[0]["id"] == 5) {
-                        $employees++;
-    
-                    }
-                }
+            } else if ($user->role_id == 3) {
+                $storegroups++;
+
+            } else if ($user->role_id == 4) {
+                $stores++;
+
+            } else if ($user->role_id == 5) {
+                $employees++;
             }
         }
 
@@ -94,7 +81,7 @@ class DashboardController extends Controller
 
     public function getLogChartData(Request $request)
     {
-        \Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'start' => 'required|date|before_or_equal:now',
             'end' => 'required|date|after_or_equal:start',
         ])->validate();
@@ -102,13 +89,13 @@ class DashboardController extends Controller
         $start = new Carbon($request->get('start'));
         $end = new Carbon($request->get('end'));
 
-        $dates = collect(\LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
+        $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
             $value = new Carbon($value);
             return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
         });
 
 
-        $levels = \LogViewer::levels();
+        $levels = LogViewer::levels();
 
         $data = [];
 
@@ -120,7 +107,7 @@ class DashboardController extends Controller
 
             if ($dates->contains($start->format('Y-m-d'))) {
                 /** @var  $log Log */
-                $logs = \LogViewer::get($start->format('Y-m-d'));
+                $logs = LogViewer::get($start->format('Y-m-d'));
 
                 /** @var  $log LogEntry */
                 foreach ($logs->entries() as $log) {

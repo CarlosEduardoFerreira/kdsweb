@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Hash;
 use PDO;
 
 class ApiSyncController {
@@ -60,7 +59,7 @@ class ApiSyncController {
                 $sql .= " WHERE guid_ = " . $object['guid_'] . " AND update_time_ < " . $object['update_time_'];
             }
 
-            // echo "sql: $sql";
+//             echo "sql: $sql";
             $result = $db->query($sql);
 
             if($result == "") {

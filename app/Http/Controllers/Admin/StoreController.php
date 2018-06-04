@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 use DateTimeZone;
-use App\Models\Settings;
-use App\Models\Device;
 
 class StoreController extends Controller
 {
@@ -23,7 +21,7 @@ class StoreController extends Controller
     public function index(Request $request, string $storegroupId)
     {
 
-        $stores = Controller::filterUsers(4, $storegroupId);
+        $stores = Controller::filterUsers($request, 4, $storegroupId);
 
         return view('admin.stores.index', ['stores' => $stores]);
     }
@@ -40,7 +38,9 @@ class StoreController extends Controller
                                     where role_id = 3
                                     order by name");
         
-        return view('admin.stores.new', ['storegroups' => $storegroups]);
+        $countries = DB::select("select * from countries order by name");
+        
+        return view('admin.stores.new', ['storegroups' => $storegroups, 'countries' => $countries]);
     }
     
     
@@ -91,14 +91,14 @@ class StoreController extends Controller
             'updated_at'      => $created_at
         ];
         
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $data['password'] = bcrypt($request->get('password'));
         }
         
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 4]);
         
-        return redirect()->intended(route('admin.storegroups', 0));
+        return redirect()->intended(route('admin.stores', 0));
     }
     
 
@@ -136,7 +136,13 @@ class StoreController extends Controller
                                     join users_roles on id = user_id
                                     where role_id = 3
                                     order by name");
-        return view('admin.stores.edit', ['store' => $store, 'roles' => Role::get(), 'storegroups' => $storegroups]);
+        
+        $countries  = DB::select("select * from countries order by name");
+        $states     = DB::select("select * from states where country_id = $store->country order by name");
+        $cities     = DB::select("select * from cities where state_id = $store->state order by name");
+        
+        return view('admin.stores.edit', ['store' => $store, 'roles' => Role::get(), 'storegroups' => $storegroups, 
+            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
     }
 
 
@@ -148,7 +154,9 @@ class StoreController extends Controller
         //echo "store->store_guid: " . $store->store_guid;
         if(isset($store->store_guid) and $store->store_guid != '') {
              $settings = DB::table('settings')->where(['store_guid_' => $store->store_guid])->first();
-             $devices  = DB::table('devices')->where(['store_guid_' => $store->store_guid])->orderBy('id_','asc')->paginate(50);
+             $devices  = DB::table('devices')->where(['store_guid_' => $store->store_guid])
+             ->orderBy('login_','desc')
+             ->orderBy('id_','asc')->paginate(50);
         }
      
         if(!isset($settings)) {
@@ -210,7 +218,7 @@ class StoreController extends Controller
         $store->zipcode         = $request->get('zipcode');
         $store->username        = $request->get('username');
 
-        if ($request->has('password')) {
+        if ($request->get('password') != "") {
             $store->password = bcrypt($request->get('password'));
         }
 
