@@ -123,8 +123,16 @@ class ResellerController extends Controller
     public function edit(User $reseller)
     {
         $countries  = DB::select("select * from countries order by name");
-        $states     = DB::select("select * from states where country_id = $reseller->country order by name");
-        $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
+        
+        $states     = [];
+        if (isset($reseller->country) && $reseller->country != "") {
+            $states     = DB::select("select * from states where country_id = $reseller->country order by name");
+        }
+        
+        $cities = [];
+        if (isset($reseller->state) && $reseller->state != "") {
+            $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
+        }
         
         return view('admin.resellers.edit', ['reseller' => $reseller, 'roles' => Role::get(), 
             'countries' => $countries, 'states' => $states, 'cities' => $cities]);

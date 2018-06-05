@@ -29,9 +29,9 @@
                                 </div>
                             </div>
                         @endif
-
+						
                     </div>
-
+                    
                     <ul class="nav nav-tabs" role="tablist" style="background:white;">
                         <li role="presentation" class="active"><a class="atabs" href="#settings" role="tab" data-toggle="tab">Settings</a></li>
                         <li role="presentation" ><a class="atabs" href="#devices" role="tab" data-toggle="tab">KDS Stations</a></li>

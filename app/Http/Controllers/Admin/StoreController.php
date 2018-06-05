@@ -138,8 +138,16 @@ class StoreController extends Controller
                                     order by name");
         
         $countries  = DB::select("select * from countries order by name");
-        $states     = DB::select("select * from states where country_id = $store->country order by name");
-        $cities     = DB::select("select * from cities where state_id = $store->state order by name");
+        
+        $states     = [];
+        if (isset($store->country) && $store->country != "") {
+            $states     = DB::select("select * from states where country_id = $store->country order by name");
+        }
+        
+        $cities = [];
+        if (isset($store->state) && $store->state != "") {
+            $cities     = DB::select("select * from cities where state_id = $store->state order by name");
+        }
         
         return view('admin.stores.edit', ['store' => $store, 'roles' => Role::get(), 'storegroups' => $storegroups, 
             'countries' => $countries, 'states' => $states, 'cities' => $cities]);
@@ -167,7 +175,13 @@ class StoreController extends Controller
             $devices = [];
         }
         
-        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings]);
+        $activeLicenses = 0;
+        foreach ($devices as &$device) {
+            $activeLicenses += $device->login_;
+        }
+        $licenseInfo = "Licenses: $activeLicenses / $store->licenses_quantity";
+        
+        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 'licenseInfo' => $licenseInfo]);
     }
 
     /**

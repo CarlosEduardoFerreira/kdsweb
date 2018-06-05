@@ -133,8 +133,16 @@ class StoreGroupController extends Controller
                                     order by name");
         
         $countries  = DB::select("select * from countries order by name");
-        $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
-        $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
+        
+        $states     = [];
+        if (isset($storegroup->country) && $storegroup->country != "") {
+            $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
+        }
+        
+        $cities = [];
+        if (isset($storegroup->state) && $storegroup->state != "") {
+            $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
+        }
         
         return view('admin.storegroups.edit', ['storegroup' => $storegroup, 'roles' => Role::get(), 'resellers' => $resellers,
             'countries' => $countries, 'states' => $states, 'cities' => $cities]);
