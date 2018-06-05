@@ -14,7 +14,7 @@ class ApiUserController {
 
         $sql = "SELECT 
                     password,
-                    store_guid
+                    store_guid 
                 FROM users
                 WHERE username = '$username'";
 

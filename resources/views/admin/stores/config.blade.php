@@ -23,7 +23,7 @@
                     $timezone_    = isset($settings->timezone_) ? $settings->timezone_ : "America/New_York";
                     $smart_order_ = isset($settings->smart_order_) ? $settings->smart_order_ : "0";
                     
-                    $licenses_quantity_ = isset($settings->licenses_quantity_) ? $settings->licenses_quantity_ : "0";
+                    $licenses_quantity_ = isset($settings->licenses_quantity_) ? $settings->licenses_quantity_ : "0"; 
                 ?>
     			
                 <div class="form-group">

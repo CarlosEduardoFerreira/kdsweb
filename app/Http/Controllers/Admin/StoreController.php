@@ -284,7 +284,7 @@ class StoreController extends Controller
         
         if(!isset($settings)) {
             
-            $data['store_guid_'] = $store->store_guid;
+            $data['store_guid_'] = $store->store_guid; 
             $settingsTable->insert($data);
             
         } else {
