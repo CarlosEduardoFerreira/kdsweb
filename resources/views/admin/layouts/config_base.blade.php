@@ -16,7 +16,7 @@
 
                 <div style="height:150px;">
                 	
-                		<div style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div> 
+                	<div style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div> 
 
                     <div class="page-title" style="background:#ffffff;">
 

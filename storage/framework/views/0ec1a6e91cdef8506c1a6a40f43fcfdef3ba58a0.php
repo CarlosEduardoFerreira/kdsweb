@@ -249,26 +249,6 @@
                 </div>
             </div>
 
-                <!--
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="licenses_quantity">
-                        Licenses Quantity:
-                        <span class="required">*</span>
-                    </label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="licenses_quantity" type="number" class="form-control col-md-7 col-xs-12"
-                               name="licenses_quantity" value="<?php echo e($store->licenses_quantity); ?>" required>
-                        <?php if($errors->has('licenses_quantity')): ?>
-                            <ul class="parsley-errors-list filled">
-                                <?php $__currentLoopData = $errors->get('licenses_quantity'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <li class="parsley-required"><?php echo e($error); ?></li>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </ul>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                -->
-
                 <?php if(!$store->hasRole('administrator')): ?>
 
                     <div class="form-group">
