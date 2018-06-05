@@ -101,6 +101,25 @@ class StoreController extends Controller
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 4]);
         
+        // Insert Settings ------------------------------------------------------------ //
+        $settingsTable = DB::table('settings');
+        
+        $data = [
+            'store_guid_'               => $data['store_guid'],
+            'server_address_'           => "",
+            'server_username_'          => "",
+            'server_password_'          => "",
+            'socket_port_'              => 1111,
+            'auto_done_order_hourly_'   => 0,
+            'auto_done_order_time_'     => 0,
+            'timezone_'                 => "America/New_York",
+            'smart_order_'              => 0,
+            'licenses_quantity_'        => 0
+        ];
+
+        $settingsTable->insert($data);
+        // ---------------------------------------------------------------------------- //
+        
         return redirect()->intended(route('admin.stores', 0));
     }
     
