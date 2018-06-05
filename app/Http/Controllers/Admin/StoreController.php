@@ -179,7 +179,7 @@ class StoreController extends Controller
         foreach ($devices as &$device) {
             $activeLicenses += $device->login_;
         }
-        $licenseInfo = "Licenses: $activeLicenses / $store->licenses_quantity";
+        $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity_";
         
         return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 'licenseInfo' => $licenseInfo]);
     }

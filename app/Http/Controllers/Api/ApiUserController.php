@@ -14,8 +14,7 @@ class ApiUserController {
 
         $sql = "SELECT 
                     password,
-                    store_guid, 
-                    licenses_quantity 
+                    store_guid
                 FROM users
                 WHERE username = '$username'";
 
@@ -32,12 +31,17 @@ class ApiUserController {
             if ($passMatched) {
                 
                 $response["storeGuid"] = $row["store_guid"];
-
-                if(isset($row["licenses_quantity"])) {
-                    $response["licensesQuantity"] = $row["licenses_quantity"];
-
-                } else {
-                    $response["licensesQuantity"] = 0;
+                
+                $licSQL = "SELECT licenses_quantity_ FROM settings WHERE store_guid_ = '" . $response["storeGuid"] . "'";
+                $licRes = $db->query($licSQL);
+                
+                if ($licRow = $licRes->fetch(PDO::FETCH_ASSOC)) {
+                    if(isset($licRow["licenses_quantity_"])) {
+                        $response["licensesQuantity"] = $licRow["licenses_quantity_"];
+                        
+                    } else {
+                        $response["licensesQuantity"] = 0;
+                    }
                 }
 
             } else {

@@ -15,6 +15,8 @@
             <div class="right_col" role="main">
 
                 <div style="height:150px;">
+                	
+                		<div style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div>
 
                     <div class="page-title" style="background:#ffffff;">
 
@@ -36,6 +38,7 @@
                         <li role="presentation" class="active"><a class="atabs" href="#settings" role="tab" data-toggle="tab">Settings</a></li>
                         <li role="presentation" ><a class="atabs" href="#devices" role="tab" data-toggle="tab">KDS Stations</a></li>
                         <!--<li role="presentation" ><a class="atabs" href="#licenses" role="tab" data-toggle="tab">Licenses</a></li>-->
+                        
                     </ul>
 
                 </div>
