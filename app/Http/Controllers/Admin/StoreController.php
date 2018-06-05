@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeZone;
 
@@ -94,6 +95,8 @@ class StoreController extends Controller
         if ($request->get('password') != "") {
             $data['password'] = bcrypt($request->get('password'));
         }
+        
+        $data['store_guid'] = Uuid::uuid4();
         
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 4]);
