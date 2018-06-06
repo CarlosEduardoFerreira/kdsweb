@@ -121,6 +121,55 @@ class Controller extends BaseController
     }
     
     
+    public function getActiveInactiveLicenses() {
+        
+        $me = Auth::user();
+        
+        $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
+        if ($me->roles[0]->name == 'administrator') {
+            $whereParentId = "";
+        }
+        
+        $licensesActive =  DB::select("SELECT 
+                                    sum(devices.login_) AS active
+                                FROM users AS stores
+                                LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
+                                LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
+                                INNER JOIN devices ON devices.store_guid_ = stores.store_guid
+                                INNER JOIN settings ON settings.store_guid_ = stores.store_guid
+                                INNER JOIN users_roles ON users_roles.user_id = stores.id
+                                WHERE users_roles.role_id = 4 $whereParentId");
+        
+        $licensesQuantity =  DB::select("SELECT 
+                                	   sum(settings.licenses_quantity_) AS quantity
+                                FROM users AS stores
+                                LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
+                                LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
+                                INNER JOIN settings ON settings.store_guid_ = stores.store_guid
+                                INNER JOIN users_roles ON users_roles.user_id = stores.id
+                                WHERE users_roles.role_id = 4 $whereParentId");
+        
+        $active = 0;
+        if (isset($licensesActive[0]->active)) {
+            $active = $licensesActive[0]->active;
+        }
+        
+        $quantity = 0;
+        if (isset($licensesQuantity[0]->quantity)) {
+            $quantity = $licensesQuantity[0]->quantity;
+        }
+        
+        $inactive = $quantity - $active;
+        
+        $data = [
+            'active'    => $active, 
+            'inactive'  => $inactive
+        ];
+        
+        return $data;
+    }
+    
+    
     public function arrayPaginator($array, $request, $perPage)
     {
         $page = Input::get('page', 1);

@@ -1,4 +1,56 @@
 (function ($) {
+	
+	var activeInactiveLicensesGraph = {
+	        _defaults: {
+	            type: 'doughnut',
+	            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+	            data: {
+	                labels: [],
+	                datasets: [{
+	                    data: [],
+	                    backgroundColor: [
+	                    		"#64B5F6",
+	                        	"#EF5350"
+	                    ],
+	                    hoverBackgroundColor: [
+	                    		"#90CAF9",
+	                    		"#E57373"
+	                    ]
+	                }]
+	            },
+	            options: {
+	                legend: false,
+	                responsive: false
+	            }
+	        },
+	        init: function ($el) {
+	            var self = this;
+	            $el = $($el);
+
+	            $.ajax({
+	                url: 'admin/dashboard/active_inactive_licenses_graph',
+	                success: function (response) {
+	                		
+	                    $.each($el.find('.tile_label'), function () {
+	                    		self._defaults.data.labels.push($(this).text());
+	                    });
+
+	                    $('#active_inactive_licenses_graph_quantity').text(parseInt(response.inactive) + parseInt(response.active));
+	                    
+	                    $('#active_inactive_licenses_graph_active').text(response.active);
+	                    $('#active_inactive_licenses_graph_active').parent().find('.fa-square').css('color','#64B5F6');
+	                    
+	                    $('#active_inactive_licenses_graph_inactive').text(response.inactive);
+	                    $('#active_inactive_licenses_graph_inactive').parent().find('.fa-square').css('color','#EF5350');
+
+	                    self._defaults.data.datasets[0].data = [parseInt(response.active), parseInt(response.inative)];
+
+	                    new Chart($el.find('.canvasChart'), self._defaults);
+	                }
+	            });
+	        }
+	    };
+		activeInactiveLicensesGraph.init($('#active_inactive_licenses_graph'));
 
     //log chart
     var logActivity = {
@@ -154,64 +206,9 @@
     logActivity.init($('#log_activity'));
 
 
-    var registrationUsage = {
-        _defaults: {
-            type: 'doughnut',
-            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: [
-                        "#3498DB",
-                        "#3498DB",
-                        "#9B59B6",
-                        "#E74C3C",
-                    ],
-                    hoverBackgroundColor: [
-                        "#36CAAB",
-                        "#49A9EA",
-                        "#B370CF",
-                        "#E95E4F",
-                    ]
-                }]
-            },
-            options: {
-                legend: false,
-                responsive: false
-            }
-        },
-        init: function ($el) {
-            var self = this;
-            $el = $($el);
+    
 
-            $.ajax({
-                url: 'admin/dashboard/registration-chart',
-                success: function (response) {
-                    $.each($el.find('.tile_label'), function () {
-                        self._defaults.data.labels.push($(this).text());
-                    });
-
-                    var count = 0;
-
-                    $.each(response, function () {
-                        count += parseInt(this);
-                    });
-
-                    $('#registration_usage_from').text(100 / count * parseInt(response.registration_form));
-                    $('#registration_usage_google').text(100 / count * parseInt(response.google));
-                    $('#registration_usage_facebook').text(100 / count * parseInt(response.facebook));
-                    $('#registration_usage_twitter').text(100 / count * parseInt(response.twitter));
-
-                    self._defaults.data.datasets[0].data = [response.registration_form, response.google, response.facebook, response.twitter];
-
-                    new Chart($el.find('.canvasChart'), self._defaults);
-                }
-            });
-        }
-    };
-
-    registrationUsage.init($('#registration_usage'));
+    
 
     //jcarousel
     var jcarousel = $('.jcarousel').jcarousel();

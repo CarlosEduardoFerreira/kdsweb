@@ -121,22 +121,10 @@ class DashboardController extends Controller
         return response($data);
     }
 
-    public function getRegistrationChartData()
+    public function getActiveInactiveLicensesGraph()
     {
+        $licenses = Controller::getActiveInactiveLicenses();
 
-        $data = [
-            'registration_form' => User::whereDoesntHave('providers')->count(),
-            'google' => User::whereHas('providers', function ($query) {
-                $query->where('provider', 'google');
-            })->count(),
-            'facebook' => User::whereHas('providers', function ($query) {
-                $query->where('provider', 'facebook');
-            })->count(),
-            'twitter' => User::whereHas('providers', function ($query) {
-                $query->where('provider', 'twitter');
-            })->count(),
-        ];
-
-        return response($data);
+        return response($licenses);
     }
 }
