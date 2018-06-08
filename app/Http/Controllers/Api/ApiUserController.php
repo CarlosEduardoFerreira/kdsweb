@@ -1,13 +1,14 @@
 <?
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
 
 use Illuminate\Support\Facades\Hash;
 use PDO;
 
 class ApiUserController {
 
-    public function login(DB $db, array $request, array $response) {
+    public static function login(ApiConnectionController $db, array $request, array $response) {
 
         $username = $request["username"];
         $password = $request["password"];
@@ -30,28 +31,21 @@ class ApiUserController {
 
             if ($passMatched) {
                 
-                $response["storeGuid"] = $row["store_guid"];
+                $response[0]["store_guid_"] = $row["store_guid"];
                 
-                $licSQL = "SELECT licenses_quantity_ FROM settings WHERE store_guid_ = '" . $response["storeGuid"] . "'";
-                $licRes = $db->query($licSQL);
+                $request["store_guid_"]     = $row["store_guid"];
                 
-                if ($licRow = $licRes->fetch(PDO::FETCH_ASSOC)) {
-                    if(isset($licRow["licenses_quantity_"])) {
-                        $response["licensesQuantity"] = $licRow["licenses_quantity_"];
-                        
-                    } else {
-                        $response["licensesQuantity"] = 0;
-                    }
-                }
+                // include store settings on response
+                $response = ApiSettingsController::getSettings($db, $request, $response);
 
             } else {
 
-                $response["error"]  = "Password is incorrect.";
+                $response[0]["error"]  = "Password is incorrect.";
             }
 
         } else {
 
-            $response["error"]  = "Username is incorrect.";
+            $response[0]["error"]  = "Username is incorrect.";
         }
 
         return $response;

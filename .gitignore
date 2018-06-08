@@ -23,9 +23,6 @@ phpunit.phar
 public/assets
 public/mix-manifest.json
 
-# API Files
-app/Http/Controllers/Api/db/ConnectionController.php
-
 .env
 .env.*.php
 .env.php
@@ -39,3 +36,6 @@ _ide_helper.php
 .phpstorm.meta.php
 *.sqlite
 .rocketeer/
+
+# API Files
+app/Http/Controllers/Api/ConnectionController.php

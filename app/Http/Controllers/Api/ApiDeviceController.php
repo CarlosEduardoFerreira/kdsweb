@@ -1,17 +1,15 @@
 <?
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 
 use PDO;
 
 class ApiDeviceController {
 
-    public function getDevices(DB $db, array $request, array $response) {
+    public static function getDevices(ApiConnectionController $db, array $request, array $response) {
 
-        $storeGuid = $request["storeGuid"];
-
-        $sql = "SELECT * FROM devices WHERE store_guid_ = '$storeGuid'";
+        $sql = "SELECT * FROM devices WHERE store_guid_ = '" . $request["store_guid_"] . "'";
 
         //echo "sql: " . $sql . "|";
         

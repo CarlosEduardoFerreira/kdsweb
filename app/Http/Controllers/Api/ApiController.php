@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
 
 
 class ApiController extends Controller
@@ -11,11 +13,6 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index() {
-
-//         return response()->json(['error' => "DEU CERTOOOOOOOO!"]);
-
-        include "Api/db/ConnectionController.php";
-        $db = new DB();
 
         // require_once("../log/log.php");
         // $log = new Log();
@@ -28,7 +25,7 @@ class ApiController extends Controller
 
         //echo "<br>request 3: " . $request["username"];
 
-        $response = array();
+        $response = array(array());
 
         /** // Request
          *  req = Resquest/Function
@@ -42,27 +39,31 @@ class ApiController extends Controller
         //echo "json 1: " . $json . "|";
 // echo "api1 ";
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
+            
+            include "ApiConnectionController.php";
+            $db = new ApiConnectionController();
+            
 // echo "api2 ";
             if($req == "SYNC") {
 // echo "api3 ";
-                include "Api/ApiSyncController.php";
-                $sync = new ApiSyncController();
-                $response = $sync->sync($db, $request, $response);
+                $response = ApiSyncController::InsertOrUpdateEntityWeb($db, $request, $response);
 
             } else if($req == "LOGIN") {
 
-                include "Api/ApiUserController.php";
-                $userController = new ApiUserController();
-                $response = $userController->login($db, $request, $response);
+                $response = ApiUserController::login($db, $request, $response);
 
-            } else if($req == "GET_DEVICES") {
+            } else if($req == "GET_SETTINGS") {
                 
-                include "Api/ApiDeviceController.php";
-                $deviceController = new ApiDeviceController();
-                $response = $deviceController->getDevices($db, $request, $response);
+                $response = ApiSettingsController::getSettings($db, $request, $response);
+                
+            } else if($req == "GET_DEVICES") {
+
+                $response = ApiDeviceController::getDevices($db, $request, $response);
                 
             }
-
+            
+            $db->close();
+            
             return response()->json($response);
         }
 

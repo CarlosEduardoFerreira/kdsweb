@@ -1,12 +1,13 @@
 <?
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
 
 use PDO;
 
 class ApiSyncController {
 
-    public function sync(DB $db, array $request, array $response) {
+    public static function InsertOrUpdateEntityWeb(ApiConnectionController $db, array $request, array $response) {
 
         $entity = $request["entity"];
         $data   = $request["data"];

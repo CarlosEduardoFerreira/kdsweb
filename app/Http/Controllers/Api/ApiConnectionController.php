@@ -1,19 +1,19 @@
 <?
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use PDO;
 
-class DB {
+class ApiConnectionController {
 
     private $pdo;
 
     public function __construct() {
 
-        $host = "127.0.0.1";
+        $host = "kdsios.cz2l6cajeudq.us-west-2.rds.amazonaws.com";
         $db   = "kdsweb";
-        $user = "root";
-        $pwrd = "1234";
+        $user = "bematech";
+        $pwrd = "%Bematech11714%";
 
         //$pdo = new PDO('mysql:host='.$host.';dbname='.$db.';charset=utf8', $user, $pwrd);
         $pdo = new PDO("mysql:host=$host:3306;dbname=$db", $user, $pwrd);
@@ -27,10 +27,14 @@ class DB {
     public function query($query, $params = array()) {
         $statement = $this->pdo->prepare($query);
         $statement->execute($params);
-
+        
         if (explode(' ', $query)[0] == 'SELECT') {
             return $statement;
         }
+    }
+    
+    public function close() {
+        $this->pdo = null;
     }
 
 }
