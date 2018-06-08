@@ -1,58 +1,80 @@
 (function ($) {
 	
+	/*
+	// Bar Chart ------------------------------------------------------------------------- //
+	var myBarChart = new Chart(ctx, {
+	    type: 'bar',
+	    data: data,
+	    options: options
+	});
+	// ----------------------------------------------------------------------------------- //
+	
+	
+	// Pie Chart ------------------------------------------------------------------------- //
 	var activeInactiveLicensesGraph = {
-	        _defaults: {
-	            type: 'doughnut',
-	            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-	            data: {
-	                labels: [],
-	                datasets: [{
-	                    data: [],
-	                    backgroundColor: [
-	                    		"#64B5F6",
-	                        	"#EF5350"
-	                    ],
-	                    hoverBackgroundColor: [
-	                    		"#90CAF9",
-	                    		"#E57373"
-	                    ]
-	                }]
-	            },
-	            options: {
-	                legend: false,
-	                responsive: false
-	            }
-	        },
-	        init: function ($el) {
-	            var self = this;
-	            $el = $($el);
+        _defaults: {
+            type: 'doughnut',
+            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+            data: {
+                labels: ["Active","Inactive"],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                    		"#64B5F6",
+                        	"#EF5350",
+                    		"#ECEFF1",
+                    		"#ECEFF1"
+                    ],
+                    hoverBackgroundColor: [
+                    		"#90CAF9",
+                    		"#E57373",
+                    		"#ECEFF1",
+                    		"#ECEFF1"
+                    ]
+                }]
+            },
+            options: {
+                legend: false,
+                responsive: false
+            }
+        },
+        init: function ($el) {
+            var self = this;
+            $el = $($el);
 
-	            $.ajax({
-	                url: 'admin/dashboard/active_inactive_licenses_graph',
-	                success: function (response) {
-	                		
-	                    $.each($el.find('.tile_label'), function () {
-	                    		self._defaults.data.labels.push($(this).text());
-	                    });
+            $.ajax({
+                url: 'admin/dashboard/active_inactive_licenses_graph',
+                success: function (response) {
+                		
+                		var total = parseInt(response.inactive) + parseInt(response.active);
+                		if (total == 0) {
+                			Chart.defaults.global.tooltips.enabled = false;
+                		}
+                    
+                    $('#active_inactive_licenses_graph_quantity').text(total);
+                    $('#active_inactive_licenses_graph_quantity').parent().find('.fa-square').css('color','#ECEFF1');
+                    
+                    $('#active_inactive_licenses_graph_active').text(response.active);
+                    $('#active_inactive_licenses_graph_active').parent().find('.fa-square').css('color','#64B5F6');
+                    
+                    $('#active_inactive_licenses_graph_inactive').text(response.inactive);
+                    $('#active_inactive_licenses_graph_inactive').parent().find('.fa-square').css('color','#EF5350');
 
-	                    $('#active_inactive_licenses_graph_quantity').text(parseInt(response.inactive) + parseInt(response.active));
-	                    
-	                    $('#active_inactive_licenses_graph_active').text(response.active);
-	                    $('#active_inactive_licenses_graph_active').parent().find('.fa-square').css('color','#64B5F6');
-	                    
-	                    $('#active_inactive_licenses_graph_inactive').text(response.inactive);
-	                    $('#active_inactive_licenses_graph_inactive').parent().find('.fa-square').css('color','#EF5350');
+                    // must have 4 elements
+                    self._defaults.data.datasets[0].data = [response.active, response.inactive, total==0?1:0, 0];
 
-	                    self._defaults.data.datasets[0].data = [parseInt(response.active), parseInt(response.inative)];
-
-	                    new Chart($el.find('.canvasChart'), self._defaults);
-	                }
-	            });
-	        }
-	    };
-		activeInactiveLicensesGraph.init($('#active_inactive_licenses_graph'));
-
-    //log chart
+                    new Chart($el.find('.canvasChart'), self._defaults);
+                }
+            });
+        }
+    };
+	activeInactiveLicensesGraph.init($('#active_inactive_licenses_graph'));
+	/**/
+	// ----------------------------------------------------------------------------------- //
+	
+	
+	
+    // Log Chart ------------------------------------------------------------------------- //
     var logActivity = {
         options: {
             date: {
@@ -204,67 +226,7 @@
     };
 
     logActivity.init($('#log_activity'));
-
-
-    
-
-    
-
-    //jcarousel
-    var jcarousel = $('.jcarousel').jcarousel();
-
-    $('.jcarousel-control-prev')
-        .on('jcarouselcontrol:active', function () {
-            $(this).removeClass('inactive');
-        })
-        .on('jcarouselcontrol:inactive', function () {
-            $(this).addClass('inactive');
-        })
-        .jcarouselControl({
-            target: '-=1'
-        });
-
-    $('.jcarousel-control-next')
-        .on('jcarouselcontrol:active', function () {
-            $(this).removeClass('inactive');
-        })
-        .on('jcarouselcontrol:inactive', function () {
-            $(this).addClass('inactive');
-        })
-        .jcarouselControl({
-            target: '+=1'
-        });
-
-    var url = 'https://photolancer.zone/api/photos',
-        param = {
-            page: 1,
-            perPage: 10,
-            sort: [{by: 'rating', type: 'desc'}]
-        };
-
-    $.ajax({
-        url: url + '?' + $.param(param),
-        method: 'GET',
-        success: function (response) {
-            var html = '<ul>';
-
-            var href = 'https://photolancer.zone/photos';
-
-            $.each(response, function () {
-                html += '<li><a href="' + href + '/' + this.slug + '/detail" target="_blank"><img src="' + this.thumbnails.file.photos.small + '" alt="' + this.name + '"/></a></li>';
-            });
-
-            html += '</ul>';
-
-            // Append items
-            jcarousel
-                .html(html);
-
-            // Reload carousel
-            jcarousel
-                .jcarousel('reload');
-        }
-    });
+    // ----------------------------------------------------------------------------------- //
 
 
 })(jQuery);

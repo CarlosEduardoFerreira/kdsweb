@@ -105,6 +105,7 @@ class StoreController extends Controller
         $settingsTable = DB::table('settings');
         
         $data = [
+            'guid_'                     => Uuid::uuid4(),
             'store_guid_'               => $data['store_guid'],
             'server_address_'           => "",
             'server_username_'          => "",

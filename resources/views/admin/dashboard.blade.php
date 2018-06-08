@@ -106,10 +106,9 @@
                             </td>
                             <td>
                                 <table class="tile_info">
-                                		<!-- 
                                 		<tr>
                                         <td>
-                                            <p><i class="fa fa-square gray"></i>
+                                            <p><i class="fa fa-square"></i>
                                                 <span class="tile_label">
                                                     Total
                                                 </span>
@@ -117,7 +116,6 @@
                                         </td>
                                         <td id="active_inactive_licenses_graph_quantity" style="text-align:right;"></td>
                                     </tr>
-                                    
                                 		<tr>
                                         <td>
                                             <p><i class="fa fa-square"></i>
