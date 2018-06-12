@@ -120,6 +120,7 @@ class DashboardController extends Controller
 
         return response($data);
     }
+    
 
     public function getActiveInactiveLicensesGraph()
     {

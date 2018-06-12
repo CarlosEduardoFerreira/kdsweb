@@ -1,12 +1,49 @@
 (function ($) {
 	
-	/*
+	
 	// Bar Chart ------------------------------------------------------------------------- //
-	var myBarChart = new Chart(ctx, {
-	    type: 'bar',
-	    data: data,
-	    options: options
-	});
+//	var barChart = {
+//		barChartDefaults: {
+//            type: 'bar',
+//            tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+//            //data: [{x:'2016-12-25', y:20}, {x:'2016-12-26', y:10}],
+//            data: {
+//                labels: ["Devices"],
+//                datasets: [{
+//                    data: [{x:'2016-12-25', y:20}, {x:'2016-12-26', y:10}]
+//                }]
+//            },
+//            options: {
+//                legend: false,
+//                responsive: false
+//            }
+//        },
+//        init: function ($el) {
+//            var self = this;
+//            $el = $($el);
+//
+//            $.ajax({
+//                url: 'admin/dashboard/active_inactive_licenses_graph',
+//                success: function (response) {
+//                    
+////                    $('#active_inactive_licenses_graph_quantity').text(total);
+////                    $('#active_inactive_licenses_graph_quantity').parent().find('.fa-square').css('color','#ECEFF1');
+////                    
+////                    $('#active_inactive_licenses_graph_active').text(response.active);
+////                    $('#active_inactive_licenses_graph_active').parent().find('.fa-square').css('color','#64B5F6');
+////                    
+////                    $('#active_inactive_licenses_graph_inactive').text(response.inactive);
+////                    $('#active_inactive_licenses_graph_inactive').parent().find('.fa-square').css('color','#EF5350');
+//
+//                    // must have 4 elements
+////                    self._defaults.data.datasets[0].data = [response.active, response.inactive, total==0?1:0, 0];
+//
+//                    new Chart($el.find('#canvas'), self.barChartDefaults);
+//                }
+//            });
+//        }
+//    };
+//	barChart.init($('#bar_graph'));
 	// ----------------------------------------------------------------------------------- //
 	
 	
@@ -69,7 +106,6 @@
         }
     };
 	activeInactiveLicensesGraph.init($('#active_inactive_licenses_graph'));
-	/**/
 	// ----------------------------------------------------------------------------------- //
 	
 	
@@ -168,7 +204,7 @@
                     ticks: 8,
                     tickColor: "rgba(51, 51, 51, 0.06)",
                 },
-                tooltip: false
+                tooltip: true
             }
         },
         gteChartData: function ($el, start, end) {
@@ -178,12 +214,14 @@
                 url: 'admin/dashboard/log-chart',
                 data: {start: start, end: end},
                 success: function (response) {
-                    var data = {};
-                    var progress = {all: 0};
+                		
+                		var data = {};
+                		var progress = {all: 0};
 
                     $.each(response, function (k, v) {
                         data[k] = [];
                         progress[k] = 0;
+                        alert(k + ":" + v)
                         $.each(v, function (date, value) {
                             data[k].push([new Date(date).getTime(), value]);
                             progress.all += value;
