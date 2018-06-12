@@ -14,16 +14,9 @@ class ApiController extends Controller
      */
     public function index() {
 
-        // require_once("../log/log.php");
-        // $log = new Log();
-
         $request = file_get_contents("php://input");
-        //echo "<br>request 1: " . $request;
         $request = $this->stripslashes_deep(htmlspecialchars_decode($request));
-        //echo "<br>request 2: " . $request;
         $request = json_decode($request, true);
-
-        //echo "<br>request 3: " . $request["username"];
 
         $response = array(array());
 
@@ -32,20 +25,13 @@ class ApiController extends Controller
          */
         $req = $request["req"];
 
-        //echo "<br>: " . "primeiro|";
-
-        //echo "post 5: " . $post[$obj] . "|" . $post[$req] . "|" . $post["username"] . "|" . $post["password"];
-
-        //echo "json 1: " . $json . "|";
-// echo "api1 ";
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-            include "ApiConnectionController.php";
-            $db = new ApiConnectionController();
+            $db = new ApiConnectionController;
+            $db->create();
             
-// echo "api2 ";
             if($req == "SYNC") {
-// echo "api3 ";
+
                 $response = ApiSyncController::InsertOrUpdateEntityWeb($db, $request, $response);
 
             } else if($req == "LOGIN") {
