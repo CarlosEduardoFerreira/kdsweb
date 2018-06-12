@@ -13,7 +13,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <select id="storegroup_id" name="storegroup_id" class="form-control select2" style="width: 100%" autocomplete="off">
-                    		<option>Select the Store Group</option>
+                    		<option value="0">Select the Store Group</option>
                         	@foreach ($storegroups as $storegroup)
                             	<option value="{{ $storegroup->id }}">{{ $storegroup->name }}</option>
                         	@endforeach;
