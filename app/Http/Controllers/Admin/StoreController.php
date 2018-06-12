@@ -300,7 +300,7 @@ class StoreController extends Controller
                     'socket_port_'              => $request->get('socket_port'),
                     'auto_done_order_hourly_'   => $request->get('auto_done_order_hourly'),
                     'auto_done_order_time_'     => $auto_done_order_time,
-                    'timezone_'                 => $request->get('timezone'),
+                    //'timezone_'                 => $request->get('timezone'),
                     'smart_order_'              => $request->get('smart_order'),
                     'licenses_quantity_'        => $request->get('licenses_quantity')
                 ];
