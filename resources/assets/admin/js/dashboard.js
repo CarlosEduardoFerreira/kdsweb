@@ -221,7 +221,7 @@
                     $.each(response, function (k, v) {
                         data[k] = [];
                         progress[k] = 0;
-                        alert(k + ":" + v)
+                        //alert(k + ":" + v)
                         $.each(v, function (date, value) {
                             data[k].push([new Date(date).getTime(), value]);
                             progress.all += value;
