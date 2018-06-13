@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-
+// Even eclipse shows the error below we need keep this, at least laravel will not work.
+use App\Http\Controllers\Api;
+use App\Http\Controllers\Api\ApiSettingsController;
 
 class ApiUserController extends Controller {
 
@@ -38,7 +40,7 @@ class ApiUserController extends Controller {
                 $request["store_guid_"]     = $result[0]->store_guid;
                 
                 // include store settings on response
-                $response = \App\Http\Controllers\Api\ApiSettingsController::getSettings($request, $response);
+                $response = ApiSettingsController::getSettings($request, $response);
 
             } else {
 

@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+// Even eclipse shows the errors below we need keep this, at least laravel will not work.
+use App\Http\Controllers\Api;
+use App\Http\Controllers\Api\ApiSyncController;
+use App\Http\Controllers\Api\ApiUserController;
+use App\Http\Controllers\Api\ApiSettingsController;
+use App\Http\Controllers\Api\ApiDeviceController;
 
 
 class ApiController extends Controller
@@ -32,19 +38,19 @@ class ApiController extends Controller
             
             if($req == "SYNC") {
 
-                $response = \App\Http\Controllers\Api\ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
+                $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
 
             } else if($req == "LOGIN") {
 
-                $response = \App\Http\Controllers\Api\ApiUserController::login($request, $response);
+                $response = ApiUserController::login($request, $response);
 
             } else if($req == "GET_SETTINGS") {
                 
-                $response = \App\Http\Controllers\Api\ApiSettingsController::getSettings($request, $response);
+                $response = ApiSettingsController::getSettings($request, $response);
                 
             } else if($req == "GET_DEVICES") {
 
-                $response = \App\Http\Controllers\Api\ApiDeviceController::getDevices($request, $response);
+                $response = ApiDeviceController::getDevices($request, $response);
                 
             }
             
