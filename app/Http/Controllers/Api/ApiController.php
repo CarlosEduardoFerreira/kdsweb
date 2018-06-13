@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\ApiSyncController;
+use App\Http\Controllers\Api\ApiUserController;
+use App\Http\Controllers\Api\ApiSettingsController;
+use App\Http\Controllers\Api\ApiDeviceController;
 
 
 class ApiController extends Controller
