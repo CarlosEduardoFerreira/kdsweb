@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 // Even eclipse shows the error below we need keep this, at least laravel will not work.
-use App\Http\Controllers\Api;
-use App\Http\Controllers\Api\ApiSettingsController;
+// use App\Http\Controllers\Api;
+// use App\Http\Controllers\Api\ApiSettingsController;
 
 class ApiUserController extends Controller {
 
