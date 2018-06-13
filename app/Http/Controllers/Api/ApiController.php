@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-require_once('ApiUserController.php');
-
 use App\Http\Controllers\Controller;
 // Even eclipse shows the errors below we need keep this, at least laravel will not work.
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Api\ApiSyncController;
+use App\Http\Controllers\Api\ApiUserController;
 use App\Http\Controllers\Api\ApiSettingsController;
 use App\Http\Controllers\Api\ApiDeviceController;
 
@@ -39,23 +38,19 @@ class ApiController extends Controller
             
             if($req == "SYNC") {
 
-                $syncController = new ApiSyncController();
-                $response = $syncController::InsertOrUpdateEntityWeb($request, $response);
+                $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
 
             } else if($req == "LOGIN") {
 
-                $userController = new ApiUserController();
-                $response = $userController::login($request, $response);
+                $response = ApiUserController::login($request, $response);
 
             } else if($req == "GET_SETTINGS") {
                 
-                $settingsController = new ApiSettingsController();
-                $response = $settingsController::getSettings($request, $response);
+                $response = ApiSettingsController::getSettings($request, $response);
                 
             } else if($req == "GET_DEVICES") {
 
-                $deviceController = new ApiDeviceController();
-                $response = $deviceController::getDevices($request, $response);
+                $response = ApiDeviceController::getDevices($request, $response);
                 
             }
             

@@ -43,7 +43,7 @@
         ],
         "psr-4": {
             "App\\": "app/",
-            "Classes\\": "App/Http/Controllers/Api"
+            "Api\\": "app/http/controllers/api"
         },
         "files": [
             "app/helpers.php"
