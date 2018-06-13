@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-require 'ApiUserController';
+require_once(getcwd() . '/ApiUserController.php');
 
 use App\Http\Controllers\Controller;
 // Even eclipse shows the errors below we need keep this, at least laravel will not work.
