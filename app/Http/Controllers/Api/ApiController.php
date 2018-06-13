@@ -42,23 +42,23 @@ class ApiController extends Controller
 
 //                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
                 
-                $response = insertOrUpdateEntityWeb($request, $response);
+                $response = $this->insertOrUpdateEntityWeb($request, $response);
 
             } else if($req == "LOGIN") {
 
 //                 $response = ApiUserController::login($request, $response);
 
-                $response = login($request, $response);
+                $response = $this->login($request, $response);
 
             } else if($req == "GET_SETTINGS") {
                 
 //                 $response = ApiSettingsController::getSettings($request, $response);
 
-                $response = getSettings($request, $response);
+                $response = $this->getSettings($request, $response);
                 
             } else if($req == "GET_DEVICES") {
 
-                $response = getDevices($request, $response);
+                $response = $this->getDevices($request, $response);
                 
             }
             
