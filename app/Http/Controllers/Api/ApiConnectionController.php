@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use PDO;
 
-class ApiConnectionController {
+class ApiConnectionController extends Controller {
 
     private static $pdo;
 
     public static function create() {
 
+//         $host = "127.0.0.1";
+//         $db   = "kdsweb";
+//         $user = "root";
+//         $pwrd = "1234";
+        
         $host = "kdsios.cz2l6cajeudq.us-west-2.rds.amazonaws.com";
         $db   = "kdsweb";
         $user = "bematech";
