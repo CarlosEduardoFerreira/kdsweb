@@ -12,7 +12,7 @@ return [
     | any other location as required by the application or its packages.
     */
 
-    'name' => env('APP_NAME', 'Laravel 5 Labs64 Boilerplate'),
+    'name' => env('APP_NAME', 'KDS Kitchen GO'),
 
     /*
     |--------------------------------------------------------------------------
@@ -258,7 +258,15 @@ return [
         'Gravatar' => Creativeorange\Gravatar\Facades\Gravatar::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'ToJs' => \App\Helpers\ToJs\Facades\ToJsFacade::class,
-        'Meta' => \App\Helpers\Meta\Facades\MetaFacade::class
+        'Meta' => \App\Helpers\Meta\Facades\MetaFacade::class,
+        
+        /*
+         * KDS Api Controllers
+         */
+        'ApiSyncController' => \App\Http\Controllers\Api\ApiSyncController::class,
+        'ApiUserController' => \App\Http\Controllers\Api\ApiUserController::class,
+        'ApiSettingsController' => \App\Http\Controllers\Api\ApiSettingsController::class,
+        'ApiDeviceController' => \App\Http\Controllers\Api\ApiDeviceController::class
 
     ],
 
