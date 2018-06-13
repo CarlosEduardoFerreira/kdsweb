@@ -1,23 +1,19 @@
 {
-    "name": "labs64/laravel-boilerplate",
-    "description": "Laravel 5 Boilerplate",
+    "name": "KDS Kitchen GO",
+    "description": "KDS Kitchen GO",
     "type": "project",
     "keywords": ["php", "framework", "laravel", "laravel5", "admin", "theme", "starter", "bootstrap", "boilerplate", "docker", "template", "social-login", "nodejs"],
-    "homepage": "https://github.com/Labs64/laravel-boilerplate",
+    "homepage": "http://www.bematechus.com",
     "license": "MIT",
     "authors": [
         {
-            "name": "Labs64 GmbH",
-            "email": "info@labs64.com",
-            "homepage": "http://www.labs64.com"
+            "name": "Carlos Ferreira",
+            "email": "carlos.ferreira@bematechus.com",
+            "homepage": "http://www.bematechus.com"
         }
     ],
     "support": {
-        "email": "info@labs64.com",
-        "issues": "https://github.com/Labs64/laravel-boilerplate/issues",
-        "wiki": "https://github.com/Labs64/laravel-boilerplate",
-        "source": "https://github.com/Labs64/laravel-boilerplate",
-        "docs": "https://github.com/Labs64/laravel-boilerplate"
+        "email": "carlos.ferreira@bematechus.com"
     },
     "require": {
         "php": ">=7.0",
