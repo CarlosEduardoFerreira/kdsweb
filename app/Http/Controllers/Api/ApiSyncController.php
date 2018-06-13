@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 
-use PDO;
+use Illuminate\Support\Facades\DB;
+
 
 class ApiSyncController {
 
-    public static function InsertOrUpdateEntityWeb(ApiConnectionController $db, array $request, array $response) {
+    public static function InsertOrUpdateEntityWeb(array $request, array $response) {
 
         $entity = $request["entity"];
         $data   = $request["data"];
@@ -20,9 +21,9 @@ class ApiSyncController {
             $func = "UPD"; // Update
 
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid_ = " . $object['guid_'];
-            // echo "sqlCheck: $sqlCheck";
-            $result     = $db->query($sqlCheck);
-            if (!$row = $result->fetch(PDO::FETCH_ASSOC)) {
+            //echo "sqlCheck: $sqlCheck";
+            $result     = DB::select($sqlCheck);
+            if (count($result) == 0) {
                 $func = "INS"; // Insert
             }
 
@@ -61,9 +62,9 @@ class ApiSyncController {
             }
 
 //             echo "sql: $sql";
-            $result = $db->query($sql);
+            $result = DB::statement($sql);
 
-            if($result == "") {
+            if($result) {
                 $response["result"]  = "OK";
             } else {
                 $response["error"]  = "Error trying $func: $result";

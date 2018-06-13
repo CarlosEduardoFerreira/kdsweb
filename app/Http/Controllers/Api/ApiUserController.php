@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use PDO;
 
 class ApiUserController {
 
-    public static function login(ApiConnectionController $db, array $request, array $response) {
+    public static function login(array $request, array $response) {
 
         $username = $request["username"];
         $password = $request["password"];
@@ -18,25 +18,25 @@ class ApiUserController {
                     store_guid 
                 FROM users
                 WHERE username = '$username'";
+        
+        $result = DB::select($sql);
 
         //echo "sql: " . $sql . "|";
-        
-        $result = $db->query($sql);
 
-        if ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        if (count($result) > 0) {
 
-            $passDataBase = $row['password'];
+            $passDataBase = $result[0]->password;
 
             $passMatched = Hash::check($password, $passDataBase);
 
             if ($passMatched) {
                 
-                $response[0]["store_guid_"] = $row["store_guid"];
+                $response[0]["store_guid_"] = $result[0]->store_guid;
                 
-                $request["store_guid_"]     = $row["store_guid"];
+                $request["store_guid_"]     = $result[0]->store_guid;
                 
                 // include store settings on response
-                $response = ApiSettingsController::getSettings($db, $request, $response);
+                $response = ApiSettingsController::getSettings($request, $response);
 
             } else {
 

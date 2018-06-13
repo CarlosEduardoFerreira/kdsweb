@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Api\ApiConnectionController;
 
 
 class ApiController extends Controller
@@ -28,28 +27,28 @@ class ApiController extends Controller
 
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-            $db = new ApiConnectionController();
-            $db->create();
+//             $db = new ApiConnectionController();
+//             $db->create();
             
             if($req == "SYNC") {
 
-                $response = ApiSyncController::InsertOrUpdateEntityWeb($db, $request, $response);
+                $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
 
             } else if($req == "LOGIN") {
 
-                $response = ApiUserController::login($db, $request, $response);
+                $response = ApiUserController::login($request, $response);
 
             } else if($req == "GET_SETTINGS") {
                 
-                $response = ApiSettingsController::getSettings($db, $request, $response);
+                $response = ApiSettingsController::getSettings($request, $response);
                 
             } else if($req == "GET_DEVICES") {
 
-                $response = ApiDeviceController::getDevices($db, $request, $response);
+                $response = ApiDeviceController::getDevices($request, $response);
                 
             }
             
-            $db->close();
+//             $db->close();
             
             return response()->json($response);
         }
