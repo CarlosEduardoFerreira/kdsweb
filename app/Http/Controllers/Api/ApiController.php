@@ -28,7 +28,7 @@ class ApiController extends Controller
 
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-            $db = new ApiConnectionController;
+            $db = new ApiConnectionController();
             $db->create();
             
             if($req == "SYNC") {
