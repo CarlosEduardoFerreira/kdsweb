@@ -167,7 +167,7 @@ class ApiController extends Controller
                 $request["store_guid_"]     = $result[0]->store_guid;
                 
                 // include store settings on response
-                $response = getSettings($request, $response);
+                $response = $this->getSettings($request, $response);
                 
             } else {
                 
