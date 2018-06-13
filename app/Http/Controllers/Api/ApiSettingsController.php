@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 
-class ApiSettingsController {
+class ApiSettingsController extends Controller {
 
     public static function getSettings(array $request, array $response) {
 

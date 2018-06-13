@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 
-class ApiSyncController {
+class ApiSyncController extends Controller {
 
     public static function InsertOrUpdateEntityWeb(array $request, array $response) {
 

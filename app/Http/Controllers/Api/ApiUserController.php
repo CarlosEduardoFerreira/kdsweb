@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Api\ApiSettingsController;
+use App\Http\Controllers\Controller;
 
-class ApiUserController {
+
+class ApiUserController extends Controller {
 
     public static function login(array $request, array $response) {
 
@@ -37,7 +38,7 @@ class ApiUserController {
                 $request["store_guid_"]     = $result[0]->store_guid;
                 
                 // include store settings on response
-                $response = ApiSettingsController::getSettings($request, $response);
+                $response = \App\Http\Controllers\Api\ApiSettingsController::getSettings($request, $response);
 
             } else {
 
