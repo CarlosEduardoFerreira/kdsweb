@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-require_once(getcwd() . '/ApiUserController.php');
+require_once('ApiUserController.php');
 
 use App\Http\Controllers\Controller;
 // Even eclipse shows the errors below we need keep this, at least laravel will not work.
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Api\ApiSyncController;
-
 use App\Http\Controllers\Api\ApiSettingsController;
 use App\Http\Controllers\Api\ApiDeviceController;
 
