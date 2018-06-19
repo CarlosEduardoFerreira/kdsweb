@@ -103,6 +103,10 @@ mix.scripts([
     'resources/assets/admin/js/location.js',
 ], 'public/assets/admin/js/location.js').version();
 
+mix.scripts([
+    'resources/assets/admin/js/validation.js',
+], 'public/assets/admin/js/validation.js').version();
+
 mix.styles([
     'node_modules/select2/dist/css/select2.css',
 ], 'public/assets/admin/css/users/edit.css').version();

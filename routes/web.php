@@ -53,36 +53,64 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Dashboard
     Route::get('/', 'DashboardController@index')->name('dashboard');
-
-    // Resellers
+    
+    //      url will show                function on controller              how to call
+    // Route::get('storegroups/0/form', 'StoreGroupController@create')->name('resellers.new');
+    
+    // Resellers ------------------------------------------------------------------------------ //
+    // List View
     Route::get('resellers/{adminId}', 'ResellerController@index')->name('resellers');
+    // New Form View
+    Route::get('resellers/0/form', 'ResellerController@create')->name('resellers.new');
+    // Edit Form View
+    Route::get('resellers/{reseller}/form', 'ResellerController@edit')->name('resellers.edit');
+    // Show View
     Route::get('resellers/{reseller}/show', 'ResellerController@show')->name('resellers.show');
-    Route::get('resellers/{reseller}/edit', 'ResellerController@edit')->name('resellers.edit');
-    Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
-    Route::delete('resellers/{reseller}', 'ResellerController@destroy')->name('resellers.destroy');
-    // url will show                function on controller              how to call
-    Route::get('resellers/0/new', 'ResellerController@create')->name('resellers.new');
+    // Insert Action
     Route::put('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
+    // Update Action
+    Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
+    // Delete Action
+    Route::delete('resellers/{reseller}', 'ResellerController@destroy')->name('resellers.destroy');
+    // ------------------------------------------------------------------------------ Resellers //
 
-    // Store Groups
+    // Store Groups --------------------------------------------------------------------------- //
+    // List View
     Route::get('storegroups/{resellerId}', 'StoreGroupController@index')->name('storegroups');
+    // New Form View
+    Route::get('storegroups/0/form', 'StoreGroupController@create')->name('storegroups.new');
+    // Edit Form View
+    Route::get('storegroups/{storegroup}/form', 'StoreGroupController@edit')->name('storegroups.edit');
+    // Show View
     Route::get('storegroups/{storegroup}/show', 'StoreGroupController@show')->name('storegroups.show');
-    Route::get('storegroups/{storegroup}/edit', 'StoreGroupController@edit')->name('storegroups.edit');
-    Route::put('storegroups/{storegroup}', 'StoreGroupController@update')->name('storegroups.update');
-    Route::delete('storegroups/{storegroup}', 'StoreGroupController@destroy')->name('storegroups.destroy');
-    Route::get('storegroups/0/new', 'StoreGroupController@create')->name('storegroups.new');
+    // Insert Action
     Route::put('storegroups/0/insert', 'StoreGroupController@insert')->name('storegroups.insert');
+    // Update Action
+    Route::put('storegroups/{storegroup}', 'StoreGroupController@update')->name('storegroups.update');
+    // Delete Action
+    Route::delete('storegroups/{storegroup}', 'StoreGroupController@destroy')->name('storegroups.destroy');
+    // --------------------------------------------------------------------------- Store Groups //
 
-    // Stores
+    // Stores --------------------------------------------------------------------------------- //
+    // List View
     Route::get('stores/{storegroupId}', 'StoreController@index')->name('stores');
+    // New Form View
+    Route::get('stores/0/form', 'StoreController@create')->name('stores.new');
+    // Edit Form View
+    Route::get('stores/{store}/form', 'StoreController@edit')->name('stores.edit');
+    // Show View
     Route::get('stores/{store}/show', 'StoreController@show')->name('stores.show');
-    Route::get('stores/{store}/edit', 'StoreController@edit')->name('stores.edit');
-    Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
-    Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
-    Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
-    Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
-    Route::get('stores/0/new', 'StoreController@create')->name('stores.new');
+    // Insert Action
     Route::put('stores/0/insert', 'StoreController@insert')->name('stores.insert');
+    // Update Action
+    Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
+    // Config View
+    Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
+    // Update Settings Action
+    Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
+    // Delete Action
+    Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
+    // --------------------------------------------------------------------------------- Stores //
 
     // Users (Users is every system user. Even Admin)
     Route::get('users', 'UserController@index')->name('users');

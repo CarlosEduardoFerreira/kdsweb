@@ -20,6 +20,10 @@ use Kyslik\ColumnSortable\Sortable;
  * @property string $email
  * @property string $password
  * @property bool $active
+ * 
+ * @property string $business_name
+ * @property string $state
+ * 
  * @property string $confirmation_code
  * @property bool $confirmed
  * @property string $remember_token
@@ -74,7 +78,9 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['name', 'last_name', 'email', 'password', 'active', 'confirmation_code', 'confirmed', 'username'];
+    protected $fillable = ['name', 'last_name', 'email', 'password', 'active', 'confirmation_code', 'confirmed', 'username',
+        'business_name', 'state'
+    ];
 
     /**
      * The attributes that should be hidden for arrays.

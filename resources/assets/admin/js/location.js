@@ -16,7 +16,7 @@
 	    			   $("#city").empty();
 	    			   if(states){
 		    	            $("#state").empty();
-		    	            $("#state").append('<option>Select</option>');
+		    	            //$("#state").append('<option>Select</option>');
 		    	            for(var i=0; i<states.length; i++) {
 		    	            		$("#state").append("<option value='" + states[i].id + "'>" + states[i].name + "</option>");
 		    	            }
@@ -31,32 +31,34 @@
 	    	}      
     });
 
-    $('#state').on('change',function(){
-	    	var stateID = $(this).val();    
-	    	if(stateID){
-	    		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
-	    		$.ajax({
-	    		   type:'GET',
-	    		   dataType: 'json',
-	    		   url: URL_BASE + "/admin/location/get_city_list",
-	    		   data:{state_id:stateID},
-	    		   success:function(cities){
-	    			   if(cities){
-		    	            $("#city").empty();
-		    	            $("#city").append('<option>Select</option>');
-		    	            for(var i=0; i<cities.length; i++) {
-		    	            		$("#city").append("<option value='" + cities[i].id + "'>" + cities[i].name + "</option>");
-		    	            }
-		    	        }else{
-		    	           $("#city").empty();
-		    	        }
-	    		   }
-	    		});
-	    	}else{
-	    	    $("#city").empty();
-	    	}
-    });
+//    $('#state').on('change',function(){
+//	    	var stateID = $(this).val();    
+//	    	if(stateID){
+//	    		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+//	    		$.ajax({
+//	    		   type:'GET',
+//	    		   dataType: 'json',
+//	    		   url: URL_BASE + "/admin/location/get_city_list",
+//	    		   data:{state_id:stateID},
+//	    		   success:function(cities){
+//	    			   if(cities){
+//		    	            $("#city").empty();
+//		    	            $("#city").append('<option>Select</option>');
+//		    	            for(var i=0; i<cities.length; i++) {
+//		    	            		$("#city").append("<option value='" + cities[i].id + "'>" + cities[i].name + "</option>");
+//		    	            }
+//		    	        }else{
+//		    	           $("#city").empty();
+//		    	        }
+//	    		   }
+//	    		});
+//	    	}else{
+//	    	    $("#city").empty();
+//	    	}
+//    });
     
+//    $("#country").val('231'); // 231 = United States
+//    $("#state").val('3956'); // 3956 = New York
     
     
     

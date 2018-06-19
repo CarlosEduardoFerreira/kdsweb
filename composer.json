@@ -1,6 +1,6 @@
 {
-    "name": "KDS Kitchen GO",
-    "description": "KDS Kitchen GO",
+    "name": "KitchenGo",
+    "description": "KitchenGo",
     "type": "project",
     "keywords": ["php", "framework", "laravel", "laravel5", "admin", "theme", "starter", "bootstrap", "boilerplate", "docker", "template", "social-login", "nodejs"],
     "homepage": "http://www.bematechus.com",

@@ -35,31 +35,34 @@ class ResellerController extends Controller
      */
     public function create(User $admin)
     {
+        $reseller = new User;
+        $reseller->active = true;
+        
         $countries = DB::select("select * from countries order by name");
         
-        return view('admin.resellers.new', ['countries' => $countries]);
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller , 'countries' => $countries]);
     }
     
     public function insert(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30',
-            'username'      => 'required|max:45'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30',
+//             'username'      => 'required|max:45'
+//         ]);
         
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
             
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone("America/New_York"));
@@ -129,13 +132,13 @@ class ResellerController extends Controller
             $states     = DB::select("select * from states where country_id = $reseller->country order by name");
         }
         
-        $cities = [];
-        if (isset($reseller->state) && $reseller->state != "") {
-            $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
-        }
+//         $cities = [];
+//         if (isset($reseller->state) && $reseller->state != "") {
+//             $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
+//         }
         
-        return view('admin.resellers.edit', ['reseller' => $reseller, 'roles' => Role::get(), 
-            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 'roles' => Role::get(), 
+            'countries' => $countries, 'states' => $states]);
     }
 
     /**
@@ -147,28 +150,28 @@ class ResellerController extends Controller
      */
     public function update(Request $request, User $reseller)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30',
-            'username'      => 'required|max:45'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30',
+//             'username'      => 'required|max:45'
+//         ]);
 
-        $validator->sometimes('email', 'unique:users', function ($input) use ($reseller) {
-            return strtolower($input->email) != strtolower($reseller->email);
-        });
+//         $validator->sometimes('email', 'unique:users', function ($input) use ($reseller) {
+//             return strtolower($input->email) != strtolower($reseller->email);
+//         });
 
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
 
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $reseller->name            = $request->get('name');
         $reseller->email           = $request->get('email');

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeZone;
+use PhpParser\Builder\Use_;
 
 class StoreController extends Controller
 {
@@ -34,6 +35,9 @@ class StoreController extends Controller
      */
     public function create()
     {
+        $store = new User;
+        $store->active = true;
+        
         $storegroups = DB::select("select * from users
                                     join users_roles on id = user_id
                                     where role_id = 3
@@ -41,32 +45,32 @@ class StoreController extends Controller
         
         $countries = DB::select("select * from countries order by name");
         
-        return view('admin.stores.new', ['storegroups' => $storegroups, 'countries' => $countries]);
+        return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 'countries' => $countries]);
     }
     
     
     public function insert(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'dba'           => 'required|max:200',
-            'last_name'     => 'required|max:100',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30',
-            'username'      => 'required|max:45'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'dba'           => 'required|max:200',
+//             'last_name'     => 'required|max:100',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30',
+//             'username'      => 'required|max:45'
+//         ]);
         
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
             
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone("America/New_York"));
@@ -74,7 +78,7 @@ class StoreController extends Controller
         $usersTable = DB::table('users');
         
         $data = [
-            'parent_id'       => $request->get('storegroup_id'),    // Store Group ID
+            'parent_id'       => $request->get('parent_id'),    // Store Group ID
             'business_name'   => $request->get('business_name'),    // Legal Business Name
             'dba'             => $request->get('dba'),              // DBA: (Doing business as)
             'last_name'       => $request->get('last_name'),
@@ -167,13 +171,13 @@ class StoreController extends Controller
             $states     = DB::select("select * from states where country_id = $store->country order by name");
         }
         
-        $cities = [];
-        if (isset($store->state) && $store->state != "") {
-            $cities     = DB::select("select * from cities where state_id = $store->state order by name");
-        }
+//         $cities = [];
+//         if (isset($store->state) && $store->state != "") {
+//             $cities     = DB::select("select * from cities where state_id = $store->state order by name");
+//         }
         
-        return view('admin.stores.edit', ['store' => $store, 'roles' => Role::get(), 'storegroups' => $storegroups, 
-            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
+        return view('admin.form', ['obj' => 'store', 'user' => $store, 'roles' => Role::get(), 'parents' => $storegroups, 
+            'countries' => $countries, 'states' => $states]);
     }
 
 
@@ -216,32 +220,32 @@ class StoreController extends Controller
      */
     public function update(Request $request, User $store)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'dba'           => 'required|max:200',
-            'last_name'     => 'required|max:100',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30',
-            'username'      => 'required|max:45'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'dba'           => 'required|max:200',
+//             'last_name'     => 'required|max:100',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30',
+//             'username'      => 'required|max:45'
+//         ]);
 
-        $validator->sometimes('email', 'unique:users', function ($input) use ($store) {
-            return strtolower($input->email) != strtolower($store->email);
-        });
+//         $validator->sometimes('email', 'unique:users', function ($input) use ($store) {
+//             return strtolower($input->email) != strtolower($store->email);
+//         });
 
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
 
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
-        $store->parent_id       = $request->get('storegroup_id');
+        $store->parent_id       = $request->get('parent_id');
         $store->business_name   = $request->get('business_name');
         $store->dba             = $request->get('dba');
         $store->last_name       = $request->get('last_name');

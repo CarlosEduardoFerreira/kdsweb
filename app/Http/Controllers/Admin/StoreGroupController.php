@@ -35,6 +35,9 @@ class StoreGroupController extends Controller
      */
     public function create()
     {
+        $storegroup = new User;
+        $storegroup->active = true;
+        
         $resellers  = DB::select("select * from users
                                     join users_roles on id = user_id
                                     where role_id = 2
@@ -42,29 +45,29 @@ class StoreGroupController extends Controller
         
         $countries = DB::select("select * from countries order by name");
         
-        return view('admin.storegroups.new', ['resellers' => $resellers, 'countries' => $countries]);
+        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup , 'parents' => $resellers, 'countries' => $countries]);
     }
     
     
     public function insert(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30'
+//         ]);
         
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
             
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone("America/New_York"));
@@ -72,7 +75,7 @@ class StoreGroupController extends Controller
         $usersTable = DB::table('users');
         
         $data = [
-            'parent_id'       => $request->get('reseller_id'),
+            'parent_id'       => $request->get('parent_id'),
             'business_name'   => $request->get('business_name'),    // Store Group Name
             'name'            => $request->get('name'),             // Contact Name
             'email'           => $request->get('email'),
@@ -139,13 +142,13 @@ class StoreGroupController extends Controller
             $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
         }
         
-        $cities = [];
-        if (isset($storegroup->state) && $storegroup->state != "") {
-            $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
-        }
+//         $cities = [];
+//         if (isset($storegroup->state) && $storegroup->state != "") {
+//             $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
+//         }
         
-        return view('admin.storegroups.edit', ['storegroup' => $storegroup, 'roles' => Role::get(), 'resellers' => $resellers,
-            'countries' => $countries, 'states' => $states, 'cities' => $cities]);
+        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup, 'roles' => Role::get(), 'parents' => $resellers,
+            'countries' => $countries, 'states' => $states]);
         //return view('admin.users.edit', ['user' => $user, 'roles' => Role::get()]);
     }
 
@@ -158,27 +161,27 @@ class StoreGroupController extends Controller
      */
     public function update(Request $request, User $storegroup)
     {
-        $validator = Validator::make($request->all(), [
-            'business_name' => 'required|max:200',
-            'name'          => 'required|max:200',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'required|max:45',
-            'address'       => 'required',
-            'city'          => 'required|max:100',
-            'state'         => 'required|max:100',
-            'country'       => 'required|max:100',
-            'zipcode'       => 'required|max:30'
-        ]);
+//         $validator = Validator::make($request->all(), [
+//             'business_name' => 'required|max:200',
+//             'name'          => 'required|max:200',
+//             'email'         => 'required|email|max:255',
+//             'phone_number'  => 'required|max:45',
+//             'address'       => 'required',
+//             'city'          => 'required|max:100',
+//             'state'         => 'required|max:100',
+//             'country'       => 'required|max:100',
+//             'zipcode'       => 'required|max:30'
+//         ]);
 
-        $validator->sometimes('email', 'unique:users', function ($input) use ($storegroup) {
-            return strtolower($input->email) != strtolower($storegroup->email);
-        });
+//         $validator->sometimes('email', 'unique:users', function ($input) use ($storegroup) {
+//             return strtolower($input->email) != strtolower($storegroup->email);
+//         });
 
-        $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-            return $input->password;
-        });
+//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
+//             return $input->password;
+//         });
 
-        if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
+//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
 
         $storegroup->business_name   = $request->get('business_name');
         $storegroup->name            = $request->get('name');
@@ -190,7 +193,7 @@ class StoreGroupController extends Controller
         $storegroup->state           = $request->get('state');
         $storegroup->country         = $request->get('country');
         $storegroup->zipcode         = $request->get('zipcode');
-        $storegroup->parent_id       = $request->get('reseller_id');
+        $storegroup->parent_id       = $request->get('parent_id');
 
         if ($request->get('password') != "") {
             $storegroup->password = bcrypt($request->get('password'));
