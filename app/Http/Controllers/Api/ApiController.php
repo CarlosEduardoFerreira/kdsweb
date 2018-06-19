@@ -169,6 +169,26 @@ class ApiController extends Controller
                 // include store settings on response
                 $response = $this->getSettings($request, $response);
                 
+                if($response[0]["licenses_quantity_"] == 0) {
+                    $response[0]["error"]  = "There is no license available.";
+                    
+                } 
+                /* For now we will not use this part because even the store does not have license available
+                 * the tablet that the user is trying setup can be a swap and not new one.
+                else {
+                    $devices = $this->getDevices($request, $response);
+                    
+                    $licensesInUse = 0;
+                    foreach ($devices as $device) {
+                        $licensesInUse += $device["login_"] == 1 ? 1 : 0;
+                    }
+                    
+                    if ($response[0]["licenses_quantity_"] <= $licensesInUse) {
+                        $response[0]["error"]  = "There is no license available.";
+                    }
+                }
+                */
+                
             } else {
                 
                 $response[0]["error"]  = "Password is incorrect.";
