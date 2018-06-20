@@ -19,5 +19,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::group(['namespace' => 'Api'], function () {
+    
     Route::post('/apiKDS','ApiController@index');
+    
+    // Ajax active License
+    Route::get('devices/active', 'ApiController@activeLicense')->name('devices.active');
+    
 });

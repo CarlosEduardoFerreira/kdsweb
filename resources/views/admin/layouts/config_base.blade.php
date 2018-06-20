@@ -16,7 +16,7 @@
 
                 <div style="height:150px;">
                 	
-                	<div style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div> 
+                	<div id="license-info" style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div> 
 
                     <div class="page-title" style="background:#ffffff;">
 
@@ -70,7 +70,7 @@
 
 @section('scripts')
     {{ Html::script(mix('assets/admin/js/admin.js')) }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+
     <script type="text/javascript">
 
         $(document).ready(function(){

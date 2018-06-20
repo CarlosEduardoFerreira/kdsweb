@@ -178,24 +178,23 @@
 
         @foreach($devices as $device)
             <tr>
-                	<td>{{ $device->id_ }}</td>
-                	<td>{{ $device->name_}}</td>
-                	<td>{{ $device->function_ }}</td>
-                	<td>{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
-                	<td>{{ $device->expeditor_ }}</td>
-				<td>
+                	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id_ }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->name_}}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->function_ }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->expeditor_ }}</td>
+				<td class="td-data" style="vertical-align:middle;">
 				<?php 
         				$date = new DateTime();
         				$date->setTimestamp($device->update_time_);
 				?>
 				{{ $date->format('m/d/Y H:i:s') }}
 				</td>
-                	<td>
-                    	@if($device->login_ == 1)
-                        <span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
-                    @else
-                        <span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
-                    @endif
+                	<td class="td-data" style="vertical-align:middle;text-align:center;">
+                    <label class="switch">
+                      <input class="device-license-login" guid="{{ $device->guid_ }}" type="checkbox" @if($device->login_) checked="checked" @endif value="1">
+                      <span class="slider round"></span>
+                    </label>
                 	</td>
             </tr>
         @endforeach
@@ -211,6 +210,68 @@
     <style>
         .radio-bump { display:inline-table; width:100px; }
         .radio-bump-time { display:inline-table; width:120px; text-align:right; }
+        
+        .td-data { height:30px; }
+        
+        /* The switch - the box around the slider */
+        .switch {
+            top:5px;
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+        
+        /* Hide default HTML checkbox */
+        .switch input {display:none;}
+        
+        /* The slider */
+        .switch .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        .switch .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 2px;
+          bottom: 2px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+        
+        .switch input:checked + .slider {
+          background-color: #2196F3;
+        }
+        
+        .switch input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+        
+        .switch input:checked + .slider:before {
+          -webkit-transform: translateX(18px);
+          -ms-transform: translateX(18px);
+          transform: translateX(18px);
+        }
+        
+        /* Rounded sliders */
+        .switch .slider.round {
+          border-radius: 34px;
+        }
+        
+        .switch .slider.round:before {
+          border-radius: 50%;
+        }
     </style>
 @endsection
 

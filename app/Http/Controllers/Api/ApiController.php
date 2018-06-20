@@ -9,8 +9,11 @@ use App\Http\Controllers\Controller;
 // use App\Http\Controllers\Api\ApiUserController;
 // use App\Http\Controllers\Api\ApiSettingsController;
 // use App\Http\Controllers\Api\ApiDeviceController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use DateTime;
+use DateTimeZone;
 
 
 class ApiController extends Controller
@@ -59,6 +62,10 @@ class ApiController extends Controller
             } else if($req == "GET_DEVICES") {
 
                 $response = $this->getDevices($request, $response);
+                
+            } else if($req == "DEVICES_ACTIVE") {
+                
+                $response = $this->activeLicense($request, $response);
                 
             }
             
@@ -245,6 +252,14 @@ class ApiController extends Controller
         
         return DB::select($sql);
         
+    }
+    
+    
+    public function activeLicense(Request $request) {
+        $update_time = (new DateTime())->getTimestamp();
+        $sql = "update devices set login_ = $request->active , update_time_ = $update_time where guid_ = '$request->guid'";
+        $result = DB::statement($sql);
+        return array($result);
     }
     
 
