@@ -100,7 +100,7 @@ class Controller extends BaseController
     }
     
     
-    public function getDevicesCount() {
+    public function getDevicesCount(bool $deleted = true) {
         
         $me = Auth::user();
 
@@ -109,13 +109,18 @@ class Controller extends BaseController
             $whereParentId = "";
         }
         
+        $whereDeleted = "";
+        if ($deleted ) {
+            $whereDeleted = "AND is_deleted_ = 1";
+        }
+        
         $devices =  DB::select("SELECT count(devices.guid_) AS count
                                 FROM users AS stores
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
                                 INNER JOIN devices ON devices.store_guid_ = stores.store_guid
                                 INNER JOIN users_roles ON users_roles.user_id = stores.id
-                                WHERE users_roles.role_id = 4 $whereParentId");
+                                WHERE users_roles.role_id = 4 $whereDeleted $whereParentId");
         
         return $devices[0]->count;
     }

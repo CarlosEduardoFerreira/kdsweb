@@ -41,29 +41,29 @@ class ApiController extends Controller
 //             $db = new ApiConnectionController();
 //             $db->create();
             
-            if($req == "SYNC") {
-
-//                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
-                
-                $response = $this->insertOrUpdateEntityWeb($request, $response);
-
-            } else if($req == "LOGIN") {
+            if ($req == "LOGIN") {
 
 //                 $response = ApiUserController::login($request, $response);
 
                 $response = $this->login($request, $response);
 
-            } else if($req == "GET_SETTINGS") {
+            } else if ($req == "SYNC") {
+                
+                //                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
+                
+                $response = $this->insertOrUpdateEntityWeb($request, $response);
+                
+            } else if ($req == "GET_SETTINGS") {
                 
 //                 $response = ApiSettingsController::getSettings($request, $response);
 
                 $response = $this->getSettings($request, $response);
                 
-            } else if($req == "GET_DEVICES") {
+            } else if ($req == "GET_DEVICES") {
 
                 $response = $this->getDevices($request, $response);
                 
-            } else if($req == "DEVICES_ACTIVE") {
+            } else if ($req == "DEVICES_ACTIVE") {
                 
                 $response = $this->activeLicense($request, $response);
                 
@@ -74,6 +74,71 @@ class ApiController extends Controller
             return response()->json($response);
         }
 
+    }
+    
+    
+    public function login(array $request, array $response) {
+        
+        $username = $request["username"];
+        $password = $request["password"];
+        
+        $sql = "SELECT
+                    password,
+                    store_guid
+                FROM users
+                WHERE username = '$username'";
+        
+        $result = DB::select($sql);
+        
+        //echo "sql: " . $sql . "|";
+        
+        if (count($result) > 0) {
+            
+            $passDataBase = $result[0]->password;
+            
+            $passMatched = Hash::check($password, $passDataBase);
+            
+            if ($passMatched) {
+                
+                $response[0]["store_guid_"] = $result[0]->store_guid;
+                
+                //$request["store_guid_"]     = $result[0]->store_guid;
+                
+                // include store settings on response
+                //$response = $this->getSettings($request, $response);
+                
+//                 if($response[0]["licenses_quantity_"] == 0) {
+//                     $response[0]["error"]  = "There is no license available.";
+                    
+//                 }
+                /* For now we will not use this part because even the store does not have license available
+                 * the tablet that the user is trying setup can be a swap and not new one.
+                 else {
+                 $devices = $this->getDevices($request, $response);
+                 
+                 $licensesInUse = 0;
+                 foreach ($devices as $device) {
+                 $licensesInUse += $device["login_"] == 1 ? 1 : 0;
+                 }
+                 
+                 if ($response[0]["licenses_quantity_"] <= $licensesInUse) {
+                 $response[0]["error"]  = "There is no license available.";
+                 }
+                 }
+                 */
+                
+            } else {
+                
+                $response[0]["error"]  = "Password is incorrect.";
+            }
+            
+        } else {
+            
+            $response[0]["error"]  = "Username is incorrect.";
+        }
+        
+        return $response;
+        
     }
     
     
@@ -144,72 +209,7 @@ class ApiController extends Controller
         return $response;
         
     }
-    
-    
-    public function login(array $request, array $response) {
         
-        $username = $request["username"];
-        $password = $request["password"];
-        
-        $sql = "SELECT
-                    password,
-                    store_guid
-                FROM users
-                WHERE username = '$username'";
-        
-        $result = DB::select($sql);
-        
-        //echo "sql: " . $sql . "|";
-        
-        if (count($result) > 0) {
-            
-            $passDataBase = $result[0]->password;
-            
-            $passMatched = Hash::check($password, $passDataBase);
-            
-            if ($passMatched) {
-                
-                $response[0]["store_guid_"] = $result[0]->store_guid;
-                
-                $request["store_guid_"]     = $result[0]->store_guid;
-                
-                // include store settings on response
-                $response = $this->getSettings($request, $response);
-                
-                if($response[0]["licenses_quantity_"] == 0) {
-                    $response[0]["error"]  = "There is no license available.";
-                    
-                } 
-                /* For now we will not use this part because even the store does not have license available
-                 * the tablet that the user is trying setup can be a swap and not new one.
-                else {
-                    $devices = $this->getDevices($request, $response);
-                    
-                    $licensesInUse = 0;
-                    foreach ($devices as $device) {
-                        $licensesInUse += $device["login_"] == 1 ? 1 : 0;
-                    }
-                    
-                    if ($response[0]["licenses_quantity_"] <= $licensesInUse) {
-                        $response[0]["error"]  = "There is no license available.";
-                    }
-                }
-                */
-                
-            } else {
-                
-                $response[0]["error"]  = "Password is incorrect.";
-            }
-            
-        } else {
-            
-            $response[0]["error"]  = "Username is incorrect.";
-        }
-        
-        return $response;
-        
-    }
-    
     
     public function getSettings(array $request, array $response) {
         
@@ -256,19 +256,49 @@ class ApiController extends Controller
     
     
     public function activeLicense(Request $request) {
+        
+//         $arr = array("0: ".$request->guid);
+        
+        if ($request->active) {
+            $device = DB::table('devices')->where(['guid_' => $request->guid])->first();
+            if (isset($device)) {
+//                 array_push($arr, "1: ".$device->serial_);
+                if (isset($device->serial_)) {
+//                     array_push($arr, "2: ".$device->serial_);
+                    $sameSerialActive = DB::table('devices')
+                    ->where('guid_', '<>',  $request->guid)
+                    ->where('serial_', '=', $device->serial_)
+                    ->where('is_deleted_', '=', 0)
+                    ->where('login_', '=', 1)
+                    ->first();
+                    if (isset($sameSerialActive)) {
+//                         array_push($arr, "3: ".$sameSerialActive->guid_);
+                        return array("There is another KDS Station with the same serial number active.");
+                    }
+                }
+            }
+        }
+        
         $update_time = (new DateTime())->getTimestamp();
         $sql = "update devices set login_ = $request->active , update_time_ = $update_time where guid_ = '$request->guid'";
         $result = DB::statement($sql);
         return array($result);
+        
+//         return $arr;
     }
     
-
+    
     public function stripslashes_deep($value) {
         $value = is_array($value) ?
         array_map('stripslashes_deep', $value) :
         stripslashes($value);
-
+        
         return $value;
     }
 
 }
+
+
+
+
+

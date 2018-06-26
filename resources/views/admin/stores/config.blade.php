@@ -167,6 +167,7 @@
         <tr>
             <th>ID</th>
             <th>KDS Station Name</th>
+            <th>Serial Number</th>
             <th>Function</th>
             <th>Parent ID</th>
             <th>Expeditor</th>
@@ -180,6 +181,7 @@
             <tr>
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id_ }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->name_}}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ explode('-', $device->serial_)[0] }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->function_ }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->expeditor_ }}</td>
@@ -201,6 +203,29 @@
         </tbody>
     </table>
 </div>
+
+
+<!-- Button trigger modal -->
+<button id="modal-btn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCenter" style="display:none;"></button>
+
+<!-- Modal -->
+<div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        	<div class="modal-content">
+        		<div class="modal-header">
+        			<h5 class="modal-title" id="modalLongTitle">Title</h5>
+        		</div>
+        		<div class="modal-body">
+        			Message
+        		</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+    			</div>
+        	</div>
+    </div>
+</div>
+
+
 @endsection
 
 

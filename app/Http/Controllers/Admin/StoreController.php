@@ -189,7 +189,10 @@ class StoreController extends Controller
         //echo "store->store_guid: " . $store->store_guid;
         if(isset($store->store_guid) and $store->store_guid != '') {
              $settings = DB::table('settings')->where(['store_guid_' => $store->store_guid])->first();
-             $devices  = DB::table('devices')->where(['store_guid_' => $store->store_guid])
+             
+             $devices  = DB::table('devices')
+             ->where(['store_guid_' => $store->store_guid])
+             ->where('is_deleted_', '<>',  1)
              ->orderBy('login_','desc')
              ->orderBy('id_','asc')->paginate(50);
         }

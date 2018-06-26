@@ -35,8 +35,8 @@
                     </div>
                     
                     <ul class="nav nav-tabs" role="tablist" style="background:white;">
-                        <li role="presentation" class="active"><a class="atabs" href="#settings" role="tab" data-toggle="tab">Settings</a></li>
-                        <li role="presentation" ><a class="atabs" href="#devices" role="tab" data-toggle="tab">KDS Stations</a></li>
+                        <li role="presentation"><a id="first-tab" class="atabs" href="#settings" role="tab" data-toggle="tab">Settings</a></li>
+                        <li role="presentation"><a class="atabs" href="#devices" role="tab" data-toggle="tab">KDS Stations</a></li>
                         <!--<li role="presentation" ><a class="atabs" href="#licenses" role="tab" data-toggle="tab">Licenses</a></li>-->
                         
                     </ul>
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="settings">
+                    <div role="tabpanel" class="tab-pane" id="settings">
                         @yield('settings')
                     </div>
                     <div role="tabpanel" class="tab-pane" id="devices">
@@ -66,6 +66,9 @@
 
 @section('styles')
     {{ Html::style(mix('assets/admin/css/admin.css')) }}
+    <style>
+        .nav-tabs li { margin-right:10px; }
+    </style>
 @endsection
 
 @section('scripts')
@@ -75,18 +78,45 @@
 
         $(document).ready(function(){
 
-            $('.active a').css('background-color','#f7f7f7')
+            $('.active a').css('background-color','#f7f7f7');
 
-            $(".atabs").click(function(){
-                $(".atabs").each(function(){
-                    $(this).removeClass('active')
-                    $(this).css('background-color','#ffffff')
-                    $(this).css('border-bottom','1px solid #ddd')
+            var hasSelected = false;
+            var atabSelected = window.location.href.split('#')[1];
+            $(".atabs").each(function(){
+            		var atabs = $(this).attr('href');
+            		if (atabSelected != undefined) {
+                		if (atabs == '#'+atabSelected) {
+                			setTab($(this));
+                			hasSelected = true;
+                		}
+            		}
+            		$(this).click(function(){
+                		setTab($(this));
                 })
-                $(this).css('background-color','#f7f7f7')
-                $(this).css('border-bottom','1px solid #f7f7f7')
-            })
+            });
 
+            if (!hasSelected) {
+            		setTab($('#first-tab'));
+            }
+
+            function setTab(selected) {
+            		$(".atabs").each(function(){
+            			$(this).removeClass('active');
+                    $(this).css('border','1px solid #f7f7f7');
+                    $(this).css('border-bottom','1px solid #ddd');
+                    $(this).css('background-color','#ffffff');
+                    
+                });
+                	selected.css('border','1px solid #ddd');
+                	selected.css('border-bottom','1px solid #f7f7f7');
+            		selected.css('background-color','#f7f7f7');
+                var atabs = selected.attr('href');
+                window.location.href = window.location.href.split('#')[0] + atabs;
+                window.scrollTo(0, 0);
+                $('.tab-pane').hide();
+                $(atabs).fadeIn();
+            }
+			
         });
 
     </script>
