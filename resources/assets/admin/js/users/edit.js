@@ -16,7 +16,7 @@ $(document).ready(function(){
             data: {req: "DEVICES_ACTIVE", guid: guid, active: checking ? 1 : 0},
             success: function (response) {
             //	alert(response);
-            		if (response != true) {
+            		if (response != true && response != "true") {
             			theCkeck.prop("checked", !checking);
             			$(".modal-title").text("Action not permitted");
             			$(".modal-body").text(response);
