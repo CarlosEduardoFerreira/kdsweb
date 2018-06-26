@@ -192,16 +192,17 @@ class ApiController extends Controller
             if($func == "INS") {
                 $sql .= ")";
             } else {
-                $sql .= " WHERE guid_ = " . $object['guid_'] . " AND update_time_ < " . $object['update_time_'];
+                $sql .= " WHERE guid_ = " . $object['guid_'] . " AND (update_time_ < " . $object['update_time_'] . " OR update_time_ IS NULL)";
             }
             
-            //             echo "sql: $sql";
+             //            echo "sql: $sql";
             $result = DB::statement($sql);
             
             if($result) {
-                $response["result"]  = "OK";
+                $response["result"]  = "OK = $sql";
             } else {
-                $response["error"]  = "Error trying $func: $result";
+                $response["error"]  = "Error trying $func: $sql";
+                break;
             }
             
         }
