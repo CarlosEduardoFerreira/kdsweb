@@ -12,7 +12,7 @@
         <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
             <thead>
             <tr>
-            	<th>@sortablelink('name',  'Name',['page' => $resellers->currentPage()])</th>
+            	<th>@sortablelink('name',  'Reseller Name',['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $resellers->currentPage()])</th>
