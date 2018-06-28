@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -40,7 +41,7 @@ class ResellerController extends Controller
         
         $countries = DB::select("select * from countries order by name");
         
-        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller , 'countries' => $countries]);
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller , 'countries' => $countries, 'me' => Auth::user()]);
     }
     
     public function insert(Request $request)
@@ -137,8 +138,8 @@ class ResellerController extends Controller
 //             $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
 //         }
         
-        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 'roles' => Role::get(), 
-            'countries' => $countries, 'states' => $states]);
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 
+            'countries' => $countries, 'states' => $states, 'me' => Auth::user()]);
     }
 
     /**
