@@ -37,17 +37,20 @@
                     <td>{{ $storegroup->updated_at }}</td>
                     <td>
 
-                        <a class="btn btn-xs btn-info" href="{{ route('admin.storegroups.show', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.show') }}">
+                        <a class="btn btn-xs btn-info" href="{{ route('admin.storegroups.show', [$storegroup->id]) }}" data-toggle="tooltip" 
+                        data-placement="top" data-title="{{ __('views.admin.users.index.show') }}">
                             <i class="fa fa-eye"></i>
                         </a>
 
-                        <a class="btn btn-xs btn-warning" href="{{ route('admin.storegroups.edit', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
+                        <a class="btn btn-xs btn-warning" href="{{ route('admin.storegroups.edit', [$storegroup->id]) }}" data-toggle="tooltip" 
+                        data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
                             <i class="fa fa-pencil"></i>
                         </a>
 
                         {{--@if(!$storegroup->hasRole('administrator'))--}}
                             {{--<button class="btn btn-xs btn-danger user_destroy"--}}
-                                    {{--data-url="{{ route('admin.storegroups.destroy', [$storegroup->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.delete') }}">--}}
+                                    {{--data-url="{{ route('admin.storegroups.destroy', [$storegroup->id]) }}" data-toggle="tooltip" 
+                                    data-placement="top" data-title="{{ __('views.admin.users.index.delete') }}">--}}
                                 {{--<i class="fa fa-trash"></i>--}}
                             {{--</button>--}}
                         {{--@endif--}}

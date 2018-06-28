@@ -7,6 +7,7 @@ use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use DateTime;
@@ -33,19 +34,28 @@ class StoreGroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(User $reseller)
     {
         $storegroup = new User;
         $storegroup->active = true;
         
-        $resellers  = DB::select("select * from users
-                                    join users_roles on id = user_id
-                                    where role_id = 2
-                                    order by name");
+        // Resellers ------------------------------------------------------- //
+        $resellers = array();
+        
+        $me = Auth::user();
+        echo "role_id: " . $me->roles[0]->id ."<br>";
+        if ($me->roles[0]->id == 2) {
+            $resellers[0] = $me;
+            
+        } else {
+            $resellers  = Controller::filterUsers(null, 2, $reseller->id);
+        }
+        // ------------------------------------------------------- Resellers //
         
         $countries = DB::select("select * from countries order by name");
         
-        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup , 'parents' => $resellers, 'countries' => $countries]);
+        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup , 'parents' => $resellers, 
+            'countries' => $countries, 'me' => $me]);
     }
     
     
@@ -130,10 +140,18 @@ class StoreGroupController extends Controller
      */
     public function edit(User $storegroup)
     {
-        $resellers  = DB::select("select * from users 
-                                    join users_roles on id = user_id 
-                                    where role_id = 2
-                                    order by name");
+        // Resellers ------------------------------------------------------- //
+        $resellers = array();
+        
+        $me = Auth::user();
+        echo "role_id: " . $me->roles[0]->id ."<br>";
+        if ($me->roles[0]->id == 2) {
+            $resellers[0] = $me;
+            
+        } else {
+            $resellers  = Controller::filterUsers(null, 2, $me->id);
+        }
+        // ------------------------------------------------------- Resellers //
         
         $countries  = DB::select("select * from countries order by name");
         
@@ -147,8 +165,8 @@ class StoreGroupController extends Controller
 //             $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
 //         }
         
-        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup, 'roles' => Role::get(), 'parents' => $resellers,
-            'countries' => $countries, 'states' => $states]);
+        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup, 'parents' => $resellers,
+            'countries' => $countries, 'states' => $states, 'me' => $me]);
         //return view('admin.users.edit', ['user' => $user, 'roles' => Role::get()]);
     }
 

@@ -25,7 +25,7 @@ class Controller extends BaseController
      *  $filterRole = The role to show.
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId) {
+    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null) {
         
         $me = Auth::user();
         
@@ -33,11 +33,11 @@ class Controller extends BaseController
         
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
         
-        if (isset($parentId) and $parentId != 0) {
-            $whereParentId = "AND (stores.parent_id = $parentId OR storegroups.parent_id = $parentId OR resellers.parent_id = $parentId)";
-            
-        } else if ($me->roles[0]->name == 'administrator') {
+        if ($me->roles[0]->name == 'administrator') {
             $whereParentId = "";
+            
+        } else if (isset($parentId) and $parentId != 0) {
+            $whereParentId = "AND (stores.parent_id = $parentId OR storegroups.parent_id = $parentId OR resellers.parent_id = $parentId)";
         }
         
         $orderBy = "";

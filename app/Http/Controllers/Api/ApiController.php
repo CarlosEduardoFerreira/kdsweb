@@ -247,7 +247,7 @@ class ApiController extends Controller
     
     public function getDevices(array $request, array $response) {
         
-        $sql = "SELECT * FROM devices WHERE store_guid_ = '" . $request["store_guid_"] . "'";
+        $sql = "SELECT * FROM devices WHERE store_guid_ = '" . $request["store_guid_"] . "' AND is_deleted_ != 1";
         
         //echo "sql: " . $sql . "|";
         
