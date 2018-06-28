@@ -60,43 +60,6 @@ class Controller extends BaseController
         }
         
         return $users;
-        
-        
-//         $wheres = ['users_roles.role_id' => $filterRole];
-//         if(isset($parentId) and $parentId != 0) {
-//             $wheres += ['users.parent_id' => $parentId];
-//         }
-        
-//         $users = DB::table('users')
-//                         ->join('users AS storegroups', 'storegroups.id', '=', 'users.parent_id')
-//                         ->join('users_roles', 'users_roles.user_id', '=', 'users.id')
-//                         ->where($wheres)
-//                         ->paginate(10);
-        
-//         return $users;
-        
-//         $users = DB::table('users');
-        
-//         if(isset($parentId) and $parentId != 0) {
-            
-//             $wheres += ['users.parent_id' => $parentId];
-            
-//         } else {
-            
-//             if($filterRole == 3) { // storegroups
-//                 $users = $users->where(['users.parent_id' => $me->id]);
-                
-//             } else if($filterRole == 4) { // stores
-                
-//                 $users = $users->join('users AS storegroups', 'storegroups.id', '=', 'users.parent_id');
-//                 $users = $users->where(['storegroups.parent_id' => $me->id]);
-//             }
-//         }
-        
-//         $users = $users->join('users_roles', 'users_roles.user_id', '=', 'users.id');
-//         $users = $users->where(['users_roles.role_id' => $filterRole]);
-        
-//         $users = $users->paginate(10);
     }
     
     
@@ -136,7 +99,7 @@ class Controller extends BaseController
         }
         
         $licensesActive =  DB::select("SELECT 
-                                    sum(devices.login_) AS active
+                                    sum(case when devices.split_screen_parent_device_id_ = 0 then devices.login_ else 0 end) AS active
                                 FROM users AS stores
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
