@@ -225,7 +225,7 @@ class StoreController extends Controller
         
         $activeLicenses = 0;
         foreach ($devices as &$device) {
-            $activeLicenses += $device->login_;
+            $activeLicenses += $device->split_screen_parent_device_id_ == 0 ? $device->login_ : 0;
         }
         $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity_";
         

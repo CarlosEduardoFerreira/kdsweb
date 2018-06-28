@@ -193,10 +193,13 @@
 				{{ $date->format('m/d/Y H:i:s') }}
 				</td>
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">
-                    <label class="switch">
-                      <input class="device-license-login" guid="{{ $device->guid_ }}" type="checkbox" @if($device->login_) checked="checked" @endif value="1">
-                      <span class="slider round"></span>
-                    </label>
+                		<?php if ($device->split_screen_parent_device_id_ == 0) { ?>
+                		    <label class="switch">
+                          <input class="device-license-login" guid="{{ $device->guid_ }}" type="checkbox" 
+                          									@if($device->login_) checked="checked" @endif value="1">
+                          <span class="slider round"></span>
+                        </label>
+                		<?php } ?>
                 	</td>
             </tr>
         @endforeach
