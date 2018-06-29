@@ -30,6 +30,15 @@ class ApiController extends Controller
         $request = json_decode($request, true);
 
         $response = array(array());
+        
+        // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
+        if (!isset($request[0]["tok"]) || $request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
+            $response[0]["error"]  = "Your application has no permission to do this!";
+            return response()->json($response);
+        } else {
+            $request = $request[1];
+        }
+        // -------------------------------------------------------------------------- TOKEN - THIS CANNOT BE CHANGED!!! //
 
         /** // Request
          *  req = Resquest/Function
