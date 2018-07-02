@@ -73,10 +73,10 @@
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-cutlery"></i> Stores</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['stores'] }}</div>
         </div>
-        <div class="tile_stats_count {{ $dashshow[3] }} {{ $colwidth }}" goto="">
+ <!--	<div class="tile_stats_count {{ $dashshow[3] }} {{ $colwidth }}" goto="">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-users"></i> Employees</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['employees'] }}</div>
-        </div>
+        </div> -->
         <div class="tile_stats_count {{ $dashshow[4] }} {{ $colwidth }}" goto="">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-desktop"></i> Devices</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['devices'] }}</div>
