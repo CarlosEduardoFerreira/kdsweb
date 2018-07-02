@@ -40,7 +40,7 @@
             </tr>
             <tr>
                 <th>Address 2</th>
-                <td>{{ $reseller->address }}</td>
+                <td>{{ $reseller->address2 }}</td>
             </tr>
             <tr>
                 <th>City</th>
@@ -51,13 +51,14 @@
                 <td>{{ $reseller->state }}</td>
             </tr>
             <tr>
-                <th>Country</th>
-                <td>{{ $reseller->country }}</td>
-            </tr>
-            <tr>
                 <th>Zip Code</th>
                 <td>{{ $reseller->zipcode }}</td>
             </tr>
+            <tr>
+                <th>Country</th>
+                <td>{{ $reseller->country }}</td>
+            </tr>
+            
 
             <!--
             <tr>
@@ -79,10 +80,7 @@
                 </td>
             </tr>
 
-            <tr>
-                <th>Username</th>
-                <td>{{ $reseller->username }}</td>
-            </tr>
+          
 
             <!--
             <tr>

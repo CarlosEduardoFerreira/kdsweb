@@ -13,7 +13,11 @@
                 <td><img src="{{ $storegroup->avatar }}" class="user-profile-image"></td>
             </tr>
             -->
-
+            
+			<tr>
+                <th>Reseller Name</th>
+                <td>{{ $storegroup->parent_id }}</td>
+            </tr>
             <tr>
                 <th>Store Group Name</th>
                 <td>{{ $storegroup->business_name }}</td>
@@ -40,7 +44,7 @@
             </tr>
             <tr>
                 <th>Address 2</th>
-                <td>{{ $storegroup->address }}</td>
+                <td>{{ $storegroup->address2 }}</td>
             </tr>
             <tr>
                 <th>City</th>
@@ -50,14 +54,15 @@
                 <th>State</th>
                 <td>{{ $storegroup->state }}</td>
             </tr>
+             <tr>
+                <th>Zip Code</th>
+                <td>{{ $storegroup->zipcode }}</td>
+            </tr>
             <tr>
                 <th>Country</th>
                 <td>{{ $storegroup->country }}</td>
             </tr>
-            <tr>
-                <th>Zip Code</th>
-                <td>{{ $storegroup->zipcode }}</td>
-            </tr>
+           
 
             <!--
             <tr>
@@ -79,10 +84,7 @@
                 </td>
             </tr>
 
-            <tr>
-                <th>Username</th>
-                <td>{{ $storegroup->username }}</td>
-            </tr>
+           
 
             <!--
             <tr>

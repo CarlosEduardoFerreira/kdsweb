@@ -14,6 +14,10 @@
             </tr>
             -->
 
+             <tr>
+                <th>Store Group</th>
+                <td>{{ $store->parent_id }}</td>
+            </tr>
             <tr>
                 <th>Legal Business Name</th>
                 <td>{{ $store->business_name }}</td>
@@ -46,6 +50,10 @@
                 <th>Address</th>
                 <td>{{ $store->address }}</td>
             </tr>
+             <tr>
+                <th>Address</th>
+                <td>{{ $store->address2 }}</td>
+            </tr>
             <tr>
                 <th>City</th>
                 <td>{{ $store->city }}</td>
@@ -54,14 +62,15 @@
                 <th>State</th>
                 <td>{{ $store->state }}</td>
             </tr>
+             <tr>
+                <th>Zip Code</th>
+                <td>{{ $store->zipcode }}</td>
+            </tr>
             <tr>
                 <th>Country</th>
                 <td>{{ $store->country }}</td>
             </tr>
-            <tr>
-                <th>Zip Code</th>
-                <td>{{ $store->zipcode }}</td>
-            </tr>
+           
 
             <!--
             <tr>
