@@ -172,26 +172,17 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="country" >
-                    Country:
+             <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city" >
+                    City:
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                
-                		<select id="country" name="country" class="form-control" style="width:350px;" required>
-                		<option></option>
-                    @foreach($countries as $country)
-                    		<?php 
-                    		$selected = $user->country == $country->id ? "selected" : "";
-                    		?>
-                    		<option value="{{$country->id}}" <?=$selected ?>> {{$country->name}}</option>
-                    @endforeach
-                    </select>
+                    <input id="city" name="city" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->city }}" required>
                 </div>
             </div>
-
-            <div class="form-group">
+            
+             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="state" >
                     State:
                     <span class="required">*</span>
@@ -212,16 +203,6 @@
             </div>
             
             <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city" >
-                    City:
-                    <span class="required">*</span>
-                </label>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="city" name="city" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->city }}" required>
-                </div>
-            </div>
-
-            <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="zipcode" >
                     Zip Code:
                     <span class="required">*</span>
@@ -230,6 +211,27 @@
                     <input id="zipcode" name="zipcode" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->zipcode }}" required>
                 </div>
             </div>
+            
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="country" >
+                    Country:
+                    <span class="required">*</span>
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                
+                		<select id="country" name="country" class="form-control" style="width:350px;" required>
+                		<option></option>
+                    @foreach($countries as $country)
+                    		<?php 
+                    		$selected = $user->country == $country->id ? "selected" : "";
+                    		?>
+                    		<option value="{{$country->id}}" <?=$selected ?>> {{$country->name}}</option>
+                    @endforeach
+                    </select>
+                </div>
+            </div>
+
+           
 
 			@if($user->exists)
                 <div class="form-group">
