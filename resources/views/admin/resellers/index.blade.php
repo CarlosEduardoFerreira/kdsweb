@@ -24,7 +24,7 @@
 
             @foreach($resellers as $reseller)
                 <tr>
-                		<td>{{ $reseller->name }}</td>
+                		<td>{{ $reseller->business_name }}</td>
                     	<td>{{ $reseller->email }}</td>
                     <td>
                         @if($reseller->active)

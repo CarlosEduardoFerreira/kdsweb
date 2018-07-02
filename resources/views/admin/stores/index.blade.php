@@ -13,7 +13,7 @@
         
             <thead>
                 <tr>
-                		<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
+                	<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
                     <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
                     <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
                     <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
@@ -26,7 +26,7 @@
 
             @foreach($stores as $store)
                 <tr>
-                		<td>{{ $store->name }}</td>
+                		<td>{{ $store->business_name }}</td>
                     	<td>{{ $store->email }}</td>
                     <td>
                         @if($store->active)

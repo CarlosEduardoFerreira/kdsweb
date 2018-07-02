@@ -12,7 +12,7 @@
         <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
             <thead>
             <tr>
-            	<th>@sortablelink('name', 'Store Group Name',['page' => $storegroups->currentPage()])</th>
+            	<th>@sortablelink('business_name', 'Store Group Name',['page' => $storegroups->currentPage()])</th>
                 <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $storegroups->currentPage()])</th>
                 <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $storegroups->currentPage()])</th>
                 <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $storegroups->currentPage()])</th>
@@ -24,7 +24,7 @@
 
             @foreach($storegroups as $storegroup)
                 <tr>
-                		<td>{{ $storegroup->name }}</td>
+                		<td>{{ $storegroup->business_name }}</td>
                     	<td>{{ $storegroup->email }}</td>
                     <td>
                         @if($storegroup->active)
