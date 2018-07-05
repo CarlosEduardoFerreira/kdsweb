@@ -279,7 +279,7 @@ class ApiController extends Controller
                     ->where('guid_', '<>',  $request->guid)
                     ->where('serial_', '=', $device->serial_)
                     ->where('is_deleted_', '=', 0)
-                    ->where('login_', '=', 1)
+                    ->where('license_', '=', 1)
                     ->first();
                     if (isset($sameSerialActive)) {
 //                         array_push($arr, "3: ".$sameSerialActive->guid_);
@@ -290,7 +290,7 @@ class ApiController extends Controller
         }
         
         $update_time = (new DateTime())->getTimestamp();
-        $sql = "update devices set login_ = $request->active , update_time_ = $update_time where guid_ = '$request->guid'";
+        $sql = "update devices set license_ = $request->active , update_time_ = $update_time where guid_ = '$request->guid'";
         $result = DB::statement($sql);
         return array($result);
         

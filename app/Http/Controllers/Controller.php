@@ -96,7 +96,7 @@ class Controller extends BaseController
         }
         
         $licensesActive =  DB::select("SELECT 
-                                    sum(case when devices.split_screen_parent_device_id_ = 0 then devices.login_ else 0 end) AS active
+                                    sum(case when devices.split_screen_parent_device_id_ = 0 then devices.license_ else 0 end) AS active
                                 FROM users AS stores
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)

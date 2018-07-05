@@ -211,7 +211,7 @@ class StoreController extends Controller
              $devices  = DB::table('devices')
              ->where(['store_guid_' => $store->store_guid])
              ->where('is_deleted_', '<>',  1)
-             ->orderBy('login_','desc')
+             ->orderBy('license_','desc')
              ->orderBy('id_','asc')->paginate(50);
         }
      
@@ -225,7 +225,7 @@ class StoreController extends Controller
         
         $activeLicenses = 0;
         foreach ($devices as &$device) {
-            $activeLicenses += $device->split_screen_parent_device_id_ == 0 ? $device->login_ : 0;
+            $activeLicenses += $device->split_screen_parent_device_id_ == 0 ? $device->license_ : 0;
         }
         $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity_";
         
