@@ -116,6 +116,8 @@
                 $('.tab-pane').hide();
                 $(atabs).fadeIn();
             }
+
+            $(this).scrollTop(0);
 			
         });
 
