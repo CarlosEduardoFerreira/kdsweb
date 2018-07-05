@@ -40,7 +40,7 @@
 
                 	<?php if(auth()->user()->hasRole('administrator')) { ?>
                         <li>
-                            <a href="{{ route('admin.resellers', ['adminId' => '0']) }}">
+                            <a href="{{ route('admin.resellers', ['adminId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
                                 {{ __('views.backend.section.navigation.menu_1_1') }}
                             </a>
@@ -49,7 +49,7 @@
 
                     <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')) { ?>
                         <li>
-                            <a href="{{ route('admin.storegroups', ['resellerId' => '0']) }}">
+                            <a href="{{ route('admin.storegroups', ['resellerId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-sitemap" aria-hidden="true"></i>
                                 {{ __('views.backend.section.navigation.menu_1_2') }}
                             </a>
@@ -57,7 +57,7 @@
                     <?php } ?>
 
                     <li>
-                        <a href="{{ route('admin.stores', ['storegroupId' => '0']) }}">
+                        <a href="{{ route('admin.stores', ['storegroupId' => '0', 'filter' => false]) }}">
                             <i class="fa fa-cutlery" aria-hidden="true"></i>
                             {{ __('views.backend.section.navigation.menu_1_3') }}
                         </a>

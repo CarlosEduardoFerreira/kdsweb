@@ -24,7 +24,7 @@ class ResellerController extends Controller
     public function index(Request $request, string $adminId)
     {
 
-        $resellers = Controller::filterUsers($request, 2, $adminId);
+        $resellers = Controller::filterUsers($request, 2, $adminId, $request->filter);
 
         return view('admin.resellers.index', ['resellers' => $resellers]);
     }
@@ -93,7 +93,7 @@ class ResellerController extends Controller
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 2]);
         
-        return redirect()->intended(route('admin.resellers', 0));
+        return redirect()->intended(route('admin.resellers.edit', [$id, 'filter' => false]));
     }
 
     /**
@@ -210,8 +210,8 @@ class ResellerController extends Controller
                 $reseller->roles()->attach($request->get('roles'));
             }
         }
-
-        return redirect()->intended(route('admin.resellers', 0));
+        
+        return redirect()->intended(route('admin.resellers.edit', [$reseller->id, 'filter' => false]));
     }
 
     /**

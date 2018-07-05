@@ -9,26 +9,26 @@
         $roleId = $me->roles[0]["id"];
 
         // for Admin // resellers, storegroups, stores, employees, devices, licenses
-        $dashshow = ['dashshow','dashshow','dashshow','dashshow','dashshow','dashshow'];
+        $dashshow = ['dashshow','dashshow','dashshow','dashhide','dashshow','dashhide'];
 
         // Bootstrap -------------------------------------------------------------------------- //
         // xs = extra small
         // sm = small
         // md = medium
         // lg = large
-        $colwidth = "col-xs-12 col-sm-6 col-md-4 col-lg-2"; // 6 columns
+        $colwidth = "col-xs-12 col-sm-6 col-md-3 col-lg-3"; // 6 columns
         // -------------------------------------------------------------------------- Bootstrap //
 
         if ($roleId == 2) { // reseller
-            $dashshow = ['dashhide','dashshow','dashshow','dashhide','dashshow','dashshow'];
-            $colwidth = "col-xs-12 col-sm-6 col-md-3 col-lg-3"; // 4 columns
+            $dashshow = ['dashhide','dashshow','dashshow','dashhide','dashshow','dashhide'];
+            $colwidth = "col-xs-12 col-sm-6 col-md-4 col-lg-4"; // 4 columns
 
         } else if ($roleId == 3) { // storegroup
-            $dashshow = ['dashhide','dashhide','dashshow','dashhide','dashshow','dashshow'];
-            $colwidth = "col-xs-12 col-sm-4 col-md-4 col-lg-4"; // 3 columns
+            $dashshow = ['dashhide','dashhide','dashshow','dashhide','dashshow','dashhide'];
+            $colwidth = "col-xs-12 col-sm-6 col-md-6 col-lg-6"; // 3 columns
 
         } else if ($roleId == 4) { // store
-            $dashshow = ['dashhide','dashhide','dashhide','dashhide','dashshow','dashshow'];
+            $dashshow = ['dashhide','dashhide','dashhide','dashhide','dashshow','dashhide'];
             $colwidth = "col-xs-6 col-sm-6 col-md-6 col-lg-6"; // 2 columns
         }
 
@@ -73,10 +73,10 @@
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-cutlery"></i> Stores</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['stores'] }}</div>
         </div>
- <!--	<div class="tile_stats_count {{ $dashshow[3] }} {{ $colwidth }}" goto="">
+ 		<div class="tile_stats_count {{ $dashshow[3] }} {{ $colwidth }}" goto="">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-users"></i> Employees</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['employees'] }}</div>
-        </div> -->
+        </div>
         <div class="tile_stats_count {{ $dashshow[4] }} {{ $colwidth }}" goto="">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-desktop"></i> Devices</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['devices'] }}</div>

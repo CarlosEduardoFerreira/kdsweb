@@ -24,7 +24,7 @@ class StoreController extends Controller
     public function index(Request $request, string $storegroupId)
     {
 
-        $stores = Controller::filterUsers($request, 4, $storegroupId);
+        $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
 
         return view('admin.stores.index', ['stores' => $stores]);
     }
@@ -34,7 +34,7 @@ class StoreController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(User $storegroup)
+    public function create(Request $request, User $storegroup)
     {
         $store = new User;
         $store->active = true;
@@ -48,7 +48,7 @@ class StoreController extends Controller
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $storegroup->id);
+            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -135,7 +135,7 @@ class StoreController extends Controller
         $settingsTable->insert($data);
         // ---------------------------------------------------------------------------- //
         
-        return redirect()->intended(route('admin.stores', 0));
+        return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false]));
     }
     
 
@@ -167,7 +167,7 @@ class StoreController extends Controller
      * @param User $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $store)
+    public function edit(Request $request, User $store)
     {
         // StoreGroups ------------------------------------------------------- //
         $storegroups = array();
@@ -178,7 +178,7 @@ class StoreController extends Controller
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $me->id);
+            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -298,7 +298,7 @@ class StoreController extends Controller
             }
         }
 
-        return redirect()->intended(route('admin.stores', 0));
+        return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false]));
     }
     
     

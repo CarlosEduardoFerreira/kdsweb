@@ -259,14 +259,19 @@
                     </div>
                 </div>
             <?php } ?>
-
+			
+			<?php 
+			     $required = !isset($user->id) ? "required" : "";
+			?>
+			
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="password">
                     {{ __('views.admin.users.edit.password') }}
                 	<span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="password" name="password" type="password" class="form-control col-md-7 col-xs-12" value="{{ $user->password }}" required>
+                    <input id="password" name="password" type="password" 
+                    class="form-control col-md-7 col-xs-12" <?=$required?>>
                 </div>
             </div>
 
@@ -276,7 +281,8 @@
                 	<span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="password_confirmation" name="password_confirmation" type="password" class="form-control col-md-7 col-xs-12" value="{{ $user->password__confirmation }}" required>
+                    <input id="password_confirmation" name="password_confirmation" type="password" 
+                    class="form-control col-md-7 col-xs-12" <?=$required?>>
                 </div>
             </div>
 

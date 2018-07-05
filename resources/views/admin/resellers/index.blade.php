@@ -6,7 +6,7 @@
     <div class="row" style="min-height:700px;">
     
     		<div style="text-align:right;padding:10px;">
-    			<a class="btn btn-success" type="button" href="{{ route('admin.resellers.new') }}">New</a>
+    			<a class="btn btn-success" type="button" href="{{ route('admin.resellers.new', ['filter' => false]) }}">New</a>
     		</div>
     		
         <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
@@ -41,7 +41,7 @@
                             <i class="fa fa-eye"></i>
                         </a>
 
-                        <a class="btn btn-xs btn-warning" href="{{ route('admin.resellers.edit', [$reseller->id]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
+                        <a class="btn btn-xs btn-warning" href="{{ route('admin.resellers.edit', [$reseller->id, 'filter' => false]) }}" data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
                             <i class="fa fa-pencil"></i>
                         </a>
 
@@ -53,7 +53,7 @@
                         {{--@endif--}}
 
                         <?php if ($reseller->role_id == 2) { ?>
-                            <a class="btn btn-xs btn-primary" href="{{ route('admin.storegroups', ['resellerId' => $reseller->id]) }}"
+                            <a class="btn btn-xs btn-primary" href="{{ route('admin.storegroups', ['resellerId' => $reseller->id, 'filter' => true]) }}"
                             				data-toggle="tooltip" data-placement="top" data-title="Store Groups">
                                 <i class="fa fa-sitemap"></i>
                             </a>

@@ -25,7 +25,7 @@ class Controller extends BaseController
      *  $filterRole = The role to show.
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null) {
+    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, int $filter = null) {
         
         $me = Auth::user();
         
@@ -33,7 +33,7 @@ class Controller extends BaseController
         
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
         
-        if ($me->roles[0]->name == 'administrator') {
+        if ($me->roles[0]->name == 'administrator' and (isset($filter) and !$filter)) {
             $whereParentId = "";
             
         } else if (isset($parentId) and $parentId != 0) {
@@ -63,7 +63,7 @@ class Controller extends BaseController
     }
     
     
-    public function getDevicesCount(bool $deleted = true) {
+    public function getDevicesCount(bool $deleted = false) {
         
         $me = Auth::user();
 
@@ -72,17 +72,14 @@ class Controller extends BaseController
             $whereParentId = "";
         }
         
-        $whereDeleted = "";
-        if ($deleted ) {
-            $whereDeleted = "AND is_deleted_ = 1";
-        }
+        $whereDeleted = $deleted ? "AND is_deleted_ = 1" : "AND is_deleted_ = 0";
         
         $devices =  DB::select("SELECT count(devices.guid_) AS count
                                 FROM users AS stores
-                                LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
-                                LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
-                                INNER JOIN devices ON devices.store_guid_ = stores.store_guid
-                                INNER JOIN users_roles ON users_roles.user_id = stores.id
+                                JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
+                                JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
+                                JOIN devices ON devices.store_guid_ = stores.store_guid
+                                JOIN users_roles ON users_roles.user_id = stores.id
                                 WHERE users_roles.role_id = 4 $whereDeleted $whereParentId");
         
         return $devices[0]->count;

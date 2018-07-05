@@ -6,7 +6,7 @@
     <div class="row" style="min-height:700px;">
     
     		<div style="text-align:right;padding:10px;">
-    			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new') }}">New</a>
+    			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new', ['filter' => false]) }}">New</a>
     		</div>
     
         <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
@@ -44,7 +44,7 @@
                             <i class="fa fa-eye"></i>
                         </a>
 
-                        <a class="btn btn-xs btn-warning" href="{{ route('admin.stores.edit', [$store->id]) }}"
+                        <a class="btn btn-xs btn-warning" href="{{ route('admin.stores.edit', [$store->id, 'filter' => false]) }}"
                             data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
                             <i class="fa fa-pencil"></i>
                         </a>

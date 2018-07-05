@@ -31,7 +31,7 @@ class DashboardController extends Controller
     {
         $me = Auth::user();
 
-        $users = Controller::filterUsers(null, 0, 0);
+        $users = Controller::filterUsers(null, 0, 0, 0);
 
 //          Roles -------------------------------------
 //          id  name            weight     role

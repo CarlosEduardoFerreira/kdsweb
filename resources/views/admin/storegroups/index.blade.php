@@ -6,7 +6,7 @@
     <div class="row" style="min-height:700px;">
     
     		<div style="text-align:right;padding:10px;">
-    			<a class="btn btn-success" type="button" href="{{ route('admin.storegroups.new') }}">New</a>
+    			<a class="btn btn-success" type="button" href="{{ route('admin.storegroups.new', ['filter' => false]) }}">New</a>
     		</div>
     		
         <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
@@ -42,7 +42,7 @@
                             <i class="fa fa-eye"></i>
                         </a>
 
-                        <a class="btn btn-xs btn-warning" href="{{ route('admin.storegroups.edit', [$storegroup->id]) }}" data-toggle="tooltip" 
+                        <a class="btn btn-xs btn-warning" href="{{ route('admin.storegroups.edit', [$storegroup->id, 'filter' => false]) }}" data-toggle="tooltip" 
                         data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
                             <i class="fa fa-pencil"></i>
                         </a>
@@ -56,7 +56,7 @@
                         {{--@endif--}}
 
                         <?php if ($storegroup->role_id == 2 || $storegroup->role_id == 3) { ?>
-                            <a class="btn btn-xs btn-primary" href="{{ route('admin.stores', ['storegroupId' => $storegroup->id]) }}"
+                            <a class="btn btn-xs btn-primary" href="{{ route('admin.stores', ['storegroupId' => $storegroup->id, 'filter' => true]) }}"
                             				data-toggle="tooltip" data-placement="top" data-title="Stores">
                                 <i class="fa fa-cutlery"></i>
                             </a>
