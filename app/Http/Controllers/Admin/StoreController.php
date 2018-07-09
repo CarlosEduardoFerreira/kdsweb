@@ -119,17 +119,17 @@ class StoreController extends Controller
         $settingsTable = DB::table('settings');
         
         $data = [
-            'guid_'                     => Uuid::uuid4(),
-            'store_guid_'               => $data['store_guid'],
-            'server_address_'           => "",
-            'server_username_'          => "",
-            'server_password_'          => "",
-            'socket_port_'              => 1111,
-            'auto_done_order_hourly_'   => 0,
-            'auto_done_order_time_'     => 0,
-            'timezone_'                 => "America/New_York",
-            'smart_order_'              => 0,
-            'licenses_quantity_'        => 0
+            'guid'                     => Uuid::uuid4(),
+            'store_guid'               => $data['store_guid'],
+            'server_address'           => "",
+            'server_username'          => "",
+            'server_password'          => "",
+            'socket_port'              => 1111,
+            'auto_done_order_hourly'   => 0,
+            'auto_done_order_time'     => 0,
+            'timezone'                 => "America/New_York",
+            'smart_order'              => 0,
+            'licenses_quantity'        => 0
         ];
 
         $settingsTable->insert($data);
@@ -206,13 +206,13 @@ class StoreController extends Controller
         
         //echo "store->store_guid: " . $store->store_guid;
         if(isset($store->store_guid) and $store->store_guid != '') {
-             $settings = DB::table('settings')->where(['store_guid_' => $store->store_guid])->first();
+             $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
              
              $devices  = DB::table('devices')
-             ->where(['store_guid_' => $store->store_guid])
-             ->where('is_deleted_', '<>',  1)
-             ->orderBy('license_','desc')
-             ->orderBy('id_','asc')->paginate(50);
+             ->where(['store_guid' => $store->store_guid])
+             ->where('is_deleted', '<>',  1)
+             ->orderBy('license','desc')
+             ->orderBy('id','asc')->paginate(50);
         }
      
         if(!isset($settings)) {
@@ -225,9 +225,9 @@ class StoreController extends Controller
         
         $activeLicenses = 0;
         foreach ($devices as &$device) {
-            $activeLicenses += $device->split_screen_parent_device_id_ == 0 ? $device->license_ : 0;
+            $activeLicenses += $device->split_screen_parent_device_id == 0 ? $device->license : 0;
         }
-        $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity_";
+        $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity";
         
         return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 'licenseInfo' => $licenseInfo]);
     }
@@ -306,7 +306,7 @@ class StoreController extends Controller
     {
         
         if(isset($store->store_guid) and $store->store_guid != '') {
-            $settings = DB::table('settings')->where(['store_guid_' => $store->store_guid])->first();
+            $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
         }
         
         $settingsTable = DB::table('settings');
@@ -319,25 +319,25 @@ class StoreController extends Controller
         $auto_done_order_time = $kdsTime->getTimestamp();
         
         $data = [
-                    'server_address_'           => $request->get('server_address'),
-                    'server_username_'          => $request->get('server_username'),
-                    'server_password_'          => $request->get('server_password'),
-                    'socket_port_'              => $request->get('socket_port'),
-                    'auto_done_order_hourly_'   => $request->get('auto_done_order_hourly'),
-                    'auto_done_order_time_'     => $auto_done_order_time,
-                    //'timezone_'                 => $request->get('timezone'),
-                    'smart_order_'              => $request->get('smart_order'),
-                    'licenses_quantity_'        => $request->get('licenses_quantity')
+                    'server_address'           => $request->get('server_address'),
+                    'server_username'          => $request->get('server_username'),
+                    'server_password'          => $request->get('server_password'),
+                    'socket_port'              => $request->get('socket_port'),
+                    'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
+                    'auto_done_order_time'     => $auto_done_order_time,
+                    //'timezone'                 => $request->get('timezone'),
+                    'smart_order'              => $request->get('smart_order'),
+                    'licenses_quantity'        => $request->get('licenses_quantity')
                 ];
         
         if(!isset($settings)) {
             
-            $data['store_guid_'] = $store->store_guid; 
+            $data['store_guid'] = $store->store_guid; 
             $settingsTable->insert($data);
             
         } else {
             
-            $settingsTable->where('store_guid_', $store->store_guid)->update($data);
+            $settingsTable->where('store_guid', $store->store_guid)->update($data);
             
         }
         

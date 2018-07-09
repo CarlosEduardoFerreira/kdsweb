@@ -109,7 +109,7 @@ class ApiController extends Controller
             
             if ($passMatched) {
                 
-                $response[0]["store_guid_"] = $result[0]->store_guid;
+                $response[0]["store_guid"] = $result[0]->store_guid;
                 
                 //$request["store_guid_"]     = $result[0]->store_guid;
                 
@@ -163,15 +163,20 @@ class ApiController extends Controller
             
             $func = "UPD"; // Update
             
-            $sqlCheck   = "SELECT 1 FROM $entity WHERE guid_ = " . $object['guid_'];
+            $guid = $object['guid'];
+            $updt = $object['update_time'];
+            
+//             $guid = str_replace("&#039;", "'", $object['guid']);
+//             if (isset($object['update_time'])) {
+//                 $updt = str_replace("&#039;", "'", $object['update_time']);
+//             }
+            
+            $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
             //echo "sqlCheck: $sqlCheck";
             $result     = DB::select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
             }
-            
-            $guid = "";
-            $updateTime = 0;
             
             if($func == "INS") {
                 $sql  = "INSERT INTO $entity ";
@@ -188,9 +193,13 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
+//                     $value = str_replace("&#039;", "'", $value);
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
+                        if ($key == "guid") {
+                            continue;
+                        }
                         $sql .= "$key = $value , ";
                     }
                 }
@@ -201,16 +210,16 @@ class ApiController extends Controller
             if($func == "INS") {
                 $sql .= ")";
             } else {
-                $sql .= " WHERE guid_ = " . $object['guid_'] . " AND (update_time_ < " . $object['update_time_'] . " OR update_time_ IS NULL)";
+                $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
             
              //            echo "sql: $sql";
             $result = DB::statement($sql);
             
             if($result) {
-                $response["result"]  = "OK = $sql";
+                $response[0]["result"]  = "OK = $sql";
             } else {
-                $response["error"]  = "Error trying $func: $sql";
+                $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
             
@@ -223,25 +232,25 @@ class ApiController extends Controller
     
     public function getSettings(array $request, array $response) {
         
-        $settingsRes = DB::table('settings')->where(['store_guid_' => $request["store_guid_"]])->first();
+        $settingsRes = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
         
         if (isset($settingsRes)) {
             
-            $response[0]["guid_"]                      = $settingsRes->guid_;
-            $response[0]["server_address_"]            = $settingsRes->server_address_;
-            $response[0]["server_username_"]           = $settingsRes->server_username_;
-            $response[0]["server_password_"]           = $settingsRes->server_password_;
-            $response[0]["socket_port_"]               = $settingsRes->socket_port_;
-            $response[0]["auto_done_order_hourly_"]    = $settingsRes->auto_done_order_hourly_;
-            $response[0]["auto_done_order_time_"]      = $settingsRes->auto_done_order_time_;
-            $response[0]["timezone_"]                  = $settingsRes->timezone_;
-            $response[0]["smart_order_"]               = $settingsRes->smart_order_;
+            $response[0]["guid"]                      = $settingsRes->guid;
+            $response[0]["server_address"]            = $settingsRes->server_address;
+            $response[0]["server_username"]           = $settingsRes->server_username;
+            $response[0]["server_password"]           = $settingsRes->server_password;
+            $response[0]["socket_port"]               = $settingsRes->socket_port;
+            $response[0]["auto_done_order_hourly"]    = $settingsRes->auto_done_order_hourly;
+            $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
+            $response[0]["timezone"]                  = $settingsRes->timezone;
+            $response[0]["smart_order"]               = $settingsRes->smart_order;
             
-            if(isset($settingsRes->licenses_quantity_)) {
-                $response[0]["licenses_quantity_"] = $settingsRes->licenses_quantity_;
+            if(isset($settingsRes->licenses_quantity)) {
+                $response[0]["licenses_quantity"] = $settingsRes->licenses_quantity;
                 
             } else {
-                $response[0]["licenses_quantity_"] = 0;
+                $response[0]["licenses_quantity"] = 0;
             }
             
         } else {
@@ -256,7 +265,7 @@ class ApiController extends Controller
     
     public function getDevices(array $request, array $response) {
         
-        $sql = "SELECT * FROM devices WHERE store_guid_ = '" . $request["store_guid_"] . "' AND is_deleted_ != 1";
+        $sql = "SELECT * FROM devices WHERE store_guid = '" . $request["store_guid"] . "' AND is_deleted != 1";
         
         //echo "sql: " . $sql . "|";
         
@@ -270,16 +279,16 @@ class ApiController extends Controller
 //         $arr = array("0: ".$request->guid);
         
         if ($request->active) {
-            $device = DB::table('devices')->where(['guid_' => $request->guid])->first();
+            $device = DB::table('devices')->where(['guid' => $request->guid])->first();
             if (isset($device)) {
 //                 array_push($arr, "1: ".$device->serial_);
-                if (isset($device->serial_)) {
+                if (isset($device->serial)) {
 //                     array_push($arr, "2: ".$device->serial_);
                     $sameSerialActive = DB::table('devices')
-                    ->where('guid_', '<>',  $request->guid)
-                    ->where('serial_', '=', $device->serial_)
-                    ->where('is_deleted_', '=', 0)
-                    ->where('license_', '=', 1)
+                    ->where('guid', '<>',  $request->guid)
+                    ->where('serial', '=', $device->serial)
+                    ->where('is_deleted', '=', 0)
+                    ->where('license', '=', 1)
                     ->first();
                     if (isset($sameSerialActive)) {
 //                         array_push($arr, "3: ".$sameSerialActive->guid_);
@@ -290,7 +299,7 @@ class ApiController extends Controller
         }
         
         $update_time = (new DateTime())->getTimestamp();
-        $sql = "update devices set license_ = $request->active , update_time_ = $update_time where guid_ = '$request->guid'";
+        $sql = "update devices set license = $request->active , update_time = $update_time where guid = '$request->guid'";
         $result = DB::statement($sql);
         return array($result);
         

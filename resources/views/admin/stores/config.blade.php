@@ -12,18 +12,18 @@
             {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
             
                 <?php 
-                    $server_address_  = isset($settings->server_address_)  ? $settings->server_address_ : "";
-                    $server_username_ = isset($settings->server_username_) ? $settings->server_username_ : "";
-                    $server_password_ = isset($settings->server_password_) ? $settings->server_password_ : "";
-                    $socket_port_     = isset($settings->socket_port_) ? $settings->socket_port_ : "1111";
+                    $server_address  = isset($settings->server_address)  ? $settings->server_address : "";
+                    $server_username = isset($settings->server_username) ? $settings->server_username : "";
+                    $server_password = isset($settings->server_password) ? $settings->server_password : "";
+                    $socket_port     = isset($settings->socket_port) ? $settings->socket_port : "1111";
                     
-                    $auto_done_order_hourly_ = isset($settings->auto_done_order_hourly_) ? $settings->auto_done_order_hourly_ : "0";
-                    $auto_done_order_time_   = isset($settings->auto_done_order_time_) ? $settings->auto_done_order_time_ : "0";
+                    $auto_done_order_hourly = isset($settings->auto_done_order_hourly) ? $settings->auto_done_order_hourly : "0";
+                    $auto_done_order_time   = isset($settings->auto_done_order_time) ? $settings->auto_done_order_time : "0";
                     
-                    $timezone_    = isset($settings->timezone_) ? $settings->timezone_ : "America/New_York";
-                    $smart_order_ = isset($settings->smart_order_) ? $settings->smart_order_ : "0";
+                    $timezone    = isset($settings->timezone) ? $settings->timezone : "America/New_York";
+                    $smart_order = isset($settings->smart_order) ? $settings->smart_order : "0";
                     
-                    $licenses_quantity_ = isset($settings->licenses_quantity_) ? $settings->licenses_quantity_ : "0"; 
+                    $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0"; 
                 ?>
     			
                 <div class="form-group">
@@ -32,7 +32,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="server_address" name="server_address" type="text"
-                        value="{{ $server_address_ }}" class="form-control col-md-7 col-xs-12">
+                        value="{{ $server_address }}" class="form-control col-md-7 col-xs-12">
                     </div>
                 </div>
     
@@ -42,7 +42,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="server_username" name="server_username" type="text"
-                        value="{{ $server_username_ }}" class="form-control col-md-7 col-xs-12">
+                        value="{{ $server_username }}" class="form-control col-md-7 col-xs-12">
                     </div>
                 </div>
     
@@ -52,7 +52,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="server_password" name="server_password" type="password"
-                        value="{{ $server_password_ }}" class="form-control col-md-7 col-xs-12">
+                        value="{{ $server_password }}" class="form-control col-md-7 col-xs-12">
                     </div>
                 </div>
     
@@ -64,7 +64,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="socket_port" name="socket_port" type="number" style="width:100px;display:inline;text-align:center;"
-                        value="{{ $socket_port_ }}" class="form-control" required>
+                        value="{{ $socket_port }}" class="form-control" required>
                     </div>
                 </div>
     
@@ -79,14 +79,14 @@
                             Daily: &nbsp; {{ Form::radio('auto_done_order_hourly', 0, true) }}
                         </span>
                         <span class="radio-bump">
-                            Hourly: &nbsp; {{ Form::radio('auto_done_order_hourly', 1, $auto_done_order_hourly_) }}
+                            Hourly: &nbsp; {{ Form::radio('auto_done_order_hourly', 1, $auto_done_order_hourly) }}
                         </span>
                         <span class="radio-bump-time">
                             <select style="width:80px;height:30px;" name="auto_done_order_time">
                             <?php
                                 $kdsTime = new DateTime();
-                                $kdsTime->setTimezone(new DateTimeZone($timezone_));
-                                $kdsTime->setTimestamp($auto_done_order_time_);
+                                $kdsTime->setTimezone(new DateTimeZone($timezone));
+                                $kdsTime->setTimestamp($auto_done_order_time);
                                 $kdsTime = $kdsTime->format('H:i');
                                 $selected = "";
                                 $found = false;
@@ -119,7 +119,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?php
-                            $sel  = $smart_order_ ? ["","selected"] : ["selected",""];
+                            $sel  = $smart_order ? ["","selected"] : ["selected",""];
                         ?>
                         <select style="width:60px;height:30px;" name="smart_order">
                             <option value="0" <?=$sel[0]?>>No</option>
@@ -136,7 +136,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="licenses_quantity" name="licenses_quantity" type="number" style="width:100px;display:inline;text-align:center;"
-                        value="{{ $licenses_quantity_ }}" class="form-control" required>
+                        value="{{ $licenses_quantity }}" class="form-control" required>
                     </div>
                 </div>
             
@@ -179,24 +179,24 @@
 
         @foreach($devices as $device)
             <tr>
-                	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id_ }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->name_}}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ explode('-', $device->serial_)[0] }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->function_ }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id_ == 0 ? "" : $device->parent_id_ }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->expeditor_ }}</td>
+                	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->name}}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ explode('-', $device->serial)[0] }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->function }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id == 0 ? "" : $device->parent_id }}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->expeditor }}</td>
 				<td class="td-data" style="vertical-align:middle;">
 				<?php 
         				$date = new DateTime();
-        				$date->setTimestamp($device->update_time_);
+        				$date->setTimestamp($device->update_time);
 				?>
 				{{ $date->format('m/d/Y H:i:s') }}
 				</td>
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">
-                		<?php if ($device->split_screen_parent_device_id_ == 0) { ?>
+                		<?php if ($device->split_screen_parent_device_id == 0) { ?>
                 		    <label class="switch">
-                          <input class="device-license-login" guid="{{ $device->guid_ }}" type="checkbox" 
-                          									@if($device->license_) checked="checked" @endif value="1">
+                          <input class="device-license-login" guid="{{ $device->guid }}" type="checkbox" 
+                          									@if($device->license) checked="checked" @endif value="1">
                           <span class="slider round"></span>
                         </label>
                 		<?php } ?>
