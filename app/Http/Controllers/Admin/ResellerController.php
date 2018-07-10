@@ -46,25 +46,6 @@ class ResellerController extends Controller
     
     public function insert(Request $request)
     {
-//         $validator = Validator::make($request->all(), [
-//             'business_name' => 'required|max:200',
-//             'name'          => 'required|max:200',
-//             'email'         => 'required|email|max:255',
-//             'phone_number'  => 'required|max:45',
-//             'address'       => 'required',
-//             'city'          => 'required|max:100',
-//             'state'         => 'required|max:100',
-//             'country'       => 'required|max:100',
-//             'zipcode'       => 'required|max:30',
-//             'username'      => 'required|max:45'
-//         ]);
-        
-//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-//             return $input->password;
-//         });
-            
-//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
-        
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone("America/New_York"));
         

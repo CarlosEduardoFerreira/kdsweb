@@ -25,27 +25,27 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
         		<?php if ($obj == 'store') { ?>
             		@if($user->exists)
-                		{{ Form::open(['route'=>['admin.stores.update', $user->id], 'id' => 'form-store', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.stores.update', $user->id], 'id' => 'main-form', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
                 @else
-                		{{ Form::open(['route'=>['admin.stores.insert'], 'id' => 'form-store', 'method' => 'put', 'class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.stores.insert'], 'id' => 'main-form', 'method' => 'put', 'class'=>'form-horizontal form-label-left']) }}
                 @endif
             <?php } elseif ($obj == 'storegroup') { ?>
                 @if($user->exists)
-                		{{ Form::open(['route'=>['admin.storegroups.update', $user->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.storegroups.update', $user->id], 'id' => 'main-form', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
                 @else
-                		{{ Form::open(['route'=>['admin.storegroups.insert'],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.storegroups.insert'], 'id' => 'main-form', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
                 @endif
             <?php } elseif ($obj == 'reseller') { ?>
             		@if($user->exists)
-                		{{ Form::open(['route'=>['admin.resellers.update', $user->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.resellers.update', $user->id], 'id' => 'main-form', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
                 @else
-                		{{ Form::open(['route'=>['admin.resellers.insert'],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+                		{{ Form::open(['route'=>['admin.resellers.insert'], 'id' => 'main-form', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
                 @endif
             <?php } ?>
             
             <?php if ($me->roles[0]->id == 2 && $obj == 'storegroup') { ?>
                     <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
-            
+            			
             <?php } else if ($me->roles[0]->id == 3 && $obj == 'store') { ?>
                     <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
                     
@@ -68,13 +68,7 @@
                                 	<option value="{{ $parent->id }}" <?=$selected?>>{{ $parent->name }}</option>
                             	@endforeach;
                         </select>
-                        @if($errors->has('parent_id'))
-                            <ul class="parsley-errors-list filled">
-                                @foreach($errors->get('parent_id') as $error)
-                                        <li class="parsley-required">{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        @endif
+                        <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
             <?php } ?>
@@ -92,6 +86,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="business_name" name="business_name" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->business_name }}" required>
+                		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -103,6 +98,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="dba" name="dba" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->dba }}" required>
+                        <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
     
@@ -112,7 +108,8 @@
                         <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="last_name" name="last_name" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->last_name }}" required>
+                         <input id="last_name" name="last_name" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->last_name }}" required>
+                    		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
             <?php } ?>
@@ -130,6 +127,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="name" name="name" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->name }}" required>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -140,6 +138,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="email" name="email" type="email" class="form-control col-md-7 col-xs-12" value="{{ $user->email }}" required>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -150,6 +149,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="phone_number" name="phone_number" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->phone_number }}" required>
+                		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -160,6 +160,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="address" name="address" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->address }}" required>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -169,6 +170,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="address2" name="address2" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->address2 }}">
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -179,6 +181,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="city" name="city" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->city }}" required>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
             
@@ -188,7 +191,6 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                
                     <select name="state" id="state" class="form-control" style="width:350px" required>
                     <?php if(isset($states)) { ?>
                         @foreach($states as $state)
@@ -199,6 +201,7 @@
                         @endforeach
                     <?php } ?>
                     </select>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
             
@@ -209,6 +212,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="zipcode" name="zipcode" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->zipcode }}" required>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
             
@@ -218,7 +222,6 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                
                 		<select id="country" name="country" class="form-control" style="width:350px;" required>
                 		<option></option>
                     @foreach($countries as $country)
@@ -228,10 +231,9 @@
                     		<option value="{{$country->id}}" <?=$selected ?>> {{$country->name}}</option>
                     @endforeach
                     </select>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
-
-           
 
 			@if($user->exists)
                 <div class="form-group">
@@ -256,6 +258,7 @@
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <input id="username" name="username" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->username }}" required>
+                        <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
             <?php } ?>
@@ -270,8 +273,8 @@
                 	<span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="password" name="password" type="password" 
-                    class="form-control col-md-7 col-xs-12" <?=$required?>>
+                    <input id="password" name="password" type="password" class="form-control col-md-7 col-xs-12" <?=$required?>>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
@@ -281,15 +284,15 @@
                 	<span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input id="password_confirmation" name="password_confirmation" type="password" 
-                    class="form-control col-md-7 col-xs-12" <?=$required?>>
+                    <input id="password_confirmation" name="password_confirmation" type="password" class="form-control col-md-7 col-xs-12">
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
 
                 <div class="form-group" style="text-align:right;padding-top:20px;">
                     <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                         <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
-                        <button id="btn-save-form" type="submit" class="btn btn-success"> {{ __('views.admin.users.edit.save') }}</button>
+                        <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
                     </div>
                 </div>
             {{ Form::close() }}
