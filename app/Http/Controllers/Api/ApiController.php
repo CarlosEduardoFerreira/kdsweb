@@ -288,6 +288,7 @@ class ApiController extends Controller
                     ->where('serial', '=', $device->serial)
                     ->where('is_deleted', '=', 0)
                     ->where('license', '=', 1)
+                    ->where('split_screen_parent_device_id', '=', 0)
                     ->first();
                     if (isset($sameSerialActive)) {
 //                         array_push($arr, "3: ".$sameSerialActive->guid_);
