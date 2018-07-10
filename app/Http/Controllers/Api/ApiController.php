@@ -155,21 +155,15 @@ class ApiController extends Controller
         
         $entity = $request["entity"];
         $data   = $request["data"];
-        // print_r($data);
+        
+        $objGuidArray = array();
+        
         foreach ($data as $object) {
-            // echo "api5 |";
-            // addslashes($object);
-            // print_r($object);
             
             $func = "UPD"; // Update
             
             $guid = $object['guid'];
             $updt = $object['update_time'];
-            
-//             $guid = str_replace("&#039;", "'", $object['guid']);
-//             if (isset($object['update_time'])) {
-//                 $updt = str_replace("&#039;", "'", $object['update_time']);
-//             }
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
             //echo "sqlCheck: $sqlCheck";
@@ -193,7 +187,9 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
-//                     $value = str_replace("&#039;", "'", $value);
+                    if ($key == "upload_time") {
+                        $value = (new DateTime())->getTimestamp();
+                    }
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
@@ -216,14 +212,17 @@ class ApiController extends Controller
              //            echo "sql: $sql";
             $result = DB::statement($sql);
             
-            if($result) {
-                $response[0]["result"]  = "OK = $sql";
+            if ($result) {
+                //$response[0]["result"]  = "OK = $sql";
+                array_push($objGuidArray, $guid);
             } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
             
         }
+        
+        $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
         
         return $response;
         

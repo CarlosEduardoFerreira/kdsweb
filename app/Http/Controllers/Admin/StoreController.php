@@ -25,7 +25,7 @@ class StoreController extends Controller
     {
 
         $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
-
+        
         return view('admin.stores.index', ['stores' => $stores]);
     }
 
