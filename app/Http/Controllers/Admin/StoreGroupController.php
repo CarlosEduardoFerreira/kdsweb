@@ -129,6 +129,12 @@ class StoreGroupController extends Controller
      */
     public function show(User $storegroup)
     {
+        $state   = DB::table('states')->where(['id' => $storegroup->state])->first();
+        $country = DB::table('countries')->where(['id' => $storegroup->country])->first();
+        
+        $storegroup->state   = $state->name;
+        $storegroup->country = $country->name;
+        
         return view('admin.storegroups.show', ['storegroup' => $storegroup]);
     }
 

@@ -158,6 +158,12 @@ class StoreController extends Controller
      */
     public function show(User $store)
     {
+        $state   = DB::table('states')->where(['id' => $store->state])->first();
+        $country = DB::table('countries')->where(['id' => $store->country])->first();
+        
+        $store->state   = $state->name;
+        $store->country = $country->name;
+        
         return view('admin.stores.show', ['store' => $store]);
     }
 

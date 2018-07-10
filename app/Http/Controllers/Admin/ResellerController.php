@@ -96,6 +96,12 @@ class ResellerController extends Controller
      */
     public function show(User $reseller)
     {
+        $state   = DB::table('states')->where(['id' => $reseller->state])->first();
+        $country = DB::table('countries')->where(['id' => $reseller->country])->first();
+      
+        $reseller->state   = $state->name;
+        $reseller->country = $country->name;
+        
         return view('admin.resellers.show', ['reseller' => $reseller]);
     }
 
