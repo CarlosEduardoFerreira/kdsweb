@@ -7,7 +7,7 @@
 @section('settings')
 
     <div class="row" style="width:100%;min-height:700px;">
-
+		
         <div class="col-md-12 col-sm-12 col-xs-12">
             {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
             

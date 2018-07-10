@@ -13,15 +13,23 @@
             @yield('left-sidebar')
 
             <div class="right_col" role="main">
+            
+				
 
-                <div style="height:150px;">
+                <div style="height:180px;">
+                
+                
                 	
-                	<div id="license-info" style="display:inline-table;padding:10px;float:right;font-size:18px;"><?=$licenseInfo;?></div> 
+                	<div id="license-info" style="display:inline-table;padding:10px;padding-top:40px;float:right;font-size:18px;"><?=$licenseInfo;?></div>
+                	
+                	 
 
                     <div class="page-title" style="background:#ffffff;">
+                    
+                    <div style="padding-top:10px;padding-left:20px;font-size:20px;"><?=$store->business_name?></div>
 
                         <div class="title_left" style="margin-left:20px;">
-                            <h1 class="h3">@yield('title')</h1>
+                            <h1 class="h3">&nbsp;</h1>
                         </div>
 
                         @if(Breadcrumbs::exists())
@@ -67,7 +75,7 @@
 @section('styles')
     {{ Html::style(mix('assets/admin/css/admin.css')) }}
     <style>
-        .nav-tabs li { margin-right:10px; }
+        .nav-tabs li { margin-right:10px; margin-top:3px; }
     </style>
 @endsection
 
