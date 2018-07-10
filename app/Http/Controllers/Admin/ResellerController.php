@@ -38,6 +38,7 @@ class ResellerController extends Controller
     {
         $reseller = new User;
         $reseller->active = true;
+        $reseller->country = 231;   // United States
         
         $countries = DB::select("select * from countries order by name");
         

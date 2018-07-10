@@ -30,6 +30,8 @@
 	    	    $("#city").empty();
 	    	}      
     });
+    
+    $('#country').change();
 
 //    $('#state').on('change',function(){
 //	    	var stateID = $(this).val();    

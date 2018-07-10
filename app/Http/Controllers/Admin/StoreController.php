@@ -54,6 +54,8 @@ class StoreController extends Controller
         
         $countries = DB::select("select * from countries order by name");
         
+        $store->country = 231;   // United States
+        
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
             'countries' => $countries, 'me' => $me]);
     }
