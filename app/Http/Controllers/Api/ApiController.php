@@ -76,6 +76,10 @@ class ApiController extends Controller
                 
                 $response = $this->activeLicense($request, $response);
                 
+            } else if ($req == "DEVICE_ONLINE") {
+                
+                $response = $this->setDeviceOnline($request, $response);
+                
             }
             
 //             $db->close();
@@ -274,15 +278,10 @@ class ApiController extends Controller
     
     
     public function activeLicense(Request $request) {
-        
-//         $arr = array("0: ".$request->guid);
-        
         if ($request->active) {
             $device = DB::table('devices')->where(['guid' => $request->guid])->first();
             if (isset($device)) {
-//                 array_push($arr, "1: ".$device->serial_);
                 if (isset($device->serial)) {
-//                     array_push($arr, "2: ".$device->serial_);
                     $sameSerialActive = DB::table('devices')
                     ->where('guid', '<>',  $request->guid)
                     ->where('serial', '=', $device->serial)
@@ -291,7 +290,6 @@ class ApiController extends Controller
                     ->where('split_screen_parent_device_id', '=', 0)
                     ->first();
                     if (isset($sameSerialActive)) {
-//                         array_push($arr, "3: ".$sameSerialActive->guid_);
                         return array("There is another KDS Station with the same serial number active.");
                     }
                 }
@@ -301,9 +299,31 @@ class ApiController extends Controller
         $update_time = (new DateTime())->getTimestamp();
         $sql = "update devices set license = $request->active , update_time = $update_time where guid = '$request->guid'";
         $result = DB::statement($sql);
-        return array($result);
         
-//         return $arr;
+        return array($result);
+    }
+    
+    
+    public function setDeviceOnline(array $request, array $response) {
+        $deviceUpdated = array();
+        
+        $deviceGuid = $request["device_guid"];
+        $lastConnectionTime = $request["last_connection_time"];
+        
+        $device = DB::table('devices')->where('guid', '=', $deviceGuid)->first();
+        if (isset($device)) {
+            $sql = "update devices set last_connection_time = $lastConnectionTime where guid = '$deviceGuid'";
+            $result = DB::statement($sql);
+            
+            if ($result) {
+                $deviceUpdated = DB::select("SELECT * FROM devices WHERE guid = '$deviceGuid'");
+            } else {
+                $response[0]["error"]  = "Error trying update device. sql: $sql";
+            }
+        } else {
+            $response[0]["error"]  = "Device not found.";
+        }
+        return $deviceUpdated;
     }
     
     
