@@ -17,6 +17,37 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     
+    function __construct() {
+        
+        $me = Auth::user();
+        $objectId = 0;
+        
+        if (isset($store) && $store->id != $me->id) {
+            $objectId = $store->id;
+            
+        } else if (isset($storegroup) && $storegroup->id != $me->id) {
+            $objectId = $storegroup->id;
+            
+        } else if (isset($reseller) && $reseller->id != $me->id) {
+            $objectId = $reseller->id;
+            
+        } else if (isset($storeId) && $storeId != $me->id) {
+            $objectId = $storeId;
+            
+        } else if (isset($storegroupId) && $storegroupId != $me->id) {
+            $objectId = $storegroupId;
+            
+        } else if (isset($resellerId) && $resellerId != $me->id) {
+            $objectId = $resellerId;
+            
+        }
+        
+        if ($objectId == 0 || !$this->checkPermission($objectId)) {
+            return response()->view('admin.forbidden');
+        }
+    }
+    
+    
     function checkPermission(int $objectId = 0) {
         $me = Auth::user();
         
@@ -30,6 +61,11 @@ class Controller extends BaseController
                                 WHERE stores.id = $objectId $whereParentId");
         
         return count($users) > 0;
+    }
+    
+    
+    function forbidden() {
+        return view('admin.forbidden', []);
     }
     
 

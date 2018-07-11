@@ -237,6 +237,8 @@ class ApiController extends Controller
         
         $settingsRes = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
         
+        $adminSettings = DB::table('admin_settings')->first();
+        
         if (isset($settingsRes)) {
             
             $response[0]["guid"]                      = $settingsRes->guid;
@@ -248,6 +250,9 @@ class ApiController extends Controller
             $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
             $response[0]["timezone"]                  = $settingsRes->timezone;
             $response[0]["smart_order"]               = $settingsRes->smart_order;
+            
+            // Admin Global Settings
+            $response[0]["offline_limit_hours"]       = $adminSettings->offline_limit_hours;
             
             if(isset($settingsRes->licenses_quantity)) {
                 $response[0]["licenses_quantity"] = $settingsRes->licenses_quantity;
