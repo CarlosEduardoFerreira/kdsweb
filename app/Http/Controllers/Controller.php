@@ -11,6 +11,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use App\Models\Auth\User\User;
+
 
 class Controller extends BaseController
 {
@@ -19,38 +21,36 @@ class Controller extends BaseController
     
     function __construct() {
         
-        $me = Auth::user();
-        $objectId = 0;
+//         $me = Auth::user();
+//         $objectId = 0;
         
-        if (isset($store) && $store->id != $me->id) {
-            $objectId = $store->id;
+//         if (isset($store) && $store->id != $me->id) {
+//             $objectId = $store->id;
             
-        } else if (isset($storegroup) && $storegroup->id != $me->id) {
-            $objectId = $storegroup->id;
+//         } else if (isset($storegroup) && $storegroup->id != $me->id) {
+//             $objectId = $storegroup->id;
             
-        } else if (isset($reseller) && $reseller->id != $me->id) {
-            $objectId = $reseller->id;
+//         } else if (isset($reseller) && $reseller->id != $me->id) {
+//             $objectId = $reseller->id;
             
-        } else if (isset($storeId) && $storeId != $me->id) {
-            $objectId = $storeId;
+//         } else if (isset($storeId) && $storeId != $me->id) {
+//             $objectId = $storeId;
             
-        } else if (isset($storegroupId) && $storegroupId != $me->id) {
-            $objectId = $storegroupId;
+//         } else if (isset($storegroupId) && $storegroupId != $me->id) {
+//             $objectId = $storegroupId;
             
-        } else if (isset($resellerId) && $resellerId != $me->id) {
-            $objectId = $resellerId;
+//         } else if (isset($resellerId) && $resellerId != $me->id) {
+//             $objectId = $resellerId;
             
-        }
-        
-        if ($objectId == 0 || !$this->checkPermission($objectId)) {
-            return response()->view('admin.forbidden');
-        }
+//         }
+        //echo "objectId: $objectId | me->id: $me->id |";
+//         if ($objectId != 0 || !$this->checkPermission($me, $objectId)) {
+//             return response()->view('admin.forbidden');
+//         }
     }
     
     
-    function checkPermission(int $objectId = 0) {
-        $me = Auth::user();
-        
+    function checkPermission(User $me, int $objectId) {
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
         
         $users =  DB::select("SELECT distinct

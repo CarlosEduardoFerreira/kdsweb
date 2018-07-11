@@ -16,6 +16,12 @@ use DateTimeZone;
 
 class ResellerController extends Controller
 {
+    
+    function __construct() {
+        parent::__construct();
+    }
+    
+    
     /**
      * Display a listing of the resource.
      *
