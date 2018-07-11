@@ -68,7 +68,7 @@ class Controller extends BaseController
         $me = Auth::user();
 
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
-        if ($me->roles[0]->name == 'administrator') {
+        if ($me->roles[0]->name == 'administrator' || $me->roles[0]->name == 'store') {
             $whereParentId = "";
         }
         
@@ -91,7 +91,7 @@ class Controller extends BaseController
         $me = Auth::user();
         
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
-        if ($me->roles[0]->name == 'administrator') {
+        if ($me->roles[0]->name == 'administrator' || $me->roles[0]->name == 'store') {
             $whereParentId = "";
         }
         

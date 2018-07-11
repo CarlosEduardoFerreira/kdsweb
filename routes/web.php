@@ -105,7 +105,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Update Action
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
     // Config View
-    Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
+    Route::get('stores/{store}/config/{selected}', 'StoreController@config')->name('stores.config');
     // Update Settings Action
     Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
     // Delete Action

@@ -36,7 +36,7 @@
                 </ul>
             </div>
             
-            <div class="menu_section">
+            <div class="menu_section" id="div-store-config" class="">
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
 
@@ -65,9 +65,14 @@
                         </li>
                     <?php } ?>
                     
-                    <?php if(auth()->user()->hasRole('store')) { ?>
-                        <li>
-                            <a href="{{ route('admin.stores.config', [auth()->user()->id]) }}">
+                    <?php 
+                        //$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+                        
+                        $selected = isset($selected) ? $selected : 'false';
+                    
+                        if(auth()->user()->hasRole('store')) { ?>
+                        <li id="li-store-config" class="">
+                            <a id="a-store-config" onclick="goToStoreConfig()" selected="<?=$selected?>">
                                 <i class="fa fa-cogs" aria-hidden="true"></i>
                                 Configuration
                             </a>
@@ -76,6 +81,48 @@
 
                 </ul>
             </div>
+            
+            <!-- do not remove this log -->
+            <div id="log">&nbsp;</div>
+            
+            <script type="text/javascript">
+//                 document.addEventListener('DOMContentLoaded', function() {
+//                     	//alert('store-config');
+//                 	}, false);
+
+// 				function sleep(ms) {
+//                   return new Promise(resolve => setTimeout(resolve, ms));
+//                 }
+
+            		function checkPage() {
+
+// 						var url = window.location.href.split("#");
+						var selected = document.getElementById("a-store-config").getAttribute('selected');
+						//document.getElementById("log").innerHTML = "url: <?=$selected?>|" + selected + "|";
+    					if (selected != 'false') {
+//     						document.getElementById("div-store-config").className += 'active';
+            				document.getElementById("li-store-config").className += 'current-page';
+    					} else {
+//                     		document.getElementById("div-store-config").className -= 'active';
+//                     		document.getElementById("div-store-config").className -= 'current-page';
+                    	}
+
+            		}
+
+//             		while (document.readyState != "complete") {
+//                 		sleep(5000);
+//             			checkPage();
+//             		}
+				checkPage();
+            		function goToStoreConfig() {
+					window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'true']) }}";
+            		}
+            		
+//                 var aStoreConfig = document.getElementById("store-config");
+//                 aStoreConfig.onclick = function(){
+//                 		alert('store-config');
+//                 	};
+            </script>
 
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_3') }}</h3>
@@ -93,3 +140,7 @@
         <!-- /sidebar menu -->
     </div>
 </div>
+
+
+
+

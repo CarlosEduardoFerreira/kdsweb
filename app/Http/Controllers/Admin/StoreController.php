@@ -207,7 +207,7 @@ class StoreController extends Controller
     }
 
 
-    public function config(User $store)
+    public function config(User $store, string $selected = 'false')
     {
 //         $settings = new Settings;
 //         $devices  = new Device;
@@ -237,7 +237,8 @@ class StoreController extends Controller
         }
         $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity";
         
-        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 'licenseInfo' => $licenseInfo]);
+        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 
+                                                'licenseInfo' => $licenseInfo, 'selected' => $selected]);
     }
 
     /**
