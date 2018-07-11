@@ -16,6 +16,22 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
+    
+    function checkPermission(int $objectId = 0) {
+        $me = Auth::user();
+        
+        $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
+        
+        $users =  DB::select("SELECT distinct
+                                    stores.*
+                                FROM users AS stores
+                                LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
+                                LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
+                                WHERE stores.id = $objectId $whereParentId");
+        
+        return count($users) > 0;
+    }
+    
 
     /**
      *  Filter Users

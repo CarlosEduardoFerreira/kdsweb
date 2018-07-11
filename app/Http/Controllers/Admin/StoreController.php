@@ -23,7 +23,6 @@ class StoreController extends Controller
      */
     public function index(Request $request, string $storegroupId)
     {
-
         $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
         
         return view('admin.stores.index', ['stores' => $stores]);
