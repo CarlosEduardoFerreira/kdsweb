@@ -130,8 +130,12 @@ class Controller extends BaseController
         $me = Auth::user();
 
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
-        if ($me->roles[0]->name == 'administrator' || $me->roles[0]->name == 'store') {
+        
+        if ($me->roles[0]->name == 'administrator') {
             $whereParentId = "";
+            
+        } else if ($me->roles[0]->name == 'store') {
+            $whereParentId = "AND (stores.id = $me->id)";
         }
         
         $whereDeleted = $deleted ? "AND is_deleted = 1" : "AND is_deleted = 0";
@@ -153,8 +157,12 @@ class Controller extends BaseController
         $me = Auth::user();
         
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
-        if ($me->roles[0]->name == 'administrator' || $me->roles[0]->name == 'store') {
+        
+        if ($me->roles[0]->name == 'administrator') {
             $whereParentId = "";
+            
+        } else if ($me->roles[0]->name == 'store') {
+            $whereParentId = "AND (stores.id = $me->id)";
         }
         
         $licensesActive =  DB::select("SELECT 
