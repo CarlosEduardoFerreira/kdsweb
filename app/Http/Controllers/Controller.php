@@ -49,7 +49,12 @@ class Controller extends BaseController
     }
     
     function canIsee(User $me, int $objectId) {
-        if ($objectId != 0 && !$this->checkPermission($me, $objectId) && $me->roles[0]->name != 'administrator') {
+        
+        $validObj   = $objectId != 0 && $me->id != $objectId;
+        $notAdmin   = $me->roles[0]->name != 'administrator';
+        $permission = $this->checkPermission($me, $objectId);
+        
+        if ($validObj && !$permission && $notAdmin) {
             return response()->view('admin.forbidden');
         }
     }
