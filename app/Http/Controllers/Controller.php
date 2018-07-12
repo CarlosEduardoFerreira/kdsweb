@@ -20,7 +20,6 @@ class Controller extends BaseController
     
     
     function __construct() {
-        
 //         $me = Auth::user();
 //         $objectId = 0;
         
@@ -43,24 +42,30 @@ class Controller extends BaseController
 //             $objectId = $resellerId;
             
 //         }
-        //echo "objectId: $objectId | me->id: $me->id |";
+//         echo "objectId: $objectId | me: $me->id |";
 //         if ($objectId != 0 || !$this->checkPermission($me, $objectId)) {
 //             return response()->view('admin.forbidden');
 //         }
     }
     
+    function canIsee(User $me, int $objectId) {
+        if ($objectId != 0 && !$this->checkPermission($me, $objectId) && $me->roles[0]->name != 'administrator') {
+            return response()->view('admin.forbidden');
+        }
+    }
+    
     
     function checkPermission(User $me, int $objectId) {
-        $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
-        
         $users =  DB::select("SELECT distinct
                                     stores.*
                                 FROM users AS stores
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
-                                WHERE stores.id = $objectId $whereParentId");
+                                WHERE (stores.id = $objectId OR storegroups.id = $objectId OR resellers.id = $objectId) 
+                                   AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)");
         
-        return count($users) > 0;
+        return isset($users[0]);
+        //return false;
     }
     
     

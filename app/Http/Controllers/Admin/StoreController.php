@@ -28,6 +28,11 @@ class StoreController extends Controller
      */
     public function index(Request $request, string $storegroupId)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $storegroupId);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
         
         return view('admin.stores.index', ['stores' => $stores]);
@@ -164,6 +169,11 @@ class StoreController extends Controller
      */
     public function show(User $store)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $state   = DB::table('states')->where(['id' => $store->state])->first();
         $country = DB::table('countries')->where(['id' => $store->country])->first();
         
@@ -181,11 +191,16 @@ class StoreController extends Controller
      */
     public function edit(Request $request, User $store)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         // StoreGroups ------------------------------------------------------- //
         $storegroups = array();
         
         $me = Auth::user();
-        echo "role_id: " . $me->roles[0]->id ."<br>";
+        //echo "role_id: " . $me->roles[0]->id ."<br>";
         if ($me->roles[0]->id == 3) {
             $storegroups[0] = $me;
             
@@ -213,10 +228,11 @@ class StoreController extends Controller
 
     public function config(User $store, string $selected = 'false')
     {
-//         $settings = new Settings;
-//         $devices  = new Device;
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
         
-        //echo "store->store_guid: " . $store->store_guid;
         if(isset($store->store_guid) and $store->store_guid != '') {
              $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
              

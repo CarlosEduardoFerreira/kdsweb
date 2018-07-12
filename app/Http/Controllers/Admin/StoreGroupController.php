@@ -30,6 +30,11 @@ class StoreGroupController extends Controller
     public function index(Request $request, string $resellerId)
     {
 
+        $accessDenied = Controller::canIsee(Auth::user(), $resellerId);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $storegroups = Controller::filterUsers($request, 3, $resellerId, $request->filter);
 
         return view('admin.storegroups.index', ['storegroups' => $storegroups]);
@@ -137,6 +142,11 @@ class StoreGroupController extends Controller
      */
     public function show(User $storegroup)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $storegroup->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $state   = DB::table('states')->where(['id' => $storegroup->state])->first();
         $country = DB::table('countries')->where(['id' => $storegroup->country])->first();
         
@@ -154,11 +164,16 @@ class StoreGroupController extends Controller
      */
     public function edit(Request $request, User $storegroup)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $storegroup->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         // Resellers ------------------------------------------------------- //
         $resellers = array();
         
         $me = Auth::user();
-        echo "role_id: " . $me->roles[0]->id ."<br>";
+        //echo "role_id: " . $me->roles[0]->id ."<br>";
         if ($me->roles[0]->id == 2) {
             $resellers[0] = $me;
             

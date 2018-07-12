@@ -58,7 +58,7 @@ class ApiController extends Controller
 
             } else if ($req == "SYNC") {
                 
-                //                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
+//                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
                 
                 $response = $this->insertOrUpdateEntityWeb($request, $response);
                 
@@ -323,10 +323,10 @@ class ApiController extends Controller
             if ($result) {
                 $deviceUpdated = DB::select("SELECT * FROM devices WHERE guid = '$deviceGuid'");
             } else {
-                $response[0]["error"]  = "Error trying update device. sql: $sql";
+                $deviceUpdated[0]["error"]  = "Error trying update device. sql: $sql";
             }
         } else {
-            $response[0]["error"]  = "Device not found.";
+            $deviceUpdated[0]["error"]  = "Device not found.";
         }
         return $deviceUpdated;
     }

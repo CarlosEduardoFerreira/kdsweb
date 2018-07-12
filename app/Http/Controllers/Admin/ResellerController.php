@@ -29,6 +29,10 @@ class ResellerController extends Controller
      */
     public function index(Request $request, string $adminId)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $adminId);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
 
         $resellers = Controller::filterUsers($request, 2, $adminId, $request->filter);
 
@@ -103,6 +107,11 @@ class ResellerController extends Controller
      */
     public function show(User $reseller)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $reseller->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $state   = DB::table('states')->where(['id' => $reseller->state])->first();
         $country = DB::table('countries')->where(['id' => $reseller->country])->first();
       
@@ -120,6 +129,11 @@ class ResellerController extends Controller
      */
     public function edit(User $reseller)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $reseller->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
         $countries  = DB::select("select * from countries order by name");
         
         $states     = [];

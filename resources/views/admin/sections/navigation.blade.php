@@ -95,18 +95,19 @@
 //                 }
 
             		function checkPage() {
-
-// 						var url = window.location.href.split("#");
-						var selected = document.getElementById("a-store-config").getAttribute('selected');
-						//document.getElementById("log").innerHTML = "url: <?=$selected?>|" + selected + "|";
-    					if (selected != 'false') {
-//     						document.getElementById("div-store-config").className += 'active';
-            				document.getElementById("li-store-config").className += 'current-page';
-    					} else {
+// 					var url = window.location.href.split("#");
+					var aStoreConfig = document.getElementById("a-store-config");
+					if (aStoreConfig != null) {
+        					var selected = document.getElementById("a-store-config").getAttribute('selected');
+        					//document.getElementById("log").innerHTML = "url: <?=$selected?>|" + selected + "|";
+            				if (selected != 'false') {
+//	     					document.getElementById("div-store-config").className += 'active';
+                    			document.getElementById("li-store-config").className += 'current-page';
+            				} else {
 //                     		document.getElementById("div-store-config").className -= 'active';
 //                     		document.getElementById("div-store-config").className -= 'current-page';
-                    	}
-
+                         }
+					}
             		}
 
 //             		while (document.readyState != "complete") {
