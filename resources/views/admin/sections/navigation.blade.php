@@ -56,7 +56,9 @@
                                 {{ __('views.backend.section.navigation.menu_1_2') }}
                             </a>
                         </li>
-                        
+                    <?php } ?>
+                    
+                    <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')|| auth()->user()->hasRole('storegroup')) { ?>
                         <li>
                             <a href="{{ route('admin.stores', ['storegroupId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-cutlery" aria-hidden="true"></i>
