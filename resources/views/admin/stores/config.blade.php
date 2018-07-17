@@ -1,3 +1,6 @@
+<?php
+use SebastianBergmann\CodeCoverage\Report\PHP;
+?>
 @extends('admin.layouts.config_base')
 
 @section('title',"Store Settings" )
@@ -9,7 +12,7 @@
     <div class="row" style="width:100%;min-height:700px;">
 		
         <div class="col-md-12 col-sm-12 col-xs-12">
-            {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id],'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+            {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id], 'id' => 'form-settings', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
             
                 <?php 
                     $server_address  = isset($settings->server_address)  ? $settings->server_address : "";
@@ -75,43 +78,51 @@
                         Automatic Bump Time:
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <span class="radio-bump" name="auto_done_order_hourly">
-                            Daily: &nbsp; {{ Form::radio('auto_done_order_hourly', 0, true) }}
-                        </span>
-                        <span class="radio-bump">
-                            Hourly: &nbsp; {{ Form::radio('auto_done_order_hourly', 1, $auto_done_order_hourly) }}
-                        </span>
-                        <span class="radio-bump-time">
-                            <select style="width:80px;height:30px;" name="auto_done_order_time">
-                            <?php
-                                $kdsTime = new DateTime();
-                                $kdsTime->setTimezone(new DateTimeZone($timezone));
-                                $kdsTime->setTimestamp($auto_done_order_time);
-                                $kdsTime = $kdsTime->format('H:i');
-                                $selected = "";
-                                $found = false;
-                                for($hours=0; $hours<24; $hours++) {
-                                    for($mins=0; $mins<60; $mins+=30) {
-                                        $optionTime = str_pad($hours,2,'0',STR_PAD_LEFT).':'.str_pad($mins,2,'0',STR_PAD_LEFT);
-                                        if($kdsTime == $optionTime) {
-                                            $selected = "selected";
-                                            $found = true;
-                                        } else {
-                                            $selected = "";
-                                        }
-                                        echo "<option $selected>$optionTime</option>";
-                                    }
-                                }
-                                if(!$found) {
-                                    echo "<option selected>$kdsTime</option>";
-                                }
-                               ?>
-                           </select>
-                        </span>
+                    		<?php 
+                        		$kdsTime = new DateTime();
+                        		$kdsTime->setTimezone(new DateTimeZone($timezone));
+                        		$kdsTime->setTimestamp($auto_done_order_time);
+                        		$hours24 = $kdsTime->format('H:i');
+                        		$hours = $kdsTime->format('H');
+                        		$minutes = $kdsTime->format('i');
+                        		$ampm = $kdsTime->format('A');
+                        		$amSelected = $ampm == "AM" ? "selected" : "";
+                        		$pmSelected = $ampm == "PM" ? "selected" : "";
+                    		?>
+                    		<style>
+                    		  .time-tds { padding:20px; padding-top:0px; padding-bottom:0px;}
+                    		  .time-tds-time { padding-right:5px; }
+                    		  .time-tds-ampm { padding-left:5px; }
+                    		</style>
+                    		<table>
+                    			<tr>
+                    				<td class="time-tds">
+                    					Daily: &nbsp; {{ Form::radio('auto_done_order_hourly', 0, true) }}
+                    				</td>
+                    				<td class="time-tds">
+                    					Hourly: &nbsp; {{ Form::radio('auto_done_order_hourly', 1, $auto_done_order_hourly) }}
+                    				</td>
+                    				<td class="time-tds time-tds-time">
+                    					<input type="hidden" name="auto_done_order_time" value="<?=$hours24?>">
+                    					<input id="auto_done_order_time_field" name="auto_done_order_time_field" type="text" 
+                    						onClick="this.setSelectionRange(0, this.value.length)" value="<?=($hours.":".$minutes)?>" 
+                    						class="form-control" maxlength="5" style="width:70px;text-align:center;" required>
+                    				</td>
+                    				<td  class="time-tds time-tds-ampm">
+                                		<select id="auto_done_order_time_ampm" name="auto_done_order_time_ampm" style="width:50px;height:30px;">
+                                			<option <?=$amSelected?>>AM</option>
+                                			<option <?=$pmSelected?>>PM</option>
+                                		</select>
+                    				</td>
+                    			</tr>
+                    		</table>
+                    		<ul class="parsley-errors-list filled" style="padding-left:220px;padding-top:5px;height:20px;"> 
+                    			<li id="error-time" class="parsley-required" style="display:none;">Invalid time or format.</li> 
+                    		</ul>
                     </div>
-                </div>
+                </div> <!-- End <div class="form-group"> -->
     
-                <div class="divider" style="width:50%;margin:auto;margin-top:20px;margin-bottom:20px;"></div>
+                <div class="divider" style="width:50%;margin:auto;margin-bottom:20px;"></div>
     
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="smart_order" >
@@ -142,7 +153,8 @@
             
                 <div class="form-group" style="margin-bottom:100px;">
                     <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3" style="text-align:right;">
-                        <button type="submit" class="btn btn-success"> {{ __('views.admin.users.edit.save') }}</button>
+                        <!-- <button type="submit" class="btn btn-success"> {{ __('views.admin.users.edit.save') }}</button> -->
+                        <button id="btn-save-settings" type="button" class="btn btn-success">{{ __('views.admin.users.edit.save') }}</button>
                     </div>
                 </div>
             {{ Form::close() }}
@@ -306,4 +318,5 @@
 @section('scripts')
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
+    {{ Html::script(mix('assets/admin/js/validation_config.js')) }}
 @endsection

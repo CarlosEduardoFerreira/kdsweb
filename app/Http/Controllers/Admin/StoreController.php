@@ -370,7 +370,7 @@ class StoreController extends Controller
             
         }
         
-        return redirect()->intended(route('admin.stores', 0));
+        return redirect()->intended(route('admin.stores.config', [$store->id]));
     }
     
 

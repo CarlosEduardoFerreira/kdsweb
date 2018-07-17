@@ -24,11 +24,11 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index() {
-
+        
         $request = file_get_contents("php://input");
         $request = $this->stripslashes_deep(htmlspecialchars_decode($request));
         $request = json_decode($request, true);
-
+        
         $response = array(array());
         
         // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
@@ -39,37 +39,37 @@ class ApiController extends Controller
             $request = $request[1];
         }
         // -------------------------------------------------------------------------- TOKEN - THIS CANNOT BE CHANGED!!! //
-
+        
         /** // Request
          *  req = Resquest/Function
          */
         $req = $request["req"];
-
+        
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-//             $db = new ApiConnectionController();
-//             $db->create();
+            //             $db = new ApiConnectionController();
+            //             $db->create();
             
             if ($req == "LOGIN") {
-
-//                 $response = ApiUserController::login($request, $response);
-
+                
+                //                 $response = ApiUserController::login($request, $response);
+                
                 $response = $this->login($request, $response);
-
+                
             } else if ($req == "SYNC") {
                 
-//                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
+                //                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
                 
                 $response = $this->insertOrUpdateEntityWeb($request, $response);
                 
             } else if ($req == "GET_SETTINGS") {
                 
-//                 $response = ApiSettingsController::getSettings($request, $response);
-
+                //                 $response = ApiSettingsController::getSettings($request, $response);
+                
                 $response = $this->getSettings($request, $response);
                 
             } else if ($req == "GET_DEVICES") {
-
+                
                 $response = $this->getDevices($request, $response);
                 
             } else if ($req == "DEVICES_ACTIVE") {
@@ -82,11 +82,11 @@ class ApiController extends Controller
                 
             }
             
-//             $db->close();
+            //             $db->close();
             
             return response()->json($response);
         }
-
+        
     }
     
     
@@ -120,10 +120,10 @@ class ApiController extends Controller
                 // include store settings on response
                 //$response = $this->getSettings($request, $response);
                 
-//                 if($response[0]["licenses_quantity_"] == 0) {
-//                     $response[0]["error"]  = "There is no license available.";
-                    
-//                 }
+                //                 if($response[0]["licenses_quantity_"] == 0) {
+                //                     $response[0]["error"]  = "There is no license available.";
+                
+                //                 }
                 /* For now we will not use this part because even the store does not have license available
                  * the tablet that the user is trying setup can be a swap and not new one.
                  else {
@@ -191,9 +191,6 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
-                    if ($key == "upload_time") {
-                        $value = (new DateTime())->getTimestamp();
-                    }
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
@@ -213,7 +210,7 @@ class ApiController extends Controller
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
             
-             //            echo "sql: $sql";
+            //            echo "sql: $sql";
             $result = DB::statement($sql);
             
             if ($result) {
@@ -231,7 +228,7 @@ class ApiController extends Controller
         return $response;
         
     }
-        
+    
     
     public function getSettings(array $request, array $response) {
         
@@ -250,6 +247,7 @@ class ApiController extends Controller
             $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
             $response[0]["timezone"]                  = $settingsRes->timezone;
             $response[0]["smart_order"]               = $settingsRes->smart_order;
+            $response[0]["last_connection_time"]      = $settingsRes->last_connection_time;
             
             // Admin Global Settings
             $response[0]["offline_limit_hours"]       = $adminSettings->offline_limit_hours;
@@ -312,16 +310,16 @@ class ApiController extends Controller
     public function setDeviceOnline(array $request, array $response) {
         $deviceUpdated = array();
         
-        $deviceGuid = $request["device_guid"];
+        $storeGuid = $request["store_guid"];
         $lastConnectionTime = $request["last_connection_time"];
         
-        $device = DB::table('devices')->where('guid', '=', $deviceGuid)->first();
+        $device = DB::table('settings')->where('store_guid', '=', $storeGuid)->first();
         if (isset($device)) {
-            $sql = "update devices set last_connection_time = $lastConnectionTime where guid = '$deviceGuid'";
+            $sql = "update settings set last_connection_time = $lastConnectionTime where store_guid = '$storeGuid'";
             $result = DB::statement($sql);
             
             if ($result) {
-                $deviceUpdated = DB::select("SELECT * FROM devices WHERE guid = '$deviceGuid'");
+                $deviceUpdated = DB::select("SELECT * FROM settings WHERE store_guid = '$storeGuid'");
             } else {
                 $deviceUpdated[0]["error"]  = "Error trying update device. sql: $sql";
             }
@@ -339,7 +337,7 @@ class ApiController extends Controller
         
         return $value;
     }
-
+    
 }
 
 
