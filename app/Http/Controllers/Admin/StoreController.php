@@ -146,7 +146,8 @@ class StoreController extends Controller
         $settingsTable->insert($data);
         // ---------------------------------------------------------------------------- //
         
-        return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false]));
+        //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
+        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
     }
     
 
@@ -327,7 +328,8 @@ class StoreController extends Controller
             }
         }
 
-        return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false]));
+        // return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
     }
     
     

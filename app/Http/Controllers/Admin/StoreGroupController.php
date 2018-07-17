@@ -120,7 +120,8 @@ class StoreGroupController extends Controller
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 3]);
         
-        return redirect()->intended(route('admin.storegroups.edit', [$id, 'filter' => false]));
+        // return redirect()->intended(route('admin.storegroups.edit', [$id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.storegroups', [0, 'filter' => false])); // go to the list
     }
 
     /**
@@ -259,7 +260,8 @@ class StoreGroupController extends Controller
             }
         }
 
-        return redirect()->intended(route('admin.storegroups.edit', [$storegroup->id, 'filter' => false]));
+        // return redirect()->intended(route('admin.storegroups.edit', [$storegroup->id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.storegroups', [0, 'filter' => false])); // go to the list
     }
 
     /**

@@ -85,7 +85,8 @@ class ResellerController extends Controller
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 2]);
         
-        return redirect()->intended(route('admin.resellers.edit', [$id, 'filter' => false]));
+        // return redirect()->intended(route('admin.resellers.edit', [$id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.resellers', [0, 'filter' => false])); // go to the list
     }
 
     /**
@@ -219,7 +220,8 @@ class ResellerController extends Controller
             }
         }
         
-        return redirect()->intended(route('admin.resellers.edit', [$reseller->id, 'filter' => false]));
+        // return redirect()->intended(route('admin.resellers.edit', [$reseller->id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.resellers', [0, 'filter' => false])); // go to the list
     }
 
     /**
