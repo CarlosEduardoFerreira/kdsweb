@@ -50,7 +50,7 @@
 
             <div style="text-align:left;">
             		<div style="display:inline-table;width:200px;padding-left:10px;">
-                    <a href="{{ route('password.request') }}">{{ __('views.auth.login.action_1') }}</a>
+                    <!-- <a href="{{ route('password.request') }}">{{ __('views.auth.login.action_1') }}</a> -->
                 </div>
             </div>
 

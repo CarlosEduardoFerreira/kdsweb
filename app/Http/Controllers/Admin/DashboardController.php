@@ -24,6 +24,16 @@ class DashboardController extends Controller
 
     /**
      * Show the application dashboard.
+     * 
+     * -- Roles ----------------------------------------
+          id  name            weight     role
+          1   administrator   1000    -> Admin
+          2   reseller         900    -> Reseller
+          3   storegroup       800    -> Store Group
+          4   stores           700    -> Store
+          5   employee           1    -> Employee
+          7   authenticated      0    -> Undefined
+     * -------------------------------------------------
      *
      * @return \Illuminate\Http\Response
      */
@@ -32,15 +42,6 @@ class DashboardController extends Controller
         $me = Auth::user();
 
         $users = Controller::filterUsers(null, 0, 0, 0);
-
-//          Roles -------------------------------------
-//          id  name            weight     role
-//          1   administrator   1000    -> Admin
-//          2   reseller         900    -> Reseller
-//          3   storegroup       800    -> Store Group
-//          4   stores           700    -> Store
-//          5   employee           1    -> Employee
-//          7   authenticated      0    -> Undefined
 
         //echo "count users: " . count($users);
 

@@ -97,7 +97,7 @@
 
                 <div class="row x_title">
                     <div class="col-md-6">
-                        <h3>Devices</h3>
+                        <h3>Devices Data</h3>
                     </div>
                     <div class="col-md-6">
                         <div class="date_piker pull-right"
