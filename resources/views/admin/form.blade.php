@@ -65,7 +65,7 @@
                             		<?php 
                             		$selected = $user->parent_id == $parent->id ? "selected" : "";
                             		?>
-                                	<option value="{{ $parent->id }}" <?=$selected?>>{{ $parent->name }}</option>
+                                	<option value="{{ $parent->id }}" <?=$selected?>>{{ $parent->business_name }}</option>
                             	@endforeach;
                         </select>
                         <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
