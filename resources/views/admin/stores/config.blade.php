@@ -244,74 +244,174 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 @endsection
 
 
+
+<!-- ******************************** market_place ******************************** -->
+
+@section('marketplace')
+
+<div class="row" id="mp-list" style="min-height:700px;">
+
+	<div class="col-md-12 col-sm-12 col-xs-12">
+        <div id="mp-buttons">
+        
+            	<div class="mp-button">
+            		<span class="mp-b-helper"></span>
+            		<img alt="Twilio" src="{{URL::asset('assets/img/twilio_logo.png')}}">
+            		<div id="mp-b-footer">
+            			<a href="http://www.twilio.com" target="_blank">
+            				<span id="more">More</span>
+            			</a>
+            			<a href="javascript:showTwilio()">
+            				<span id="add">Add</span>
+            			</a>
+            		</div>
+            	</div>
+            	
+        </div>
+    </div>
+	
+</div>
+
+
+<div class="row" id="mp-twilio" style="min-height:700px;display:none;">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+    
+        <?php 
+            $sms_start_enable      = isset($settings->sms_start_enable)  ? $settings->sms_start_enable : false;
+            $sms_start_use_default = isset($settings->sms_start_use_default) ? $settings->sms_start_use_default : false;
+            $sms_start_custom      = isset($settings->sms_start_custom) ? $settings->sms_start_custom : "";
+            
+            $sms_done_enable       = isset($settings->sms_done_enable)  ? $settings->sms_done_enable : false;
+            $sms_done_use_default  = isset($settings->sms_done_use_default) ? $settings->sms_done_use_default : false;
+            $sms_done_custom       = isset($settings->sms_done_custom) ? $settings->sms_done_custom : "";
+        ?>
+    
+        {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id], 'id' => 'form-market-place', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
+        
+        		<div style="margin-left:10px;padding-bottom:20px;">
+        			<i class="fa fa-toggle-left" style="color:#999;"></i>
+        			<a href="javascript:showMarketplaceList();" class="a-back-mp" >Back to Marketplace</a>
+        		</div>
+        		
+        		<div class="mp-title" style="margin-left:100px;">
+        			<img alt="Twilio" src="{{URL::asset('assets/img/twilio_logo.png')}}" style="width:150px;">
+        		</div>
+        		
+        		<div class="divider" style="width:50%;margin:auto;margin-top:10px;margin-bottom:20px;"></div>
+        
+            <div class="form-group">
+                	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_start_enable" >
+                    Order Started Message:
+                	</label>
+                	<div class="col-md-4 col-sm-4 col-xs-4">
+        				<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if($sms_start_enable) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+				</div>
+				<div>
+					<label style="padding-right:20px;">Default</label>
+					<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if(!$sms_start_use_default) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+        				<label style="padding-left:20px;">Custom</label>
+        			</div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_start_custom">
+                    Message:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input id="sms_start_custom" name="sms_start_custom" type="text" style="display:inline-table;" 
+                    		value="{{ $sms_start_custom }}" class="form-control col-md-8 col-xs-8">
+                </div>
+            </div>
+            
+            <div class="divider" style="width:50%;margin:auto;margin-top:20px;margin-bottom:20px;"></div>
+            
+            <div class="form-group">
+                	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_done_enable" >
+                    Order Completed Message:
+                	</label>
+                	<div class="col-md-4 col-sm-4 col-xs-4">
+        				<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if($sms_done_enable) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+				</div>
+				<div>
+					<label style="padding-right:20px;">Default</label>
+					<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if(!$sms_done_use_default) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+        				<label style="padding-left:20px;">Custom</label>
+        			</div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_done_custom" >
+                    Message:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input id="sms_done_custom" name="sms_done_custom" type="text" style="display:inline-table;" 
+                    		value="{{ $sms_done_custom }}" class="form-control col-md-8 col-xs-8">
+                </div>
+            </div>
+            
+            <div class="divider" style="width:50%;margin:auto;margin-top:20px;margin-bottom:20px;"></div>
+    		{{ Form::close() }}
+	</div>
+</div>
+
+@endsection
+
+
+
 @section('styles')
     @parent
     {{ Html::style(mix('assets/admin/css/users/edit.css')) }}
     <style>
         .radio-bump { display:inline-table; width:100px; }
-        .radio-bump-time { display:inline-table; width:120px; text-align:right; }
+        .radio-bump-time { display:inline-table; width:120px; text-align:right; text-align:center; }
         
         .td-data { height:30px; }
         
-        /* The switch - the box around the slider */
-        .switch {
-            top:5px;
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 22px;
-        }
+        .a-back-mp { text-decoration:underline; margin-left:4px; color:#999; }
         
+        /** market place buttons ****************************************************/
+        #mp-buttons                                 { width:900px; margin: 0 auto; }
+        #mp-buttons .mp-button                      { width:180px; height:160px; background:#fefefe; text-align:center; 
+            white-space: nowrap; margin: 1em 0;
+            border:1px solid #ccc; border-radius: 25px; box-shadow: 5px 5px 5px rgba(0, 0, 0, .3); }
+        #mp-buttons .mp-button .mp-b-helper         { display: inline-block; height: 75%; vertical-align: middle; }
+        #mp-buttons .mp-button #mp-b-footer         { height:25%; border-radius: 0px 0px 25px 25px;  }
+        #mp-buttons .mp-button #mp-b-footer a span  { display:inline-table; height:38px; padding-top:5px; box-shadow: 0 -3px 3px -3px rgba(0, 0, 0, .3);
+             font-family:Helvetica Neue; font-size:16px; font-weight:200; border:1px solid #ccc; color:#fff; }
+        #mp-buttons .mp-button #mp-b-footer a:hover span { color:#666; }
+        #mp-buttons .mp-button #mp-b-footer #more   { width:85px; border-radius: 0px 0px 0px 25px; background:#75b5f0; margin-left:1px;  }
+        #mp-buttons .mp-button #mp-b-footer #add    { width:85px; border-radius: 0px 0px 25px 0px; background:#1ABB9C; }
+        #mp-buttons .mp-button img                  { width:160px; vertical-align: middle; }
+        /**************************************************** market place buttons **/
+        
+        /** switch ******************************************************************/
+        /* The switch - the box around the slider */
+        .switch { top:5px; position: relative; display: inline-block; width: 40px; height: 22px; }
         /* Hide default HTML checkbox */
         .switch input {display:none;}
-        
         /* The slider */
-        .switch .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          -webkit-transition: .4s;
-          transition: .4s;
-        }
-        
-        .switch .slider:before {
-          position: absolute;
-          content: "";
-          height: 18px;
-          width: 18px;
-          left: 2px;
-          bottom: 2px;
-          background-color: white;
-          -webkit-transition: .4s;
-          transition: .4s;
-        }
-        
-        .switch input:checked + .slider {
-          background-color: #2196F3;
-        }
-        
-        .switch input:focus + .slider {
-          box-shadow: 0 0 1px #2196F3;
-        }
-        
-        .switch input:checked + .slider:before {
-          -webkit-transform: translateX(18px);
-          -ms-transform: translateX(18px);
-          transform: translateX(18px);
-        }
-        
+        .switch .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+            background-color: #ccc; -webkit-transition: .4s; transition: .4s; }
+        .switch .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px;
+            bottom: 2px; background-color: white; -webkit-transition: .4s; transition: .4s; }
+        .switch input:checked + .slider { background-color: #2196F3; }
+        .switch input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
+        .switch input:checked + .slider:before { -webkit-transform: translateX(18px); 
+            -ms-transform: translateX(18px); transform: translateX(18px); }
         /* Rounded sliders */
-        .switch .slider.round {
-          border-radius: 34px;
-        }
-        
-        .switch .slider.round:before {
-          border-radius: 50%;
-        }
+        .switch .slider.round { border-radius: 34px; }
+        .switch .slider.round:before { border-radius: 50%; }
+        /****************************************************************** switch **/
     </style>
 @endsection
 
@@ -319,4 +419,23 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
     {{ Html::script(mix('assets/admin/js/validation_config.js')) }}
+    <script>
+    function showTwilio() {
+		$('#mp-list').hide();
+		$('#mp-twilio').fadeIn();
+	}
+	function showMarketplaceList() {
+		$('#mp-twilio').hide();
+		$('#mp-list').fadeIn();
+	}
+    $(document).ready(function(){
+    		
+    });
+    </script>
+    
 @endsection
+
+
+
+
+
