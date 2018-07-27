@@ -16,6 +16,7 @@ use DateTime;
 use DateTimeZone;
 
 
+
 class ApiController extends Controller
 {
     /**
@@ -149,8 +150,6 @@ class ApiController extends Controller
         
         foreach ($data as $object) {
             
-            $infoSendSMS = null;
-            
             $func = "UPD"; // Update
             
             $guid = $object['guid'];
@@ -168,11 +167,6 @@ class ApiController extends Controller
                 $sql .= "(";
                 foreach($object as $key=>$value) {
                     $sql .= "$key , ";
-                    
-                    // Send SMS
-                    if ($entity == 'orders' && $key == 'phone' && !empty($value)) {
-                        $infoSendSMS = $this->ableToSendSMS($entity, $key, $value);
-                    }
                 }
                 $sql  = rtrim($sql , ", ");
                 $sql .= ") VALUES(";
@@ -206,11 +200,6 @@ class ApiController extends Controller
             
             if ($result) {
                 array_push($objGuidArray, $guid);
-                
-                // Send SMS
-                if ($infoSendSMS != null) {
-                    
-                }
                 
             } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
@@ -264,30 +253,13 @@ class ApiController extends Controller
                     
                 }
                 if (!empty($msg)) {
+                    require_once("Twilio.php");
                     $sms = new ManagerSMS();
                     $code = $sms->sendSMS($phone, $msg);
                 }
             }
         }
         
-    }
-    
-    
-    /**
-     *  Verify if it's an order insert or update able to send SMS to the client.
-     * @param unknown $entity = table name
-     * @param unknown $key    = column name
-     * @param unknown $value  = value for the column
-     * @param unknown $previousValue  = previous value for the column
-     */
-    public function ableToSendSMS($entity, $key, $value, $previousValue = null) {
-        if ($entity == 'orders' && $key == 'phone' && !empty($value)) {
-            return array(
-                'phone' => $value,
-                'message' => 'Your order has been started cooking.'
-            );
-        }
-        return null;
     }
     
     
@@ -397,13 +369,6 @@ class ApiController extends Controller
         stripslashes($value);
         
         return $value;
-    }
-    
-    
-    public function sendSMS($phone, $message) {
-        require_once("Twilio.php");
-        $sms = new ManagerSMS();
-        $code = $sms->sendSMS($phone, $message);
     }
     
 }
