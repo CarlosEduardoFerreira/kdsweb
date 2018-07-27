@@ -43,10 +43,21 @@
                     </div>
                     
                     <ul class="nav nav-tabs" role="tablist" style="background:white;">
-                        <li role="presentation"><a id="first-tab" class="atabs" href="#settings" role="tab" data-toggle="tab">Settings</a></li>
-                        <li role="presentation"><a class="atabs" href="#devices" role="tab" data-toggle="tab">KDS Stations</a></li>
-                        <!--<li role="presentation" ><a class="atabs" href="#licenses" role="tab" data-toggle="tab">Licenses</a></li>-->
-                        
+                        	<li>
+                        		<a id="first-tab" class="atabs" href="#settings" role="tab" data-toggle="tab">
+                        			<i class="fa fa-cogs tab-icons"></i>&nbsp;&nbsp;Settings
+                        		</a>
+                        	</li>
+                        	<li>
+                        		<a class="atabs" href="#devices" role="tab" data-toggle="tab">
+                        			<i class="fa fa-desktop tab-icons"></i>&nbsp;&nbsp;KDS Stations
+                        		</a>
+                        	</li>
+                        	<li>
+                        		<a class="atabs" href="#marketplace" role="tab" data-toggle="tab">
+                        			<i class="fa fa-cubes tab-icons"></i>&nbsp;&nbsp;Marketplace
+                        		</a>
+                        	</li>
                     </ul>
 
                 </div>
@@ -58,9 +69,9 @@
                     <div role="tabpanel" class="tab-pane" id="devices">
                         @yield('devices')
                     </div>
-                    <!--<div role="tabpanel" class="tab-pane active" id="licenses">
-                        @yield('server')
-                    </div>-->
+                    <div role="tabpanel" class="tab-pane" id="marketplace">
+                        @yield('marketplace')
+                    </div>
                 </div>
 
             </div>
@@ -76,6 +87,7 @@
     {{ Html::style(mix('assets/admin/css/admin.css')) }}
     <style>
         .nav-tabs li { margin-right:10px; margin-top:3px; }
+        .tab-icons { font-size:18px; }
     </style>
 @endsection
 
@@ -122,6 +134,10 @@
                 window.location.href = window.location.href.split('#')[0] + atabs;
                 window.scrollTo(0, 0);
                 $('.tab-pane').hide();
+                if (atabs == '#marketplace') {
+                		$('#mp-twilio').hide();
+            			$('#mp-list').show();
+                }
                 $(atabs).fadeIn();
             }
 

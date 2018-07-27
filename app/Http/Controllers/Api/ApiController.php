@@ -47,42 +47,27 @@ class ApiController extends Controller
         
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-            //             $db = new ApiConnectionController();
-            //             $db->create();
-            
             if ($req == "LOGIN") {
-                
-                //                 $response = ApiUserController::login($request, $response);
-                
                 $response = $this->login($request, $response);
                 
             } else if ($req == "SYNC") {
-                
-                //                 $response = ApiSyncController::InsertOrUpdateEntityWeb($request, $response);
-                
                 $response = $this->insertOrUpdateEntityWeb($request, $response);
                 
             } else if ($req == "GET_SETTINGS") {
-                
-                //                 $response = ApiSettingsController::getSettings($request, $response);
-                
                 $response = $this->getSettings($request, $response);
                 
             } else if ($req == "GET_DEVICES") {
-                
                 $response = $this->getDevices($request, $response);
                 
             } else if ($req == "DEVICES_ACTIVE") {
-                
                 $response = $this->activeLicense($request, $response);
                 
             } else if ($req == "DEVICE_ONLINE") {
-                
                 $response = $this->setDeviceOnline($request, $response);
                 
+            } else if ($req == 'SYNC_ORDER') {
+                $response = $this->syncOrder($request, $response);
             }
-            
-            //             $db->close();
             
             return response()->json($response);
         }
@@ -164,6 +149,8 @@ class ApiController extends Controller
         
         foreach ($data as $object) {
             
+            $infoSendSMS = null;
+            
             $func = "UPD"; // Update
             
             $guid = $object['guid'];
@@ -181,6 +168,11 @@ class ApiController extends Controller
                 $sql .= "(";
                 foreach($object as $key=>$value) {
                     $sql .= "$key , ";
+                    
+                    // Send SMS
+                    if ($entity == 'orders' && $key == 'phone' && !empty($value)) {
+                        $infoSendSMS = $this->ableToSendSMS($entity, $key, $value);
+                    }
                 }
                 $sql  = rtrim($sql , ", ");
                 $sql .= ") VALUES(";
@@ -210,12 +202,16 @@ class ApiController extends Controller
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
             
-            //            echo "sql: $sql";
             $result = DB::statement($sql);
             
             if ($result) {
-                //$response[0]["result"]  = "OK = $sql";
                 array_push($objGuidArray, $guid);
+                
+                // Send SMS
+                if ($infoSendSMS != null) {
+                    
+                }
+                
             } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
@@ -227,6 +223,71 @@ class ApiController extends Controller
         
         return $response;
         
+    }
+    
+    
+    public function syncOrder(array $request, array $response) {
+        
+        $orderSMS = DB::table('sms_order_sent')
+            ->where('store_guid', $request["store_guid"])
+            ->where('order_guid', $request["order_guid"])
+            ->where('order_status', $request["order_status"])->first();
+        
+        if (!isset($orderSMS)) {
+            $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
+            
+            if (!isset($storeSettings)) {
+                $adminSettings = DB::table('admin_settings')->first();
+                
+                $msg = "";
+                
+                if ($request["order_status"] == 'new' && isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
+                    if ($storeSettings->sms_start_use_default) {
+                        $msg = $adminSettings->sms_order_start_message;
+                    } else {
+                        $msg = $storeSettings->sms_start_custom;
+                    }
+                    
+                } else if ($request["order_status"] == 'ready' && isset($storeSettings->sms_ready_enable) && $storeSettings->sms_ready_enable) {
+                    if ($storeSettings->sms_ready_use_default) {
+                        $msg = $adminSettings->sms_order_ready_message;
+                    } else {
+                        $msg = $storeSettings->sms_ready_custom;
+                    }
+                    
+                } else if ($request["order_status"] == 'done' && isset($storeSettings->sms_done_enable) && $storeSettings->sms_done_enable) {
+                    if ($storeSettings->sms_done_use_default) {
+                        $msg = $adminSettings->sms_order_done_message;
+                    } else {
+                        $msg = $storeSettings->sms_done_custom;
+                    }
+                    
+                }
+                if (!empty($msg)) {
+                    $sms = new ManagerSMS();
+                    $code = $sms->sendSMS($phone, $msg);
+                }
+            }
+        }
+        
+    }
+    
+    
+    /**
+     *  Verify if it's an order insert or update able to send SMS to the client.
+     * @param unknown $entity = table name
+     * @param unknown $key    = column name
+     * @param unknown $value  = value for the column
+     * @param unknown $previousValue  = previous value for the column
+     */
+    public function ableToSendSMS($entity, $key, $value, $previousValue = null) {
+        if ($entity == 'orders' && $key == 'phone' && !empty($value)) {
+            return array(
+                'phone' => $value,
+                'message' => 'Your order has been started cooking.'
+            );
+        }
+        return null;
     }
     
     
@@ -336,6 +397,13 @@ class ApiController extends Controller
         stripslashes($value);
         
         return $value;
+    }
+    
+    
+    public function sendSMS($phone, $message) {
+        require_once("Twilio.php");
+        $sms = new ManagerSMS();
+        $code = $sms->sendSMS($phone, $message);
     }
     
 }
