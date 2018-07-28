@@ -217,6 +217,8 @@ class ApiController extends Controller
     
     public function syncOrder(array $request, array $response) {
         
+        $response[0]["start"] = "started";
+        
         $orderSMS = DB::table('sms_order_sent')
         ->where('store_guid', $request["store_guid"])
         ->where('order_guid', $request["order_guid"])
