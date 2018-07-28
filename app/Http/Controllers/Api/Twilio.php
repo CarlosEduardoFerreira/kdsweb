@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http\Controllers\Api;
+
 require app_path().'/Twilio/autoload.php';
 
 // Use the REST API Client to make requests to the Twilio REST API
