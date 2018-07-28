@@ -218,9 +218,9 @@ class ApiController extends Controller
     public function syncOrder(array $request, array $response) {
         
         $orderSMS = DB::table('sms_order_sent')
-            ->where('store_guid', $request["store_guid"])
-            ->where('order_guid', $request["order_guid"])
-            ->where('order_status', $request["order_status"])->first();
+        ->where('store_guid', $request["store_guid"])
+        ->where('order_guid', $request["order_guid"])
+        ->where('order_status', $request["order_status"])->first();
         
         if (!isset($orderSMS)) {
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
@@ -253,12 +253,19 @@ class ApiController extends Controller
                     
                 }
                 if (!empty($msg)) {
+                    
                     require_once("Twilio.php");
                     $sms = new ManagerSMS();
-                    $code = $sms->sendSMS($phone, $msg);
+                    $return = $sms->sendSMS($phone, $msg);
+                    
+                    $response[0]["error"] = $return;
+                    
+                    return response[0]["error"];
                 }
             }
         }
+        
+        $response[0]["error"] = "Nothing to do.";
         
     }
     
