@@ -228,11 +228,11 @@ class ApiController extends Controller
             $response[0]["orderSMS"] = "orderSMS";
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
             
+            $msg = NULL;
+            
             if (isset($storeSettings)) {
                 $response[0]["storeSettings"] = "storeSettings";
                 $adminSettings = DB::table('admin_settings')->first();
-                
-                $msg = "";
                 
                 if ($request["order_status"] == 'new' && isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
                     $response[0]["new"] = $request["order_status"];
@@ -259,7 +259,8 @@ class ApiController extends Controller
                     }
                     
                 }
-                if (!empty($msg)) {
+                
+                if (!is_null($msg)) {
                     $response[0]["msg"] = $msg;
                     require_once("Twilio.php");
                     $sms = new ManagerSMS();
