@@ -1,6 +1,6 @@
 <?php
 
-require base_path().'/Twilio/autoload.php';
+require app_path().'/Twilio/autoload.php';
 
 // Use the REST API Client to make requests to the Twilio REST API
 use Twilio\Rest\Client;
