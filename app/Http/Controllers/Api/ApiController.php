@@ -225,14 +225,17 @@ class ApiController extends Controller
         ->where('order_status', $request["order_status"])->first();
         
         if (!isset($orderSMS)) {
+            $response[0]["orderSMS"] = "orderSMS";
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
             
             if (!isset($storeSettings)) {
+                $response[0]["storeSettings"] = "storeSettings";
                 $adminSettings = DB::table('admin_settings')->first();
                 
                 $msg = "";
                 
                 if ($request["order_status"] == 'new' && isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
+                    $response[0]["new"] = $request["order_status"];
                     if ($storeSettings->sms_start_use_default) {
                         $msg = $adminSettings->sms_order_start_message;
                     } else {
@@ -240,6 +243,7 @@ class ApiController extends Controller
                     }
                     
                 } else if ($request["order_status"] == 'ready' && isset($storeSettings->sms_ready_enable) && $storeSettings->sms_ready_enable) {
+                    $response[0]["ready"] = $request["order_status"];
                     if ($storeSettings->sms_ready_use_default) {
                         $msg = $adminSettings->sms_order_ready_message;
                     } else {
@@ -247,6 +251,7 @@ class ApiController extends Controller
                     }
                     
                 } else if ($request["order_status"] == 'done' && isset($storeSettings->sms_done_enable) && $storeSettings->sms_done_enable) {
+                    $response[0]["done"] = $request["order_status"];
                     if ($storeSettings->sms_done_use_default) {
                         $msg = $adminSettings->sms_order_done_message;
                     } else {
@@ -255,7 +260,7 @@ class ApiController extends Controller
                     
                 }
                 if (!empty($msg)) {
-                    
+                    $response[0]["msg"] = $msg;
                     require_once("Twilio.php");
                     $sms = new ManagerSMS();
                     $return = $sms->sendSMS($phone, $msg);
