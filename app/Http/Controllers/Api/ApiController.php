@@ -224,14 +224,15 @@ class ApiController extends Controller
         ->where('order_guid', $request["order_guid"])
         ->where('order_status', $request["order_status"])->first();
         
+        // It must send SMS when it was not sent before for this order and order_status.
         if (!isset($orderSMS)) {
             $response[0]["orderSMS"] = "orderSMS";
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
             
-            $msg = NULL;
+            $msg = "";
             
+            $response[0]["storeSettings"] = "storeSettings";
             if (isset($storeSettings)) {
-                $response[0]["storeSettings"] = "storeSettings";
                 $adminSettings = DB::table('admin_settings')->first();
                 
                 if ($request["order_status"] == 'new' && isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
@@ -260,11 +261,11 @@ class ApiController extends Controller
                     
                 }
                 
-                if (!is_null($msg)) {
-                    $response[0]["msg"] = $msg;
-                    
+                $response[0]["msg"] = $msg;
+                if (isset($msg) && !is_null($msg) && $msg != "") {
                     $order = DB::table('orders')->where(['order_guid' => $request["order_guid"]])->first();
                     
+                    $response[0]["phone"] = $order->phone;
                     if (isset($order->phone) && !is_null($order->phone)) {
                         require_once("Twilio.php");
                         $sms = new ManagerSMS();
