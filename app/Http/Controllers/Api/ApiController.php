@@ -258,14 +258,23 @@ class ApiController extends Controller
                     $sms = new ManagerSMS();
                     $return = $sms->sendSMS($phone, $msg);
                     
-                    $response[0]["error"] = $return;
+                    $response[0]["sms_result"] = $return;
                     
-                    return response[0]["error"];
+                    if ($return) {
+                        $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message)
+                            VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."')";
+                        $result = DB::statement($sql);
+                        $response[0]["sms_order_sent_insert_result"] = $result;
+                    }
+
                 }
             }
+            
+        } else {
+            $response[0]["error"] = "Nothing to do.";
         }
         
-        $response[0]["error"] = "Nothing to do.";
+        return $response;
         
     }
     
