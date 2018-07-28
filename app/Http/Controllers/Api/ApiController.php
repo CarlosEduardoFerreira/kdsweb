@@ -263,7 +263,7 @@ class ApiController extends Controller
                 
                 $response[0]["msg"] = $msg;
                 if (isset($msg) && !is_null($msg) && $msg != "") {
-                    $order = DB::table('orders')->where(['order_guid' => $request["order_guid"]])->first();
+                    $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
                     
                     $response[0]["phone"] = $order->phone;
                     if (isset($order->phone) && !is_null($order->phone)) {
