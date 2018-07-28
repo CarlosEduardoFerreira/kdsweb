@@ -262,11 +262,16 @@ class ApiController extends Controller
                 
                 if (!is_null($msg)) {
                     $response[0]["msg"] = $msg;
-                    require_once("Twilio.php");
-                    $sms = new ManagerSMS();
-                    $return = $sms->sendSMS($phone, $msg);
                     
-                    $response[0]["sms_result"] = $return;
+                    $order = DB::table('orders')->where(['order_guid' => $request["order_guid"]])->first();
+                    
+                    if (isset($order->phone) && !is_null($order->phone)) {
+                        require_once("Twilio.php");
+                        $sms = new ManagerSMS();
+                        $return = $sms->sendSMS($order->phone, $msg);
+                        
+                        $response[0]["sms_result"] = $return;
+                    }
                     
                     if ($return) {
                         $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message)
