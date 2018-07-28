@@ -1,6 +1,6 @@
 <?php
 
-require '../../../Twilio/autoload.php';
+require 'Twilio/autoload.php';
 
 // Use the REST API Client to make requests to the Twilio REST API
 use Twilio\Rest\Client;
@@ -19,19 +19,17 @@ class ManagerSMS{
     
     public function __construct(){
         $this->client = new Client($this->sid, $this->token);
-        
     }
     
     
     public function sendSMS($phone, $message){
-        $this->client->messages->create(
-                '+'.$phone,
-                array(
-                    'from' => $this->phoneFrom,
-                    'body' => $message
-                )
-            );
-        return $code;
+        return $this->client->messages->create(
+            '+'.$phone,
+            array(
+                'from' => $this->phoneFrom,
+                'body' => $message
+            )
+        );
     }
     
     
