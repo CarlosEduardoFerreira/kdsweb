@@ -228,7 +228,7 @@ class ApiController extends Controller
             $response[0]["orderSMS"] = "orderSMS";
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
             
-            if (!isset($storeSettings)) {
+            if (isset($storeSettings)) {
                 $response[0]["storeSettings"] = "storeSettings";
                 $adminSettings = DB::table('admin_settings')->first();
                 
