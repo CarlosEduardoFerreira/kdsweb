@@ -261,12 +261,12 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             			<a href="http://www.twilio.com" target="_blank">
             				<span id="more">More</span>
             			</a>
-            			<a href="javascript:showTwilio()">
+            			<a href="javascript:showTwilio()"> 
             				<span id="add">Add</span>
             			</a>
             		</div>
             	</div>
-            	 
+            	  
         </div>
     </div>
 	
