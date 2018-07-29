@@ -256,7 +256,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         
             	<div class="mp-button">
             		<span class="mp-b-helper"></span>
-            		<img alt="Twilio" src="{{URL::asset('assets/img/twilio_logo.png')}}">
+            		<img alt="Twilio" src="/assets/img/twilio_logo.png">
             		<div id="mp-b-footer">
             			<a href="http://www.twilio.com" target="_blank">
             				<span id="more">More</span>
@@ -281,6 +281,10 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             $sms_start_use_default = isset($settings->sms_start_use_default) ? $settings->sms_start_use_default : false;
             $sms_start_custom      = isset($settings->sms_start_custom) ? $settings->sms_start_custom : "";
             
+            $sms_ready_enable       = isset($settings->sms_ready_enable)  ? $settings->sms_ready_enable : false;
+            $sms_ready_use_default  = isset($settings->sms_ready_use_default) ? $settings->sms_ready_use_default : false;
+            $sms_ready_custom       = isset($settings->sms_ready_custom) ? $settings->sms_ready_custom : "";
+            
             $sms_done_enable       = isset($settings->sms_done_enable)  ? $settings->sms_done_enable : false;
             $sms_done_use_default  = isset($settings->sms_done_use_default) ? $settings->sms_done_use_default : false;
             $sms_done_custom       = isset($settings->sms_done_custom) ? $settings->sms_done_custom : "";
@@ -294,7 +298,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         		</div>
         		
         		<div class="mp-title" style="margin-left:100px;">
-        			<img alt="Twilio" src="{{URL::asset('assets/img/twilio_logo.png')}}" style="width:150px;">
+        			<img alt="Twilio" src="/assets/img/twilio_logo.png" style="width:150px;">
         		</div>
         		
         		<div class="divider" style="width:50%;margin:auto;margin-top:10px;margin-bottom:20px;"></div>
@@ -325,6 +329,37 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="sms_start_custom" name="sms_start_custom" type="text" style="display:inline-table;" 
                     		value="{{ $sms_start_custom }}" class="form-control col-md-8 col-xs-8">
+                </div>
+            </div>
+            
+            <div class="divider" style="width:50%;margin:auto;margin-top:20px;margin-bottom:20px;"></div>
+            
+            <div class="form-group">
+                	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_ready_enable" >
+                    Order Ready Message:
+                	</label>
+                	<div class="col-md-4 col-sm-4 col-xs-4">
+        				<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if($sms_ready_enable) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+				</div>
+				<div>
+					<label style="padding-right:20px;">Default</label>
+					<label class="switch">
+        					<input class="switch-mp" type="checkbox" @if(!$sms_ready_use_default) checked="checked" @endif value="1">
+        					<span class="slider round"></span>
+        				</label>
+        				<label style="padding-left:20px;">Custom</label>
+        			</div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="sms_ready_custom" >
+                    Message:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input id="sms_ready_custom" name="sms_ready_custom" type="text" style="display:inline-table;" 
+                    		value="{{ $sms_done_custom }}" class="form-control col-md-8 col-xs-8">
                 </div>
             </div>
             

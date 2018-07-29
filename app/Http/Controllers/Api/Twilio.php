@@ -14,9 +14,13 @@ class ManagerSMS{
     
     // Your Account SID and Auth Token from twilio.com/console
     private $sid        = 'AC923c0238ccc0eda2880e148eef1d93ba';
-    private $token      = 'b7f4948045a4ded28cb76b236402350';
-    
+    private $token      = 'b7f4948045a4ded28cb76b2364023501';
     private $phoneFrom  = '16467982984';
+    
+    // test
+//     private $sid        = 'AC6810737c53768016aa22c057ac576c21';
+//     private $token      = '8d500259574f86e41ba14cd4db907772';
+//     private $phoneFrom  = '16467982984';
     
     
     public function __construct(){
