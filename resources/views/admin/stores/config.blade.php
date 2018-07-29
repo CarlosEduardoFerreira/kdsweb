@@ -359,7 +359,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="sms_ready_custom" name="sms_ready_custom" type="text" style="display:inline-table;" 
-                    		value="{{ $sms_done_custom }}" class="form-control col-md-8 col-xs-8">
+                    		value="{{ $sms_ready_custom }}" class="form-control col-md-8 col-xs-8">
                 </div>
             </div>
             

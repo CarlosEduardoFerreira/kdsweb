@@ -61,15 +61,15 @@
     </script>
 
     <div class="row tile_count" style="text-align:center;">
-        <div class="tile_stats_count link_page {{ $dashshow[0] }} {{ $colwidth }}" goto="{{ route('admin.resellers',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[0] }} {{ $colwidth }}" goto="{{ route('admin.resellers', ['adminId' => '0', 'filter' => false]) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-briefcase"></i> Resellers</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['resellers'] }}</div>
         </div>
-        <div class="tile_stats_count link_page {{ $dashshow[1] }} {{ $colwidth }}" goto="{{ route('admin.storegroups',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[1] }} {{ $colwidth }}" goto="{{ route('admin.storegroups', ['resellerId' => '0', 'filter' => false]) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-sitemap"></i> Store Groups</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['storegroups'] }}</div>
         </div>
-        <div class="tile_stats_count link_page {{ $dashshow[2] }} {{ $colwidth }}" goto="{{ route('admin.stores',0) }}">
+        <div class="tile_stats_count link_page {{ $dashshow[2] }} {{ $colwidth }}" goto="{{ route('admin.stores', ['storegroupId' => '0', 'filter' => false]) }}">
             <span class="count_top dashtext" style="font-size:22px;"><i class="fa fa-cutlery"></i> Stores</span>
             <div class="count green dashnum" style="text-align:right;margin-right:20px;">{{ $counts['stores'] }}</div>
         </div>
