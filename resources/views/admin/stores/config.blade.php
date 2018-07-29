@@ -256,7 +256,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         
             	<div class="mp-button">
             		<span class="mp-b-helper"></span>
-            		<img alt="Twilio" src="/assets/images/twilio_logo.png">
+            		<img alt="Twilio" src="/images/twilio_logo.png">
             		<div id="mp-b-footer">
             			<a href="http://www.twilio.com" target="_blank">
             				<span id="more">More</span>
@@ -298,7 +298,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         		</div>
         		
         		<div class="mp-title" style="margin-left:100px;">
-        			<img alt="Twilio" src="/assets/images/twilio_logo.png" style="width:150px;">
+        			<img alt="Twilio" src="/images/twilio_logo.png" style="width:150px;">
         		</div>
         		
         		<div class="divider" style="width:50%;margin:auto;margin-top:10px;margin-bottom:20px;"></div>
