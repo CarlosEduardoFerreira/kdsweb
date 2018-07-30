@@ -489,8 +489,8 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         #mp-buttons .mp-button .mp-b-helper         { display: inline-block; height: 75%; vertical-align: middle; }
         #mp-buttons .mp-button #mp-b-footer         { height:25%; border-radius: 0px 0px 25px 25px;  }
         #mp-buttons .mp-button #mp-b-footer a span  { display:inline-table; height:38px; padding-top:5px; box-shadow: 0 -3px 3px -3px rgba(0, 0, 0, .3);
-             font-family:Helvetica Neue; font-size:16px; font-weight:200; border:1px solid #ccc; color:#fff; }
-        #mp-buttons .mp-button #mp-b-footer a:hover span { color:#666; }
+             font-family:Helvetica Neue; font-size:16px; font-weight:200; border:1px solid #ccc; color:#fff; opacity:0.6; }
+        #mp-buttons .mp-button #mp-b-footer a:hover span { color:#666; opacity:0.9; }
         #mp-buttons .mp-button #mp-b-footer #more   { width:85px; border-radius: 0px 0px 0px 25px; background:#75b5f0; margin-left:1px;  }
         #mp-buttons .mp-button #mp-b-footer #add    { width:85px; border-radius: 0px 0px 25px 0px; background:#1ABB9C; }
         #mp-buttons .mp-button img                  { width:160px; vertical-align: middle; }
