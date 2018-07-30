@@ -330,27 +330,19 @@ class ApiController extends Controller
         
         $settingsRes = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
         
-        $adminSettings = DB::table('admin_settings')->first();
-        
         if (isset($settingsRes)) {
             
             $settingsArray = json_decode(json_encode($settingsRes), true);
             
             $response = array($settingsArray);
             
-//             $response[0]["guid"]                      = $settingsRes->guid;
-//             $response[0]["server_address"]            = $settingsRes->server_address;
-//             $response[0]["server_username"]           = $settingsRes->server_username;
-//             $response[0]["server_password"]           = $settingsRes->server_password;
-//             $response[0]["socket_port"]               = $settingsRes->socket_port;
-//             $response[0]["auto_done_order_hourly"]    = $settingsRes->auto_done_order_hourly;
-//             $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
-//             $response[0]["timezone"]                  = $settingsRes->timezone;
-//             $response[0]["smart_order"]               = $settingsRes->smart_order;
-//             $response[0]["last_connection_time"]      = $settingsRes->last_connection_time;
-            
             // Admin Global Settings
-            $response[0]["offline_limit_hours"]       = $adminSettings->offline_limit_hours;
+            $adminSettings = DB::table('admin_settings')->first();
+            
+            $response[0]["offline_limit_hours"]      = $adminSettings->offline_limit_hours;
+            $response[0]["sms_order_start_message"]  = $adminSettings->sms_order_start_message;
+            $response[0]["sms_order_ready_message"]  = $adminSettings->sms_order_ready_message;
+            $response[0]["sms_order_done_message"]   = $adminSettings->sms_order_done_message;
             
             if(isset($settingsRes->licenses_quantity)) {
                 $response[0]["licenses_quantity"] = $settingsRes->licenses_quantity;
