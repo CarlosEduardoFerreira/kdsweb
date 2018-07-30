@@ -334,16 +334,20 @@ class ApiController extends Controller
         
         if (isset($settingsRes)) {
             
-            $response[0]["guid"]                      = $settingsRes->guid;
-            $response[0]["server_address"]            = $settingsRes->server_address;
-            $response[0]["server_username"]           = $settingsRes->server_username;
-            $response[0]["server_password"]           = $settingsRes->server_password;
-            $response[0]["socket_port"]               = $settingsRes->socket_port;
-            $response[0]["auto_done_order_hourly"]    = $settingsRes->auto_done_order_hourly;
-            $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
-            $response[0]["timezone"]                  = $settingsRes->timezone;
-            $response[0]["smart_order"]               = $settingsRes->smart_order;
-            $response[0]["last_connection_time"]      = $settingsRes->last_connection_time;
+            $settingsArray = json_decode(json_encode($settingsRes), true);
+            
+            $response = array($settingsArray);
+            
+//             $response[0]["guid"]                      = $settingsRes->guid;
+//             $response[0]["server_address"]            = $settingsRes->server_address;
+//             $response[0]["server_username"]           = $settingsRes->server_username;
+//             $response[0]["server_password"]           = $settingsRes->server_password;
+//             $response[0]["socket_port"]               = $settingsRes->socket_port;
+//             $response[0]["auto_done_order_hourly"]    = $settingsRes->auto_done_order_hourly;
+//             $response[0]["auto_done_order_time"]      = $settingsRes->auto_done_order_time;
+//             $response[0]["timezone"]                  = $settingsRes->timezone;
+//             $response[0]["smart_order"]               = $settingsRes->smart_order;
+//             $response[0]["last_connection_time"]      = $settingsRes->last_connection_time;
             
             // Admin Global Settings
             $response[0]["offline_limit_hours"]       = $adminSettings->offline_limit_hours;
