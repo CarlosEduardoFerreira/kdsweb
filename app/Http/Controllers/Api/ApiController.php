@@ -245,11 +245,15 @@ class ApiController extends Controller
                 
                 $adminSettings = DB::table('admin_settings')->first();
                 
+                $sms_start_use_default = $storeSettings->sms_start_use_default !== null ? $storeSettings->sms_start_use_default : 0;
+                $sms_ready_use_default = $storeSettings->sms_ready_use_default !== null ? $storeSettings->sms_ready_use_default : 0;
+                $sms_done_use_default = $storeSettings->sms_done_use_default !== null ? $storeSettings->sms_done_use_default : 0;
+                
                 if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.new' || $orderStatus == 'new' || $orderStatus == '0') && 
                     isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
                             
                     $response[0]["new"] = $request["order_status"];
-                    if ($storeSettings->sms_start_use_default) {
+                    if ($sms_start_use_default) {
                         $msg = $adminSettings->sms_order_start_message;
                     } else {
                         $msg = $storeSettings->sms_start_custom;
@@ -259,7 +263,7 @@ class ApiController extends Controller
                     isset($storeSettings->sms_ready_enable) && $storeSettings->sms_ready_enable) {
                             
                     $response[0]["ready"] = $request["order_status"];
-                    if ($storeSettings->sms_ready_use_default) {
+                    if ($sms_ready_use_default) {
                         $msg = $adminSettings->sms_order_ready_message;
                     } else {
                         $msg = $storeSettings->sms_ready_custom;
@@ -269,7 +273,7 @@ class ApiController extends Controller
                     isset($storeSettings->sms_done_enable) && $storeSettings->sms_done_enable) {
                             
                     $response[0]["done"] = $request["order_status"];
-                    if ($storeSettings->sms_done_use_default) {
+                    if ($sms_done_use_default) {
                         $msg = $adminSettings->sms_order_done_message;
                     } else {
                         $msg = $storeSettings->sms_done_custom;
