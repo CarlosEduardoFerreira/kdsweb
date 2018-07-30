@@ -278,33 +278,35 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
     
         <?php 
 
-            $sms_start_enable      = isset($settings->sms_start_enable)  ? $settings->sms_start_enable : false;
-            $sms_start_use_default = isset($settings->sms_start_use_default) ? $settings->sms_start_use_default ? false : true : false;
+            $sms_start_enable      = isset($settings->sms_start_enable)  ? $settings->sms_start_enable : 0;
+            $sms_start_use_default = isset($settings->sms_start_use_default) ? $settings->sms_start_use_default : 1;
             $sms_start_custom      = isset($settings->sms_start_custom) ? $settings->sms_start_custom : "";
             
-            $sms_ready_enable       = isset($settings->sms_ready_enable)  ? $settings->sms_ready_enable : false;
-            $sms_ready_use_default  = isset($settings->sms_ready_use_default) ? $settings->sms_ready_use_default ? false : true : false;
+            $sms_ready_enable       = isset($settings->sms_ready_enable)  ? $settings->sms_ready_enable : 0;
+            $sms_ready_use_default  = isset($settings->sms_ready_use_default) ? $settings->sms_ready_use_default : 1;
             $sms_ready_custom       = isset($settings->sms_ready_custom) ? $settings->sms_ready_custom : "";
             
-            $sms_done_enable       = isset($settings->sms_done_enable)  ? $settings->sms_done_enable : false;
-            $sms_done_use_default  = isset($settings->sms_done_use_default) ? $settings->sms_done_use_default ? false : true : false;
+            $sms_done_enable       = isset($settings->sms_done_enable)  ? $settings->sms_done_enable : 0;
+            $sms_done_use_default  = isset($settings->sms_done_use_default) ? $settings->sms_done_use_default : 1;
             $sms_done_custom       = isset($settings->sms_done_custom) ? $settings->sms_done_custom : "";
             
-            $sms_start_use_default = $sms_start_enable ? $sms_start_use_default : true;
-            $sms_ready_use_default = $sms_ready_enable ? $sms_ready_use_default : true;
-            $sms_done_use_default  = $sms_done_enable  ? $sms_done_use_default  : true;
+            $sms_start_use_default = $sms_start_enable == 1 ? $sms_start_use_default : 1;
+            $sms_ready_use_default = $sms_ready_enable == 1 ? $sms_ready_use_default : 1;
+            $sms_done_use_default  = $sms_done_enable  == 1 ? $sms_done_use_default  : 1;
             
-            $start_message = $sms_start_use_default ? $adminSettings->sms_order_start_message : $sms_start_custom;
-            $ready_message = $sms_ready_use_default ? $adminSettings->sms_order_ready_message : $sms_ready_custom;
-            $done_message  = $sms_done_use_default ? $adminSettings->sms_order_done_message : $sms_done_custom;
+            $start_message = $sms_start_use_default == 1 ? $adminSettings->sms_order_start_message : $sms_start_custom;
+            $ready_message = $sms_ready_use_default == 1 ? $adminSettings->sms_order_ready_message : $sms_ready_custom;
+            $done_message  = $sms_done_use_default == 1  ? $adminSettings->sms_order_done_message : $sms_done_custom;
             
-            $styleCustomStart = $sms_start_enable ? "" : "display:none;";
-            $styleCustomReady = $sms_ready_enable ? "" : "display:none;";
-            $styleCustomDone  = $sms_done_enable  ? "" : "display:none;";
+            $styleCustomStart = $sms_start_enable == 1 ? "" : "display:none;";
+            $styleCustomReady = $sms_ready_enable == 1 ? "" : "display:none;";
+            $styleCustomDone  = $sms_done_enable  == 1 ? "" : "display:none;";
             
-            $styleMessageStart = $sms_start_enable  ? "opacity:1;" : "opacity:0.3;";
-            $styleMessageReady = $sms_ready_enable  ? "opacity:1;" : "opacity:0.3;";
-            $styleMessageDone  = $sms_done_enable   ? "opacity:1;" : "opacity:0.3;";
+            $styleMessageStart = $sms_start_enable == 1 ? "opacity:1;" : "opacity:0.3;";
+            $styleMessageReady = $sms_ready_enable == 1 ? "opacity:1;" : "opacity:0.3;";
+            $styleMessageDone  = $sms_done_enable  == 1 ? "opacity:1;" : "opacity:0.3;";
+            
+            echo "sms_start_use_default: " . $sms_start_use_default;
         ?>
     
         {{ Form::open(['route'=>['admin.stores.updateTwilio', $store->id], 'id' => 'form-market-place', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
@@ -356,7 +358,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         				<label class="switch">
         					<input  type="checkbox" name="sms_start_enable" class="switch-mp switch-mp-enable"
         						config_switch="config-switch-start" config_msg="config-msg-start"
-        						@if($sms_start_enable) checked="checked" @endif value="1">
+        						@if($sms_start_enable == 1) checked="checked" @endif value="1">
         					<span class="slider round"></span>
         				</label>
 				</div>
@@ -365,7 +367,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 					<label class="switch">
         					<input type="checkbox" name="sms_start_use_default" class="switch-mp switch-mp-use-custom" 
         						input_message_id="sms_start_custom"
-        						@if(!$sms_start_use_default) checked="checked" @endif value="1">
+        						@if($sms_start_use_default == 0) checked="checked" @endif>
         					<span class="slider round"></span>
         				</label>
         				<label style="padding-left:20px;">Custom</label>
@@ -392,7 +394,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         				<label class="switch">
         					<input type="checkbox" name="sms_ready_enable" class="switch-mp switch-mp-enable" 
         						config_switch="config-switch-ready" config_msg="config-msg-ready"
-        						@if($sms_ready_enable) checked="checked" @endif value="1">
+        						@if($sms_ready_enable == 1) checked="checked" @endif value="1">
         					<span class="slider round"></span>
         				</label>
 				</div>
@@ -401,7 +403,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 					<label class="switch">
         					<input type="checkbox" name="sms_ready_use_default" class="switch-mp switch-mp-use-custom"
         						input_message_id="sms_ready_custom"
-        						@if(!$sms_ready_use_default) checked="checked" @endif value="1">
+        						@if($sms_ready_use_default == 0) checked="checked" @endif>
         					<span class="slider round"></span>
         				</label>
         				<label style="padding-left:20px;">Custom</label>
@@ -428,7 +430,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         				<label class="switch">
         					<input type="checkbox" name="sms_done_enable" class="switch-mp switch-mp-enable"  
         						config_switch="config-switch-done" config_msg="config-msg-done"
-        						@if($sms_done_enable) checked="checked" @endif value="1">
+        						@if($sms_done_enable == 1) checked="checked" @endif value="1">
         					<span class="slider round"></span>
         				</label>
 				</div>
@@ -437,7 +439,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 					<label class="switch">
         					<input type="checkbox" name="sms_done_use_default" class="switch-mp switch-mp-use-custom" 
         						input_message_id="sms_done_custom"
-        						@if(!$sms_done_use_default) checked="checked" @endif value="1">
+        						@if($sms_done_use_default == 0) checked="checked" @endif>
         					<span class="slider round"></span>
         				</label>
         				<label style="padding-left:20px;">Custom</label>

@@ -366,11 +366,15 @@ class StoreController extends Controller
         
         $sms_start_enable = $request->get('sms_start_enable') !== null ? $request->get('sms_start_enable') : 0;
         $sms_ready_enable = $request->get('sms_ready_enable') !== null ? $request->get('sms_ready_enable') : 0;
-        $sms_done_enable = $request->get('sms_done_enable') !== null ? $request->get('sms_done_enable') : 0;
+        $sms_done_enable  = $request->get('sms_done_enable') !== null ? $request->get('sms_done_enable') : 0;
         
-        $sms_start_use_default = $request->get('sms_start_use_default') !== null ? $request->get('sms_start_use_default') : 0;
-        $sms_ready_use_default = $request->get('sms_ready_use_default') !== null ? $request->get('sms_ready_use_default') : 0;
-        $sms_done_use_default = $request->get('sms_done_use_default') !== null ? $request->get('sms_done_use_default') : 0;
+        $sms_start_use_default = $request->get('sms_start_use_default') !== null ? $request->get('sms_start_use_default') == 'on' ? 0: 1 : 1;
+        $sms_ready_use_default = $request->get('sms_ready_use_default') !== null ? $request->get('sms_ready_use_default') == 'on' ? 0: 1 : 1;
+        $sms_done_use_default  = $request->get('sms_done_use_default') !== null ? $request->get('sms_done_use_default') == 'on' ? 0: 1 : 1;
+        
+        $sms_start_use_default = $sms_start_enable == 1 ? $sms_start_use_default : 1;
+        $sms_ready_use_default = $sms_ready_enable == 1 ? $sms_ready_use_default : 1;
+        $sms_done_use_default  = $sms_done_enable == 1 ? $sms_done_use_default : 1;
         
         $data = [
             'sms_account_sid'           => $request->get('sms_account_sid'),
@@ -387,19 +391,19 @@ class StoreController extends Controller
             'sms_done_use_default'      => $sms_done_use_default
         ];
         
-        if ($sms_start_enable && $sms_start_use_default) {
+        if ($sms_start_enable == 1 && $sms_start_use_default == 0) {
             $data['sms_start_custom'] = $request->get('sms_start_custom');
         }
-        if ($sms_ready_enable && $sms_ready_use_default) {
+        if ($sms_ready_enable == 1 && $sms_ready_use_default == 0) {
             $data['sms_ready_custom'] = $request->get('sms_ready_custom');
         }
-        if ($sms_done_enable && $sms_done_use_default) {
+        if ($sms_done_enable == 1 && $sms_done_use_default == 0) {
             $data['sms_done_custom'] = $request->get('sms_done_custom');
         }
         
         $settingsTable->where('store_guid', $store->store_guid)->update($data);
         
-        return redirect()->intended(route('admin.stores.config#marketplace', [$store->id]));
+        return redirect()->intended(route("admin.stores.config#marketplace", [$store->id]));
     }
     
 
