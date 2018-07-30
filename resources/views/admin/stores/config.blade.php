@@ -306,7 +306,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             $styleMessageReady = $sms_ready_enable == 1 ? "opacity:1;" : "opacity:0.3;";
             $styleMessageDone  = $sms_done_enable  == 1 ? "opacity:1;" : "opacity:0.3;";
             
-            echo "sms_start_use_default: " . $sms_start_use_default;
+            //echo "sms_start_use_default: " . $sms_start_use_default;
         ?>
     
         {{ Form::open(['route'=>['admin.stores.updateTwilio', $store->id], 'id' => 'form-market-place', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
