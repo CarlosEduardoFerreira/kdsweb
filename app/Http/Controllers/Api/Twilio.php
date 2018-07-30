@@ -24,6 +24,15 @@ class ManagerSMS{
     
     
     public function __construct(){
+//         $this->client = new Client($this->sid, $this->token);
+    }
+    
+    
+    public function configTwilio($sid, $token, $phoneFrom) {
+        $this->sid = $sid;
+        $this->token = $token;
+        $this->phoneFrom = $phoneFrom;
+        
         $this->client = new Client($this->sid, $this->token);
     }
     

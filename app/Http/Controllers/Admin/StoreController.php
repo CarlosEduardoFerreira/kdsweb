@@ -258,8 +258,16 @@ class StoreController extends Controller
         }
         $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity";
         
-        return view('admin.stores.config', ['store' => $store, 'devices'=> $devices, 'settings' => $settings, 
-                                                'licenseInfo' => $licenseInfo, 'selected' => $selected]);
+        $adminSettings = DB::table('admin_settings')->first();
+        
+        return view('admin.stores.config', [
+            'store' => $store, 
+            'devices'=> $devices, 
+            'settings' => $settings, 
+            'licenseInfo' => $licenseInfo, 
+            'selected' => $selected, 
+            'adminSettings' => $adminSettings
+        ]);
     }
 
     /**
@@ -270,32 +278,7 @@ class StoreController extends Controller
      * @return mixed
      */
     public function update(Request $request, User $store)
-    {
-//         $validator = Validator::make($request->all(), [
-//             'business_name' => 'required|max:200',
-//             'dba'           => 'required|max:200',
-//             'last_name'     => 'required|max:100',
-//             'name'          => 'required|max:200',
-//             'email'         => 'required|email|max:255',
-//             'phone_number'  => 'required|max:45',
-//             'address'       => 'required',
-//             'city'          => 'required|max:100',
-//             'state'         => 'required|max:100',
-//             'country'       => 'required|max:100',
-//             'zipcode'       => 'required|max:30',
-//             'username'      => 'required|max:45'
-//         ]);
-
-//         $validator->sometimes('email', 'unique:users', function ($input) use ($store) {
-//             return strtolower($input->email) != strtolower($store->email);
-//         });
-
-//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-//             return $input->password;
-//         });
-
-//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
-        
+    {        
         $store->parent_id       = $request->get('parent_id');
         $store->business_name   = $request->get('business_name');
         $store->dba             = $request->get('dba');
@@ -373,6 +356,50 @@ class StoreController extends Controller
         }
         
         return redirect()->intended(route('admin.stores.config', [$store->id]));
+    }
+    
+    
+    public function updateTwilio(Request $request, User $store)
+    {
+        
+        $settingsTable = DB::table('settings');
+        
+        $sms_start_enable = $request->get('sms_start_enable') !== null ? $request->get('sms_start_enable') : 0;
+        $sms_ready_enable = $request->get('sms_ready_enable') !== null ? $request->get('sms_ready_enable') : 0;
+        $sms_done_enable = $request->get('sms_done_enable') !== null ? $request->get('sms_done_enable') : 0;
+        
+        $sms_start_use_default = $request->get('sms_start_use_default') !== null ? $request->get('sms_start_use_default') : 0;
+        $sms_ready_use_default = $request->get('sms_ready_use_default') !== null ? $request->get('sms_ready_use_default') : 0;
+        $sms_done_use_default = $request->get('sms_done_use_default') !== null ? $request->get('sms_done_use_default') : 0;
+        
+        $data = [
+            'sms_account_sid'           => $request->get('sms_account_sid'),
+            'sms_token'                 => $request->get('sms_token'),
+            'sms_phone_from'            => $request->get('sms_phone_from'),
+            
+            'sms_start_enable'          => $sms_start_enable,
+            'sms_start_use_default'     => $sms_start_use_default,
+
+            'sms_ready_enable'          => $sms_ready_enable,
+            'sms_ready_use_default'     => $sms_ready_use_default,
+
+            'sms_done_enable'           => $sms_done_enable,
+            'sms_done_use_default'      => $sms_done_use_default
+        ];
+        
+        if ($sms_start_enable && $sms_start_use_default) {
+            $data['sms_start_custom'] = $request->get('sms_start_custom');
+        }
+        if ($sms_ready_enable && $sms_ready_use_default) {
+            $data['sms_ready_custom'] = $request->get('sms_ready_custom');
+        }
+        if ($sms_done_enable && $sms_done_use_default) {
+            $data['sms_done_custom'] = $request->get('sms_done_custom');
+        }
+        
+        $settingsTable->where('store_guid', $store->store_guid)->update($data);
+        
+        return redirect()->intended(route('admin.stores.config#marketplace', [$store->id]));
     }
     
 

@@ -66,8 +66,8 @@ class ApiController extends Controller
             } else if ($req == "DEVICE_ONLINE") {
                 $response = $this->setDeviceOnline($request, $response);
                 
-            } else if ($req == 'SYNC_ORDER') {
-                $response = $this->syncOrder($request, $response);
+            } else if ($req == 'SMS_ORDER') {
+                $response = $this->smsOrder($request, $response);
             }
             
             return response()->json($response);
@@ -201,6 +201,13 @@ class ApiController extends Controller
             if ($result) {
                 array_push($objGuidArray, $guid);
                 
+//                 if ($entity == 'item_bumps') {
+//                     $requestSMS['store_guid'] = $object['store_guid'];
+//                     $requestSMS['order_guid'] = $object['order_guid'];
+//                     $requestSMS['store_guid'] = $object['store_guid'];
+//                     $this->smsOrder(array $request, array $response);
+//                 }
+                
             } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
@@ -215,14 +222,16 @@ class ApiController extends Controller
     }
     
     
-    public function syncOrder(array $request, array $response) {
+    public function smsOrder(array $request, array $response) {
         
         $response[0]["start"] = "started";
+        
+        $orderStatus = $request["order_status"];
         
         $orderSMS = DB::table('sms_order_sent')
         ->where('store_guid', $request["store_guid"])
         ->where('order_guid', $request["order_guid"])
-        ->where('order_status', $request["order_status"])->first();
+        ->where('order_status', $orderStatus)->first();
         
         // It must send SMS when it was not sent before for this order and order_status.
         if (!isset($orderSMS)) {
@@ -233,9 +242,12 @@ class ApiController extends Controller
             
             $response[0]["storeSettings"] = "storeSettings";
             if (isset($storeSettings)) {
+                
                 $adminSettings = DB::table('admin_settings')->first();
                 
-                if ($request["order_status"] == 'new' && isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
+                if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.new' || $orderStatus == 'new' || $orderStatus == '0') && 
+                    isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
+                            
                     $response[0]["new"] = $request["order_status"];
                     if ($storeSettings->sms_start_use_default) {
                         $msg = $adminSettings->sms_order_start_message;
@@ -243,7 +255,9 @@ class ApiController extends Controller
                         $msg = $storeSettings->sms_start_custom;
                     }
                     
-                } else if ($request["order_status"] == 'ready' && isset($storeSettings->sms_ready_enable) && $storeSettings->sms_ready_enable) {
+               } else if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.prepared' || $orderStatus == 'prepared' || $orderStatus == '1') && 
+                    isset($storeSettings->sms_ready_enable) && $storeSettings->sms_ready_enable) {
+                            
                     $response[0]["ready"] = $request["order_status"];
                     if ($storeSettings->sms_ready_use_default) {
                         $msg = $adminSettings->sms_order_ready_message;
@@ -251,7 +265,9 @@ class ApiController extends Controller
                         $msg = $storeSettings->sms_ready_custom;
                     }
                     
-                } else if ($request["order_status"] == 'done' && isset($storeSettings->sms_done_enable) && $storeSettings->sms_done_enable) {
+               } else if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.done' || $orderStatus == 'done' || $orderStatus == '2') && 
+                    isset($storeSettings->sms_done_enable) && $storeSettings->sms_done_enable) {
+                            
                     $response[0]["done"] = $request["order_status"];
                     if ($storeSettings->sms_done_use_default) {
                         $msg = $adminSettings->sms_order_done_message;
@@ -263,23 +279,34 @@ class ApiController extends Controller
                 
                 $response[0]["msg"] = $msg;
                 if (isset($msg) && !is_null($msg) && $msg != "") {
-                    $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
+//                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
+
+                    $validAccount = trim($storeSettings->sms_account_sid) != "";
+                    $validAccount = $validAccount && trim($storeSettings->sms_token);
+                    $validAccount = $validAccount && trim($storeSettings->sms_phone_from);
                     
-                    $response[0]["phone"] = $order->phone;
-                    if (isset($order->phone) && !is_null($order->phone)) {
+                    if (!$validAccount) {
+                        $response[0]["error"] = "Invalid account settings.";
+                        
+                    } else if (isset($request["order_phone"]) && !is_null($request["order_phone"]) && $validAccount) {
+                        
+                        $response[0]["phone"] = $request["order_phone"];
+                        
                         require_once("Twilio.php");
                         $sms = new ManagerSMS();
-                        $sms_result = $sms->sendSMS($order->phone, $msg);
+                        $sms->configTwilio($storeSettings->sms_account_sid, $storeSettings->sms_token, $storeSettings->sms_phone_from);
+                        $sms_result = $sms->sendSMS($request["order_phone"], $msg);
                         
                         $response[0]["sms_result"] = $sms_result;
-                    }
-                    
-                    if ($return) {
+                        
                         $create_time = (new DateTime())->getTimestamp();
                         $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
                             VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
                         $insert_result = DB::statement($sql);
                         $response[0]["sms_order_sent_insert_result"] = $insert_result;
+                        
+                    } else {
+                        $response[0]["error"] = "Invalid phone number.";
                     }
 
                 }
