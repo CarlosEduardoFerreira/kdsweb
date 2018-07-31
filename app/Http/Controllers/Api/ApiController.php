@@ -296,29 +296,30 @@ class ApiController extends Controller
                         
                         $response[0]["phone"] = $request["order_phone"];
                         
-                        // Check again to prevent send the same SMS twice or more times.
-                        $smsCount = DB::table('sms_order_sent')
-                        ->where('store_guid' , $request["store_guid"])
-                        ->where('order_guid' , $request["order_guid"])
-                        ->where('order_status' , $orderStatus)->count();
-                        
-                        if ($smsCount == 0) {
+                        try {
                             $create_time = (new DateTime())->getTimestamp();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
                                 VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
                             $insert_result = DB::statement($sql);
-                            $response[0]["sms_order_sent_insert_result"] = $insert_result;
                             
+                            $response[0]["sms_order_sent_insert_result"] = $insert_result;
+                        
+                        } catch (\Exception $e) {
+                            $response[0]["error"] = "SMS already registered by other process.";
+                            $insert_result = false;
+                        }
+                        // Check again to prevent send the same SMS twice or more times.
+                        // store_guid, order_guid and order_status are primary key on DB.
+                        // If it already exist on DB it will not insert and also not proceed.
+                        if ($insert_result) {
                             require_once("Twilio.php");
                             $sms = new ManagerSMS();
                             $sms->configTwilio($storeSettings->sms_account_sid, $storeSettings->sms_token, $storeSettings->sms_phone_from);
                             $sms_result = $sms->sendSMS($request["order_phone"], $msg);
                             
                             $response[0]["sms_result"] = $sms_result;
-                            
-                        } else {
-                            $response[0]["error"] = "SMS already registered.";
                         }
+
                         
                     } else {
                         $response[0]["error"] = "Invalid phone number.";
@@ -329,7 +330,7 @@ class ApiController extends Controller
             
             
         } else {
-            $response[0]["error"] = "Nothing to do.";
+            $response[0]["error"] = "SMS already registered.";
         }
         
         return $response;
