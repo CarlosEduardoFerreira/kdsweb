@@ -286,8 +286,8 @@ class ApiController extends Controller
 //                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
 
                     $validAccount = trim($storeSettings->sms_account_sid) != "";
-                    $validAccount = $validAccount && trim($storeSettings->sms_token);
-                    $validAccount = $validAccount && trim($storeSettings->sms_phone_from);
+                    $validAccount = $validAccount && trim($storeSettings->sms_token) != "";
+                    $validAccount = $validAccount && trim($storeSettings->sms_phone_from) != "";
                     
                     if (!$validAccount) {
                         $response[0]["error"] = "Invalid account settings.";
@@ -296,18 +296,28 @@ class ApiController extends Controller
                         
                         $response[0]["phone"] = $request["order_phone"];
                         
-                        require_once("Twilio.php");
-                        $sms = new ManagerSMS();
-                        $sms->configTwilio($storeSettings->sms_account_sid, $storeSettings->sms_token, $storeSettings->sms_phone_from);
-                        $sms_result = $sms->sendSMS($request["order_phone"], $msg);
+                        $sms = DB::table('sms_order_sent')
+                        ->where('store_guid' , $request["store_guid"])
+                        ->where('order_guid' , $request["store_guid"])
+                        ->where('order_status' , $request["store_guid"])->first();
                         
-                        $response[0]["sms_result"] = $sms_result;
-                        
-                        $create_time = (new DateTime())->getTimestamp();
-                        $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
-                            VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
-                        $insert_result = DB::statement($sql);
-                        $response[0]["sms_order_sent_insert_result"] = $insert_result;
+                        if (!$sms) {
+                            $create_time = (new DateTime())->getTimestamp();
+                            $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
+                                VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
+                            $insert_result = DB::statement($sql);
+                            $response[0]["sms_order_sent_insert_result"] = $insert_result;
+                            
+                            require_once("Twilio.php");
+                            $sms = new ManagerSMS();
+                            $sms->configTwilio($storeSettings->sms_account_sid, $storeSettings->sms_token, $storeSettings->sms_phone_from);
+                            $sms_result = $sms->sendSMS($request["order_phone"], $msg);
+                            
+                            $response[0]["sms_result"] = $sms_result;
+                            
+                        } else {
+                            $response[0]["error"] = "SMS already registered.";
+                        }
                         
                     } else {
                         $response[0]["error"] = "Invalid phone number.";
