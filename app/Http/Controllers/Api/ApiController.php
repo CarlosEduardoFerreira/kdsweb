@@ -228,13 +228,13 @@ class ApiController extends Controller
         
         $orderStatus = $request["order_status"];
         
-        $orderSMS = DB::table('sms_order_sent')
+        $countOrderSMS = DB::table('sms_order_sent')
         ->where('store_guid', $request["store_guid"])
         ->where('order_guid', $request["order_guid"])
-        ->where('order_status', $orderStatus)->first();
+        ->where('order_status', $orderStatus)->count();
         
         // It must send SMS when it was not sent before for this order and order_status.
-        if (!isset($orderSMS)) {
+        if ($countOrderSMS == 0) {
             $response[0]["orderSMS"] = "orderSMS";
             $storeSettings = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
             
@@ -296,12 +296,13 @@ class ApiController extends Controller
                         
                         $response[0]["phone"] = $request["order_phone"];
                         
-                        $sms = DB::table('sms_order_sent')
+                        // Check again to prevent send the same SMS twice or more times.
+                        $smsCount = DB::table('sms_order_sent')
                         ->where('store_guid' , $request["store_guid"])
                         ->where('order_guid' , $request["order_guid"])
-                        ->where('order_status' , $request["order_status"])->first();
+                        ->where('order_status' , $orderStatus)->count();
                         
-                        if (!$sms) {
+                        if ($smsCount == 0) {
                             $create_time = (new DateTime())->getTimestamp();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
                                 VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
