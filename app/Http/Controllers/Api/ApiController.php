@@ -298,8 +298,8 @@ class ApiController extends Controller
                         
                         $sms = DB::table('sms_order_sent')
                         ->where('store_guid' , $request["store_guid"])
-                        ->where('order_guid' , $request["store_guid"])
-                        ->where('order_status' , $request["store_guid"])->first();
+                        ->where('order_guid' , $request["order_guid"])
+                        ->where('order_status' , $request["order_status"])->first();
                         
                         if (!$sms) {
                             $create_time = (new DateTime())->getTimestamp();
