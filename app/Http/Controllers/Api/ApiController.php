@@ -282,9 +282,18 @@ class ApiController extends Controller
                     }
                     
                 }
-                
+
+
                 $response[0]["msg"] = $msg;
+
                 if (isset($msg) && !is_null($msg) && $msg != "") {
+                    $storeName = $request["store_name"];
+                    if (isset($storeName)) {
+                        $msg = str_replace("[STORE_NAME]", $storeName, $msg);
+                    }
+
+                    $response[0]["msg"] = $msg;
+
 //                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
 
                     $validAccount = trim($storeSettings->sms_account_sid) != "";
