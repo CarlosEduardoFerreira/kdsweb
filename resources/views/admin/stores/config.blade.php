@@ -26,7 +26,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                     $timezone    = isset($settings->timezone) ? $settings->timezone : "America/New_York";
                     $smart_order = isset($settings->smart_order) ? $settings->smart_order : "0";
                     
-                    $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0"; 
+                    $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0";
                 ?>
     			
                 <div class="form-group">
@@ -293,7 +293,18 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             $sms_start_use_default = $sms_start_enable == 1 ? $sms_start_use_default : 1;
             $sms_ready_use_default = $sms_ready_enable == 1 ? $sms_ready_use_default : 1;
             $sms_done_use_default  = $sms_done_enable  == 1 ? $sms_done_use_default  : 1;
-            
+
+            $storeNameKey = "[STORE_NAME]";
+            $storeNameValue = $store->business_name;
+            $adminSettings->sms_order_start_message = str_replace($storeNameKey, $storeNameValue,
+                $adminSettings->sms_order_start_message);
+
+            $adminSettings->sms_order_ready_message = str_replace($storeNameKey, $storeNameValue,
+                $adminSettings->sms_order_ready_message);
+
+            $adminSettings->sms_order_done_message = str_replace($storeNameKey, $storeNameValue,
+                $adminSettings->sms_order_done_message);
+
             $start_message = $sms_start_use_default == 1 ? $adminSettings->sms_order_start_message : $sms_start_custom;
             $ready_message = $sms_ready_use_default == 1 ? $adminSettings->sms_order_ready_message : $sms_ready_custom;
             $done_message  = $sms_done_use_default == 1  ? $adminSettings->sms_order_done_message : $sms_done_custom;
