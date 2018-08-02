@@ -280,9 +280,7 @@ class ApiController extends Controller
                     } else {
                         $msg = $storeSettings->sms_done_custom;
                     }
-                    
                 }
-
 
                 $response[0]["msg"] = $msg;
 
@@ -292,8 +290,6 @@ class ApiController extends Controller
                     }
 
                     $response[0]["msg"] = $msg;
-
-                    return $response;
 
 //                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
 
