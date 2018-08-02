@@ -374,7 +374,11 @@ class StoreController extends Controller
         
         $sms_start_use_default = $sms_start_enable == 1 ? $sms_start_use_default : 1;
         $sms_ready_use_default = $sms_ready_enable == 1 ? $sms_ready_use_default : 1;
-        $sms_done_use_default  = $sms_done_enable == 1 ? $sms_done_use_default : 1;
+        $sms_done_use_default  = $sms_done_enable  == 1 ? $sms_done_use_default : 1;
+
+        $sms_start_use_default = $request->get('sms_start_custom') == "" ? 1 : $sms_start_use_default;
+        $sms_ready_use_default = $request->get('sms_ready_custom') == "" ? 1 : $sms_ready_use_default;
+        $sms_done_use_default  = $request->get('sms_done_custom')  == "" ? 1 : $sms_done_use_default;
         
         $data = [
             'sms_account_sid'           => $request->get('sms_account_sid'),
