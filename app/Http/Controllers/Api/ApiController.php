@@ -287,12 +287,13 @@ class ApiController extends Controller
                 $response[0]["msg"] = $msg;
 
                 if (isset($msg) && !is_null($msg) && $msg != "") {
-                    $storeName = $request["store_name"];
-                    if (isset($storeName)) {
-                        $msg = str_replace("[STORE_NAME]", $storeName, $msg);
+                    if (isset($request["store_name"])) {
+                        $msg = str_replace("[STORE_NAME]", $request["store_name"], $msg);
                     }
 
                     $response[0]["msg"] = $msg;
+
+                    return $response;
 
 //                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
 
