@@ -363,7 +363,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         
             <div class="form-group">
                 	<label class="lbl-enable control-label col-md-3 col-sm-3 col-xs-12" for="sms_start_enable" >
-                    Order Started Message:
+                    Order Received Message:
                 	</label>
                 	<div class="col-md-4 col-sm-4 col-xs-4">
         				<label class="switch">
@@ -399,7 +399,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             
             <div class="form-group">
                 	<label class="lbl-enable control-label col-md-3 col-sm-3 col-xs-12" for="sms_ready_enable" >
-                    Order Ready Message:
+                    Order Complete Message:
                 	</label>
                 	<div class="col-md-4 col-sm-4 col-xs-4">
         				<label class="switch">
@@ -435,7 +435,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
             
             <div class="form-group">
                 	<label class="lbl-enable control-label col-md-3 col-sm-3 col-xs-12" for="sms_done_enable" >
-                    Order Completed Message:
+                    Ready For Pickup Message:
                 	</label>
                 	<div class="col-md-4 col-sm-4 col-xs-4">
         				<label class="switch">
