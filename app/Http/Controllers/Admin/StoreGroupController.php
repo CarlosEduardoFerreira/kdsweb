@@ -209,28 +209,6 @@ class StoreGroupController extends Controller
      */
     public function update(Request $request, User $storegroup)
     {
-//         $validator = Validator::make($request->all(), [
-//             'business_name' => 'required|max:200',
-//             'name'          => 'required|max:200',
-//             'email'         => 'required|email|max:255',
-//             'phone_number'  => 'required|max:45',
-//             'address'       => 'required',
-//             'city'          => 'required|max:100',
-//             'state'         => 'required|max:100',
-//             'country'       => 'required|max:100',
-//             'zipcode'       => 'required|max:30'
-//         ]);
-
-//         $validator->sometimes('email', 'unique:users', function ($input) use ($storegroup) {
-//             return strtolower($input->email) != strtolower($storegroup->email);
-//         });
-
-//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-//             return $input->password;
-//         });
-
-//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
-
         $storegroup->business_name   = $request->get('business_name');
         $storegroup->name            = $request->get('name');
         $storegroup->email           = $request->get('email');
@@ -258,6 +236,10 @@ class StoreGroupController extends Controller
             if ($request->get('roles')) {
                 $storegroup->roles()->attach($request->get('roles'));
             }
+        }
+        
+        if ($storegroup->id == Auth::user()->id) {
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         // return redirect()->intended(route('admin.storegroups.edit', [$storegroup->id, 'filter' => false])); // keep on the same page

@@ -51,7 +51,7 @@
             <?php } else if ($me->roles[0]->id == 3 && $obj == 'store') { ?>
                     <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
                     
-            <?php } else if ($obj != 'reseller') { ?>
+            <?php } else if ($obj != 'reseller' && $me->id != $user->id) { ?>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="parent_id">
                     <?php if ($obj == 'store') { ?>
@@ -73,6 +73,8 @@
                         <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
+            <?php } else { ?>
+            			<input type="hidden" id="parent_id" name="parent_id" value="<?=$user->parent_id?>">
             <?php } ?>
 
             <div class="form-group">
