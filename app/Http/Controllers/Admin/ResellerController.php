@@ -160,29 +160,6 @@ class ResellerController extends Controller
      */
     public function update(Request $request, User $reseller)
     {
-//         $validator = Validator::make($request->all(), [
-//             'business_name' => 'required|max:200',
-//             'name'          => 'required|max:200',
-//             'email'         => 'required|email|max:255',
-//             'phone_number'  => 'required|max:45',
-//             'address'       => 'required',
-//             'city'          => 'required|max:100',
-//             'state'         => 'required|max:100',
-//             'country'       => 'required|max:100',
-//             'zipcode'       => 'required|max:30',
-//             'username'      => 'required|max:45'
-//         ]);
-
-//         $validator->sometimes('email', 'unique:users', function ($input) use ($reseller) {
-//             return strtolower($input->email) != strtolower($reseller->email);
-//         });
-
-//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-//             return $input->password;
-//         });
-
-//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
-        
         $reseller->name            = $request->get('name');
         $reseller->email           = $request->get('email');
 
@@ -218,6 +195,10 @@ class ResellerController extends Controller
             if ($request->get('roles')) {
                 $reseller->roles()->attach($request->get('roles'));
             }
+        }
+        
+        if ($reseller->id == Auth::user()->id) {
+            return redirect()->intended(route('admin.dashboard'));
         }
         
         // return redirect()->intended(route('admin.resellers.edit', [$reseller->id, 'filter' => false])); // keep on the same page
