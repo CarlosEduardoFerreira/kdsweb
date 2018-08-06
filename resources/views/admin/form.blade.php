@@ -43,6 +43,8 @@
                 @endif
             <?php } ?>
             
+            		<input type="hidden" id="user_id" value="<?=$user->id?>">
+            
             <?php if ($me->roles[0]->id == 2 && $obj == 'storegroup') { ?>
                     <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
             			
