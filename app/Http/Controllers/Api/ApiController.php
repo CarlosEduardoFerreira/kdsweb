@@ -66,6 +66,9 @@ class ApiController extends Controller
             } else if ($req == "DEVICE_ONLINE") {
                 $response = $this->setDeviceOnline($request, $response);
                 
+            } else if ($req == 'REGISTER_VALIDATION') {
+                $response = $this->registerValidation($request);
+                
             } else if ($req == 'SMS_ORDER') {
                 $response = $this->smsOrder($request, $response);
             }
@@ -389,6 +392,30 @@ class ApiController extends Controller
         
         return DB::select($sql);
         
+    }
+    
+    
+    public function registerValidation(Request $request) {
+        $return = array();
+        $user = DB::table('users')->where('id', '<>', $request->id)->where('email', '=', $request->email)->first();
+        if (isset($user)) {
+            if (isset($user->email)) {
+                $return["FIELD"] = "email";
+                $return["ERROR"] = "This email is already in use.";
+            }
+        }
+        
+        if (count($return) == 0) {
+            $user = DB::table('users')->where('id', '<>', $request->id)->where('username', '=', $request->username)->first();
+            if (isset($user)) {
+                if (isset($user->username)) {
+                    $return["FIELD"] = "username";
+                    $return["ERROR"] = "This username is already in use.";
+                }
+            }
+        }
+        
+        return array($return);
     }
     
     

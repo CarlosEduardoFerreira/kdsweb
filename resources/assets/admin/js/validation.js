@@ -40,7 +40,26 @@ $('#btn-save-form').click(function(){
 	}
 	
 	if (submit) {
-		$('#main-form').submit();
+		var id = $('#user_id').val();
+		var email = $('#email').val();
+		var username = $('#username').val();
+		var URL_BASE = window.location.protocol + "//" + window.location.host;
+		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+		$.ajax({
+			type:'GET',
+		   	dataType: 'json',
+			url: URL_BASE + "/api/register/validation",
+	        data: { req: "REGISTER_VALIDATION", id: id, email: email, username: username },
+	        success: function (response) {
+	        		if (response[0]["ERROR"] === undefined) {
+	        			$('#main-form').submit();
+	        		} else {
+		        		var field = response[0]["FIELD"];
+		        		var error = response[0]["ERROR"];
+		        		$('#'+field).parent().find(".parsley-errors-list").find(".parsley-required").text(error);
+		        }
+	        }
+	    });
 	}
 	
 });
