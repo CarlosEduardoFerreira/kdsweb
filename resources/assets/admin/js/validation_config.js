@@ -32,7 +32,7 @@ $(document).ready(function() {
 
     $('#btn-reset-key').click(function() {
         if (handleTime()) {
-            $('#store_key').val(null);
+            $('#store_key').val("");
             $('#form-settings').submit();
         }
     });
