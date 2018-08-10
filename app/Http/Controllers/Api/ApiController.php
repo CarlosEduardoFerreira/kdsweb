@@ -87,7 +87,8 @@ class ApiController extends Controller
         $sql = "SELECT
                     password,
                     store_guid,
-                    business_name
+                    business_name,
+                    store_key
                 FROM users
                 WHERE username = '$username'";
         
@@ -105,6 +106,7 @@ class ApiController extends Controller
                 
                 $response[0]["store_guid"] = $result[0]->store_guid;
                 $response[0]["store_name"] = $result[0]->business_name;
+                $response[0]["store_key"] = $result[0]->store_key;
                 
                 //$request["store_guid_"]     = $result[0]->store_guid;
                 

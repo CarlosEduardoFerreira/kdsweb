@@ -14,7 +14,8 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         <div class="col-md-12 col-sm-12 col-xs-12">
             {{ Form::open(['route'=>['admin.stores.updateSettings', $store->id], 'id' => 'form-settings', 'method' => 'put','class'=>'form-horizontal form-label-left']) }}
             
-                <?php 
+                <?php
+                    $store_key       = isset($settings->store_key) ? $settings->store_key : "";
                     $server_address  = isset($settings->server_address)  ? $settings->server_address : "";
                     $server_username = isset($settings->server_username) ? $settings->server_username : "";
                     $server_password = isset($settings->server_password) ? $settings->server_password : "";
@@ -28,6 +29,19 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                     
                     $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0";
                 ?>
+
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="server_address" >
+                        Store Key:
+                    </label>
+                    <div class="col-md-4 col-sm-4 col-xs-11">
+                        <input id="store_key" name="store_key" type="text"
+                               value="{{ $store_key }}" class="form-control col-md-7 col-xs-12" readonly>
+                    </div>
+                    <div class="col-md-2 col-sm-2 col-xs-1">
+                        <button id="btn-reset-key" type="button" class="btn btn-success">{{ __('views.admin.users.edit.reset') }}</button>
+                    </div>
+                </div>
     			
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="server_address" >
