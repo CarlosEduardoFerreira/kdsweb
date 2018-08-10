@@ -99,7 +99,7 @@ class StoreController extends Controller
         if ($request->get('password') != "") {
             $data['password'] = bcrypt($request->get('password'));
         }
-        
+
         $data['store_guid'] = Uuid::uuid4();
         
         $id = $usersTable->insertGetId($data);
@@ -119,7 +119,8 @@ class StoreController extends Controller
             'auto_done_order_time'     => 0,
             'timezone'                 => "America/New_York",
             'smart_order'              => 0,
-            'licenses_quantity'        => 0
+            'licenses_quantity'        => 0,
+            'store_key'                => substr(Uuid::uuid4(), 0, 8)
         ];
 
         $settingsTable->insert($data);
@@ -257,7 +258,7 @@ class StoreController extends Controller
      * @return mixed
      */
     public function update(Request $request, User $store)
-    {        
+    {
         $store->parent_id       = $request->get('parent_id');
         $store->business_name   = $request->get('business_name');
         $store->dba             = $request->get('dba');
@@ -326,7 +327,12 @@ class StoreController extends Controller
                     'smart_order'              => $request->get('smart_order'),
                     'licenses_quantity'        => $request->get('licenses_quantity')
                 ];
-        
+
+
+        if (empty($request->get('store_key'))) {
+            $data['store_key'] = substr(Uuid::uuid4(), 0, 8);
+        }
+
         if(!isset($settings)) {
             
             $data['store_guid'] = $store->store_guid; 

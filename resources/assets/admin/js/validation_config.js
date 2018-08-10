@@ -28,6 +28,14 @@ $(document).ready(function() {
 			//alert('ERROR')
 		}
 	});
+
+
+    $('#btn-reset-key').click(function() {
+        if (handleTime()) {
+            $('#store_key').val("");
+            $('#form-settings').submit();
+        }
+    });
 	
 	
 	function setAMPM() {

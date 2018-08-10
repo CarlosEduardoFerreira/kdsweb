@@ -155,6 +155,7 @@
   "views.admin.users.edit.roles": "Roles",
   "views.admin.users.edit.cancel": "Cancel",
   "views.admin.users.edit.save": "Save",
+  "views.admin.users.edit.reset": "Reset",
   "**************************** Membership Plans **********************": "Membership Plans i18n",
   "views.membership.title": "Membership",
   "views.membership.table_header_0": "E-Mail",
