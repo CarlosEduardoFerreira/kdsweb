@@ -361,33 +361,35 @@ class ApiController extends Controller
     
     
     public function getSettings(array $request, array $response) {
-        
-        $settingsRes = DB::table('settings')->where(['store_guid' => $request["store_guid"]])->first();
+
+        $sql = DB::table('settings')->where(['store_guid' => $request["store_guid"]]);
+
+        if (isset($request["min_update_time"])) {
+            $sql->where("update_time", ">", $request["min_update_time"]);
+        }
+
+        $settingsRes = $sql->first();
         
         if (isset($settingsRes)) {
-            
+
             $settingsArray = json_decode(json_encode($settingsRes), true);
-            
+
             $response = array($settingsArray);
-            
+
             // Admin Global Settings
             $adminSettings = DB::table('admin_settings')->first();
-            
+
             $response[0]["offline_limit_hours"]      = $adminSettings->offline_limit_hours;
             $response[0]["sms_order_start_message"]  = $adminSettings->sms_order_start_message;
             $response[0]["sms_order_ready_message"]  = $adminSettings->sms_order_ready_message;
             $response[0]["sms_order_done_message"]   = $adminSettings->sms_order_done_message;
-            
+
             if(isset($settingsRes->licenses_quantity)) {
                 $response[0]["licenses_quantity"] = $settingsRes->licenses_quantity;
-                
+
             } else {
                 $response[0]["licenses_quantity"] = 0;
             }
-            
-        } else {
-            
-            $response[0]["error"]  = "It is not possible get settings for this store.";
         }
         
         return $response;
@@ -398,9 +400,13 @@ class ApiController extends Controller
     public function getDevices(array $request, array $response) {
         
         $sql = "SELECT * FROM devices WHERE store_guid = '" . $request["store_guid"] . "' AND is_deleted != 1";
-        
+
+        if (isset($request["min_update_time"])) {
+            $sql .= " AND update_time > " . $request["min_update_time"];
+        }
+
         //echo "sql: " . $sql . "|";
-        
+
         return DB::select($sql);
         
     }
