@@ -361,7 +361,6 @@ class ApiController extends Controller
     
     
     public function getSettings(array $request, array $response) {
-
         $sql = DB::table('settings')->where(['store_guid' => $request["store_guid"]]);
 
         if (isset($request["min_update_time"])) {
@@ -390,6 +389,9 @@ class ApiController extends Controller
             } else {
                 $response[0]["licenses_quantity"] = 0;
             }
+
+        } else if (!isset($request["min_update_time"])) {
+            $response[0]["error"]  = "It is not possible get settings for this store.";
         }
         
         return $response;
