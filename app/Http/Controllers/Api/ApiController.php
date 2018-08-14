@@ -401,10 +401,14 @@ class ApiController extends Controller
     
     public function getDevices(array $request, array $response) {
         
-        $sql = "SELECT * FROM devices WHERE store_guid = '" . $request["store_guid"] . "' AND is_deleted != 1";
+        $sql = "SELECT * FROM devices WHERE store_guid = '" . $request["store_guid"] . "'";
 
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
+
+        } else {
+            $sql .= " AND is_deleted != 1";
+
         }
 
         //echo "sql: " . $sql . "|";
