@@ -221,7 +221,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">
                 		<?php if ($device->split_screen_parent_device_id == 0) { ?>
                 		    <label class="switch">
-                          <input class="device-license-login" guid="{{ $device->guid }}" type="checkbox" 
+                          <input class="device-license-login" store_guid="{{ $device->store_guid }}" guid="{{ $device->guid }}" type="checkbox" 
                           									@if($device->license) checked="checked" @endif value="1">
                           <span class="slider round"></span>
                         </label>
