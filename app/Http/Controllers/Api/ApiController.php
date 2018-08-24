@@ -83,6 +83,7 @@ class ApiController extends Controller
         
         $username = $request["username"];
         $password = $request["password"];
+        $device_serial = isset($request["serial"]) ? $request["serial"] : "";
         
         $sql = "SELECT
                     password,
@@ -103,52 +104,31 @@ class ApiController extends Controller
             
             if ($passMatched) {
                 
-                $response[0]["store_guid"] = $result[0]->store_guid;
-                $response[0]["store_name"] = $result[0]->business_name;
-
-                $store_guid = $result[0]->store_guid;
-
-                $sql = "SELECT
-                    store_key
-                FROM settings
-                WHERE store_guid = '$store_guid'";
-
-                $result = DB::select($sql);
-
-                $response[0]["store_key"] = $result[0]->store_key;
-                
-                //$request["store_guid_"]     = $result[0]->store_guid;
-                
-                // include store settings on response
-                //$response = $this->getSettings($request, $response);
-                
-                //                 if($response[0]["licenses_quantity_"] == 0) {
-                //                     $response[0]["error"]  = "There is no license available.";
-                
-                //                 }
-                /* For now we will not use this part because even the store does not have license available
-                 * the tablet that the user is trying setup can be a swap and not new one.
-                 else {
-                 $devices = $this->getDevices($request, $response);
-                 
-                 $licensesInUse = 0;
-                 foreach ($devices as $device) {
-                 $licensesInUse += $device["login_"] == 1 ? 1 : 0;
-                 }
-                 
-                 if ($response[0]["licenses_quantity_"] <= $licensesInUse) {
-                 $response[0]["error"]  = "There is no license available.";
-                 }
-                 }
-                 */
+                // Check if the same serial number is activate in another store.
+                $sameSerialActive = DB::table('devices')
+                    ->where('store_guid', '<>',  $result[0]->store_guid)
+                    ->where('serial', '=', $device_serial)
+                    ->where('is_deleted', '=', 0)
+                    ->where('license', '=', 1)
+                    ->where('split_screen_parent_device_id', '=', 0)
+                    ->first();
+                    
+                if (isset($sameSerialActive)) {
+                    $response[0]["error"]  = "There is another KDS Station with the same serial number active in another store.";
+                    
+                } else {
+                    $response[0]["store_guid"] = $result[0]->store_guid;
+                    $response[0]["store_name"] = $result[0]->business_name;
+                    
+                    $sqlStoreKey = "SELECT store_key FROM settings WHERE store_guid = '" .$result[0]->store_guid. "'";
+                    $response[0]["store_key"] = DB::select($sqlStoreKey)[0]->store_key;
+                }
                 
             } else {
-                
                 $response[0]["error"]  = "Password is incorrect.";
             }
             
         } else {
-            
             $response[0]["error"]  = "Username is incorrect.";
         }
         
@@ -216,13 +196,6 @@ class ApiController extends Controller
             
             if ($result) {
                 array_push($objGuidArray, $guid);
-                
-//                 if ($entity == 'item_bumps') {
-//                     $requestSMS['store_guid'] = $object['store_guid'];
-//                     $requestSMS['order_guid'] = $object['order_guid'];
-//                     $requestSMS['store_guid'] = $object['store_guid'];
-//                     $this->smsOrder(array $request, array $response);
-//                 }
                 
             } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
@@ -304,8 +277,6 @@ class ApiController extends Controller
                     }
 
                     $response[0]["msg"] = $msg;
-
-//                     $order = DB::table('orders')->where(['guid' => $request["order_guid"]])->first();
 
                     $validAccount = trim($storeSettings->sms_account_sid) != "";
                     $validAccount = $validAccount && trim($storeSettings->sms_token) != "";
@@ -448,10 +419,11 @@ class ApiController extends Controller
             if (isset($device)) {
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
+                    //->where('store_guid', '=',  $request->store_guid) // should permit same serial for the same store?
                     ->where('guid', '<>',  $request->guid)
                     ->where('serial', '=', $device->serial)
                     ->where('is_deleted', '=', 0)
-                    ->where('license', '=', 1)
+                    ->where('license', '=', 1) // should permit same serial active license?
                     ->where('split_screen_parent_device_id', '=', 0)
                     ->first();
                     if (isset($sameSerialActive)) {

@@ -5,15 +5,16 @@ $(document).ready(function(){
 	
 	$('.device-license-login').change(function(){
 		var theCkeck = $(this);
-		var guid 	 = $(this).attr('guid');
-		var checking = $(this).prop("checked");
+		var store_guid = $(this).attr('store_guid');
+		var guid 	   = $(this).attr('guid');
+		var checking   = $(this).prop("checked");
 		//alert("guid: " + guid + "checked: " + checking);
 		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 		$.ajax({
 			type:'GET',
 		   	dataType: 'json',
 			url: URL_BASE + "/api/devices/active",
-            data: {req: "DEVICES_ACTIVE", guid: guid, active: checking ? 1 : 0},
+            data: {req: "DEVICES_ACTIVE", store_guid: store_guid, guid: guid, active: checking ? 1 : 0},
             success: function (response) {
             //	alert(response);
             		if (response != true && response != "true") {
