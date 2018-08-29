@@ -434,7 +434,7 @@ class ApiController extends Controller
         }
         
         $update_time = (new DateTime())->getTimestamp();
-        $sql = "update devices set license = $request->active , update_time = $update_time where guid = '$request->guid'";
+        $sql = "update devices set license = $request->active where guid = '$request->guid'";
         $result = DB::statement($sql);
         
         return array($result);
