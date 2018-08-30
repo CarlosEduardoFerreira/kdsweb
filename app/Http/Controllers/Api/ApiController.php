@@ -292,7 +292,7 @@ class ApiController extends Controller
                         try {
                             $create_time = (new DateTime())->getTimestamp();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
-                                VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".$msg."', $create_time)";
+                                VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
                             $insert_result = DB::statement($sql);
                             
                             $response[0]["sms_order_sent_insert_result"] = $insert_result;
