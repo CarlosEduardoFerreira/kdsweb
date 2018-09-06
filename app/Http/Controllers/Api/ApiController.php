@@ -71,8 +71,12 @@ class ApiController extends Controller
                 
             } else if ($req == 'SMS_ORDER') {
                 $response = $this->smsOrder($request, $response);
+
+            } else if ($req == "GET_ENTITY") {
+                $response = $this->getEntities($request, $response);
+
             }
-            
+
             return response()->json($response);
         }
         
@@ -386,6 +390,22 @@ class ApiController extends Controller
 
         return DB::select($sql);
         
+    }
+
+
+    public function getEntities(array $request, array $response) {
+
+        $sql = "SELECT * FROM ". $request["entity"] ." WHERE store_guid = '" . $request["store_guid"] . "'";
+
+        if (isset($request["min_update_time"])) {
+            $sql .= " AND update_time > " . $request["min_update_time"];
+
+        } else {
+            $sql .= " AND is_deleted != 1";
+        }
+
+        return DB::select($sql);
+
     }
     
     
