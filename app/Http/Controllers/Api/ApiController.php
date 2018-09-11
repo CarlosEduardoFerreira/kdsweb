@@ -145,9 +145,9 @@ class ApiController extends Controller
         
         $entity = $request["entity"];
         $data   = $request["data"];
-        
-        $objGuidArray = array();
-        
+
+        $response[0]["error"] = null;
+
         foreach ($data as $object) {
             
             $func = "UPD"; // Update
@@ -198,18 +198,12 @@ class ApiController extends Controller
             
             $result = DB::statement($sql);
             
-            if ($result) {
-                array_push($objGuidArray, $guid);
-                
-            } else {
+            if (!$result) {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
-            
         }
-        
-        $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
-        
+
         return $response;
         
     }
