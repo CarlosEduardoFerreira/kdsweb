@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use DateTime;
 use DateTimeZone;
+use Ramsey\Uuid\Uuid;
 
 
 
@@ -398,9 +399,59 @@ class ApiController extends Controller
             $sql .= " AND is_deleted != 1";
         }
 
-        return DB::select($sql);
+        $result = DB::select($sql);
 
-    }
+        if (count($result) == 0 && !isset($request["min_update_time"])) {
+            $created_at = new DateTime();
+            $created_at->setTimezone(new DateTimeZone("America/New_York"));
+
+            if ($request["entity"] == "notification_questions") {
+                $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
+                $defaultQuestion = DB::select($defaultQuestionSQL)[0];
+
+                $question = DB::table('notification_questions');
+
+                $data = [
+                    'guid'        => Uuid::uuid4(),
+                    'title'       => $defaultQuestion->title,
+                    'message'     => $defaultQuestion->message,
+                    'create_time' => $created_at->getTimestamp(),
+                    'update_time' => $created_at->getTimestamp(),
+                    'store_guid'  => $request["store_guid"]
+                ];
+
+                $question->insert($data);
+
+            } else if ($request["entity"] == "notification_answers") {
+                $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
+                $defaultAnswers = DB::select($defaultAnswersSQL);
+
+                $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = '" . $request["store_guid"] . "' limit 1";
+                $questionGuid = DB::select($questionSQL)[0]->guid;
+
+                foreach ($defaultAnswers as $defaultAnswer) {
+                    $answer = DB::table('notification_answers');
+
+                    $data = [
+                        'guid'          => Uuid::uuid4(),
+                        'title'         => $defaultAnswer->title,
+                        'message'       => $defaultAnswer->message,
+                        'create_time'   => $created_at->getTimestamp(),
+                        'update_time'   => $created_at->getTimestamp(),
+                        'store_guid'    => $request["store_guid"],
+                        'question_guid' => $questionGuid
+                    ];
+
+                    $answer->insert($data);
+                }
+            }
+
+            $result = DB::select($sql);
+        }
+
+        return $result;
+
+    }StoreController.php
     
     
     public function registerValidation(Request $request) {
