@@ -451,7 +451,7 @@ class ApiController extends Controller
 
         return $result;
 
-    }StoreController.php
+    }
     
     
     public function registerValidation(Request $request) {
