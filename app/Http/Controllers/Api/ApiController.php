@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use DateTime;
 use DateTimeZone;
+use Ramsey\Uuid\Uuid;
 
 
 
@@ -71,8 +72,12 @@ class ApiController extends Controller
                 
             } else if ($req == 'SMS_ORDER') {
                 $response = $this->smsOrder($request, $response);
+
+            } else if ($req == "GET_ENTITY") {
+                $response = $this->getEntities($request, $response);
+
             }
-            
+
             return response()->json($response);
         }
         
@@ -141,9 +146,9 @@ class ApiController extends Controller
         
         $entity = $request["entity"];
         $data   = $request["data"];
-        
-        $objGuidArray = array();
-        
+
+        $response[0]["error"] = null;
+
         foreach ($data as $object) {
             
             $func = "UPD"; // Update
@@ -194,18 +199,12 @@ class ApiController extends Controller
             
             $result = DB::statement($sql);
             
-            if ($result) {
-                array_push($objGuidArray, $guid);
-                
-            } else {
+            if (!$result) {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
-            
         }
-        
-        $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
-        
+
         return $response;
         
     }
@@ -386,6 +385,72 @@ class ApiController extends Controller
 
         return DB::select($sql);
         
+    }
+
+
+    public function getEntities(array $request, array $response) {
+
+        $sql = "SELECT * FROM ". $request["entity"] ." WHERE store_guid = '" . $request["store_guid"] . "'";
+
+        if (isset($request["min_update_time"])) {
+            $sql .= " AND update_time > " . $request["min_update_time"];
+
+        } else {
+            $sql .= " AND is_deleted != 1";
+        }
+
+        $result = DB::select($sql);
+
+        if (count($result) == 0 && !isset($request["min_update_time"])) {
+            $created_at = new DateTime();
+            $created_at->setTimezone(new DateTimeZone("America/New_York"));
+
+            if ($request["entity"] == "notification_questions") {
+                $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
+                $defaultQuestion = DB::select($defaultQuestionSQL)[0];
+
+                $question = DB::table('notification_questions');
+
+                $data = [
+                    'guid'        => Uuid::uuid4(),
+                    'title'       => $defaultQuestion->title,
+                    'message'     => $defaultQuestion->message,
+                    'create_time' => $created_at->getTimestamp(),
+                    'update_time' => $created_at->getTimestamp(),
+                    'store_guid'  => $request["store_guid"]
+                ];
+
+                $question->insert($data);
+
+            } else if ($request["entity"] == "notification_answers") {
+                $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
+                $defaultAnswers = DB::select($defaultAnswersSQL);
+
+                $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = '" . $request["store_guid"] . "' limit 1";
+                $questionGuid = DB::select($questionSQL)[0]->guid;
+
+                foreach ($defaultAnswers as $defaultAnswer) {
+                    $answer = DB::table('notification_answers');
+
+                    $data = [
+                        'guid'          => Uuid::uuid4(),
+                        'title'         => $defaultAnswer->title,
+                        'message'       => $defaultAnswer->message,
+                        'create_time'   => $created_at->getTimestamp(),
+                        'update_time'   => $created_at->getTimestamp(),
+                        'store_guid'    => $request["store_guid"],
+                        'question_guid' => $questionGuid
+                    ];
+
+                    $answer->insert($data);
+                }
+            }
+
+            $result = DB::select($sql);
+        }
+
+        return $result;
+
     }
     
     
