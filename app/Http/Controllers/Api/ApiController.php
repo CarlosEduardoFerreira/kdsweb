@@ -77,6 +77,8 @@ class ApiController extends Controller
                 $response = $this->getEntities($request, $response);
 
             }
+            
+            $response[0]["server_time"] = (new DateTime())->getTimestamp();
 
             return response()->json($response);
         }
@@ -291,7 +293,8 @@ class ApiController extends Controller
                         try {
                             $create_time = (new DateTime())->getTimestamp();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
-                                VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
+                                    VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', 
+                                        '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
                             $insert_result = DB::statement($sql);
                             
                             $response[0]["sms_order_sent_insert_result"] = $insert_result;
@@ -402,8 +405,7 @@ class ApiController extends Controller
         $result = DB::select($sql);
 
         if (count($result) == 0 && !isset($request["min_update_time"])) {
-            $created_at = new DateTime();
-            $created_at->setTimezone(new DateTimeZone("America/New_York"));
+            $created_at = (new DateTime())->getTimestamp();
 
             if ($request["entity"] == "notification_questions") {
                 $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
@@ -415,8 +417,8 @@ class ApiController extends Controller
                     'guid'        => Uuid::uuid4(),
                     'title'       => $defaultQuestion->title,
                     'message'     => $defaultQuestion->message,
-                    'create_time' => $created_at->getTimestamp(),
-                    'update_time' => $created_at->getTimestamp(),
+                    'create_time' => $created_at,
+                    'update_time' => $created_at,
                     'store_guid'  => $request["store_guid"]
                 ];
 
@@ -438,8 +440,8 @@ class ApiController extends Controller
                         'guid'          => Uuid::uuid4(),
                         'title'         => $defaultAnswer->title,
                         'message'       => $defaultAnswer->message,
-                        'create_time'   => $created_at->getTimestamp(),
-                        'update_time'   => $created_at->getTimestamp(),
+                        'create_time'   => $created_at,
+                        'update_time'   => $created_at,
                         'store_guid'    => $request["store_guid"],
                         'question_guid' => $questionGuid
                     ];
@@ -501,7 +503,7 @@ class ApiController extends Controller
         }
         
         $update_time = (new DateTime())->getTimestamp();
-        $sql = "update devices set license = $request->active where guid = '$request->guid'";
+        $sql = "update devices set license = $request->active, update_time = $update_time where guid = '$request->guid'";
         $result = DB::statement($sql);
         
         return array($result);
@@ -516,7 +518,8 @@ class ApiController extends Controller
         
         $device = DB::table('settings')->where('store_guid', '=', $storeGuid)->first();
         if (isset($device)) {
-            $sql = "update settings set last_connection_time = $lastConnectionTime where store_guid = '$storeGuid'";
+            $update_time = (new DateTime())->getTimestamp();
+            $sql = "update settings set last_connection_time = $lastConnectionTime, update_time = $update_time where store_guid = '$storeGuid'";
             $result = DB::statement($sql);
             
             if ($result) {

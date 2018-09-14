@@ -325,7 +325,8 @@ class StoreController extends Controller
                     'auto_done_order_time'     => $auto_done_order_time,
                     //'timezone'                 => $request->get('timezone'),
                     'smart_order'              => $request->get('smart_order'),
-                    'licenses_quantity'        => $request->get('licenses_quantity')
+                    'licenses_quantity'        => $request->get('licenses_quantity'),
+                    'update_time'              => (new DateTime())->getTimestamp()
                 ];
 
 
@@ -381,7 +382,9 @@ class StoreController extends Controller
             'sms_ready_use_default'     => $sms_ready_use_default,
 
             'sms_done_enable'           => $sms_done_enable,
-            'sms_done_use_default'      => $sms_done_use_default
+            'sms_done_use_default'      => $sms_done_use_default,
+            
+            'update_time'              => (new DateTime())->getTimestamp()
         ];
         
         if ($sms_start_enable == 1 && $sms_start_use_default == 0) {
