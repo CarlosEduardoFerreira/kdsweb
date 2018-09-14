@@ -75,8 +75,6 @@ class ApiController extends Controller
                 $response = $this->getEntities($request, $response);
 
             }
-            
-            $response[0]["server_time"] = time();
 
             return response()->json($response);
         }
