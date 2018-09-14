@@ -533,7 +533,7 @@ class ApiController extends Controller
     }
     
     
-    public function setServerTime(array $request, array $response) {
+    public function getServerTime(array $request, array $response) {
         $serverTime = array();
         $serverTime["server_time"] = time();
         return array($serverTime);
