@@ -422,6 +422,8 @@ class ApiController extends Controller
 
                 $question->insert($data);
 
+                $result = DB::select($sql);
+
             } else if ($request["entity"] == "notification_answers") {
                 $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
                 $defaultAnswers = DB::select($defaultAnswersSQL);
@@ -444,9 +446,9 @@ class ApiController extends Controller
 
                     $answer->insert($data);
                 }
-            }
 
-            $result = DB::select($sql);
+                $result = DB::select($sql);
+            }
         }
 
         return $result;
