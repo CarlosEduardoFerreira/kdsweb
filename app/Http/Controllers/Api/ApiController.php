@@ -74,6 +74,9 @@ class ApiController extends Controller
             } else if ($req == "GET_ENTITY") {
                 $response = $this->getEntities($request, $response);
 
+            } else if ($req == "GET_SERVER_TIME") {
+                $response = $this->getServerTime($request, $response);
+                
             }
 
             return response()->json($response);
@@ -527,6 +530,13 @@ class ApiController extends Controller
             $deviceUpdated[0]["error"]  = "Device not found.";
         }
         return $deviceUpdated;
+    }
+    
+    
+    public function setServerTime(array $request, array $response) {
+        $serverTime = array();
+        $serverTime["server_time"] = time();
+        return array($serverTime);
     }
     
     
