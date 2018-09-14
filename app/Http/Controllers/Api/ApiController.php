@@ -12,7 +12,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Faker\Provider\DateTime;
 use Ramsey\Uuid\Uuid;
 
 
@@ -77,7 +76,7 @@ class ApiController extends Controller
 
             }
             
-            $response[0]["server_time"] = (new DateTime())->getTimestamp();
+            $response[0]["server_time"] = time();
 
             return response()->json($response);
         }
@@ -290,7 +289,7 @@ class ApiController extends Controller
                         $response[0]["phone"] = $request["order_phone"];
                         
                         try {
-                            $create_time = (new DateTime())->getTimestamp();
+                            $create_time = time();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
                                     VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', 
                                         '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
@@ -404,7 +403,7 @@ class ApiController extends Controller
         $result = DB::select($sql);
 
         if (count($result) == 0 && !isset($request["min_update_time"])) {
-            $created_at = (new DateTime())->getTimestamp();
+            $created_at = time();
 
             if ($request["entity"] == "notification_questions") {
                 $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
@@ -501,7 +500,7 @@ class ApiController extends Controller
             }
         }
         
-        $update_time = (new DateTime())->getTimestamp();
+        $update_time = time();
         $sql = "update devices set license = $request->active, update_time = $update_time where guid = '$request->guid'";
         $result = DB::statement($sql);
         
@@ -517,7 +516,7 @@ class ApiController extends Controller
         
         $device = DB::table('settings')->where('store_guid', '=', $storeGuid)->first();
         if (isset($device)) {
-            $update_time = (new DateTime())->getTimestamp();
+            $update_time = time();
             $sql = "update settings set last_connection_time = $lastConnectionTime, update_time = $update_time where store_guid = '$storeGuid'";
             $result = DB::statement($sql);
             
