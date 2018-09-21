@@ -168,7 +168,7 @@ class ApiController extends Controller
                 $sql  = "INSERT INTO $entity ";
                 $sql .= "(";
                 foreach($object as $key=>$value) {
-                    $sql .= "$key , ";
+                    $sql .= "`$key` , ";
                 }
                 $sql  = rtrim($sql , ", ");
                 $sql .= ") VALUES(";
@@ -185,7 +185,7 @@ class ApiController extends Controller
                         if ($key == "guid") {
                             continue;
                         }
-                        $sql .= "$key = $value , ";
+                        $sql .= "`$key` = $value , ";
                     }
                 }
             }
