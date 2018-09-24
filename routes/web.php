@@ -114,6 +114,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('stores/{store}/updateTwilio', 'StoreController@updateTwilio')->name('stores.updateTwilio');
     // Delete Action
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
+    // Report
+    Route::get('stores/{store}/report', 'StoreController@report')->name('stores.report');
+    Route::get('stores/{store}/reportByStation', 'StoreController@reportByStation')->name('stores.reportByStation');
     // --------------------------------------------------------------------------------- Stores //
 
     // Users (Users is every system user. Even Admin)
