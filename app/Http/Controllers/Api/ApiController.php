@@ -201,8 +201,6 @@ class ApiController extends Controller
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
 
-            return $sql;
-
             $result = DB::statement($sql);
             
             if (!$result) {
