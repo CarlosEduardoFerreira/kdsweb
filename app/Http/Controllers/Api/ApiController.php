@@ -77,6 +77,9 @@ class ApiController extends Controller
             } else if ($req == "GET_SERVER_TIME") {
                 $response = $this->getServerTime($request, $response);
                 
+            } else if ($req == "DEVICE_REPLACE") {
+                $response = $this->deviceReplace($request, $response);
+                
             }
 
             return response()->json($response);
@@ -138,6 +141,44 @@ class ApiController extends Controller
             $response[0]["error"]  = "Username is incorrect.";
         }
         
+        return $response;
+        
+    }
+    
+    
+    public function deviceReplace(array $request, array $response) {
+        
+        $response[0]["error"] = "";
+
+        $store_guid     = $request["store_guid"];
+        $device_guid    = $request["device_guid"];
+        $device_serial  = $request["device_serial"];
+        
+        $device = DB::table('devices')->where(['guid' => $device_guid])->first();
+        if (isset($device)) {
+            
+            $device = DB::table('devices')
+                ->where('serial', '=', $device_serial)
+                ->where('store_guid', '<>',  $store_guid)
+                ->where('license', '=', 1)->first();
+            if (isset($device)) {
+                $response[0]["error"]  = "This device is active in another store.";
+                
+            } else {
+                $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
+                            WHERE guid = '$device_guid'";
+    
+                $result = DB::statement($sql);
+                
+                if (!$result) {
+                    $response[0]["error"]  = "Error to update device.";
+                }
+            }
+
+        } else {
+            $response[0]["error"] = "Device not found.";
+        }
+
         return $response;
         
     }
