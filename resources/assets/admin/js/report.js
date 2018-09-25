@@ -196,7 +196,7 @@ $(function(){
              			oddTableRow: 'odd-row-style'
                  	};
                  	
-                 	var pageSize = 1;
+                 	var pageSize = 10;
                  	
                  	var tableSettings = {
                  		'cssClassNames':cssClasses,
