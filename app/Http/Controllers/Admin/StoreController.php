@@ -207,7 +207,7 @@ class StoreController extends Controller
     }
 
 
-    public function config(User $store, string $selected = 'false')
+    public function config(Request $request, User $store)
     {
         $accessDenied = Controller::canIsee(Auth::user(), $store->id);
         if ($accessDenied) {
@@ -245,7 +245,7 @@ class StoreController extends Controller
             'devices'=> $devices, 
             'settings' => $settings, 
             'licenseInfo' => $licenseInfo, 
-            'selected' => $selected, 
+            'selected' => $request->selected, 
             'adminSettings' => $adminSettings
         ]);
     }
