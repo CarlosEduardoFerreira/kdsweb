@@ -2,7 +2,7 @@ $(function(){
 	
 	/** GLOBALS **/
 	var devicesIds = [];
-	var startDatetime = moment().subtract(moment.duration("168:00:00"));
+	var startDatetime = moment().subtract(moment.duration("24:00:00"));
 	var endDatetime = moment();
 	
 	
