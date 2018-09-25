@@ -184,7 +184,10 @@ class ApiController extends Controller
                     } else {
                         if ($key == "guid") {
                             continue;
+                        } else if ($key == "license" && $entity == "devices") {
+                            continue;
                         }
+
                         $sql .= "$key = $value , ";
                     }
                 }
@@ -197,7 +200,7 @@ class ApiController extends Controller
             } else {
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
-            
+
             $result = DB::statement($sql);
             
             if (!$result) {
