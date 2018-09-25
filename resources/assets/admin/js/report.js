@@ -129,6 +129,7 @@ $(function(){
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
+        $('#report-loading').show();
     		
     		$.ajax({
                 url: 'reportByStation',
