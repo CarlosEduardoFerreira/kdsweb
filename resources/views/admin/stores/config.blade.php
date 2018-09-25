@@ -1,6 +1,3 @@
-<?php
-use SebastianBergmann\CodeCoverage\Report\PHP;
-?>
 @extends('admin.layouts.config_base')
 
 @section('title',"Store Settings" )
@@ -206,7 +203,7 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
         @foreach($devices as $device)
             <tr>
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->name}}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->name }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ explode('-', $device->serial)[0] }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->function }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id == 0 ? "" : $device->parent_id }}</td>
