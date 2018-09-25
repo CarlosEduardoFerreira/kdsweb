@@ -456,9 +456,9 @@ class StoreController extends Controller
                             
                         FROM item_bumps ib
                         JOIN items i ON ib.guid = i.item_bump_guid
-                        JOIN devices d ON d.id <> 0
+                        JOIN devices d ON d.id <> 0 AND d.is_deleted = 0
                         
-                        JOIN devices dn ON dn.id = 
+                        JOIN devices dn ON dn.store_guid = d.store_guid AND dn.id = 
                         	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                               
                         JOIN users u ON u.store_guid = d.store_guid
