@@ -126,6 +126,10 @@ $(function(){
     		data.addColumn('string', 'Item Prep. Avg. Time');
     		data.addColumn('boolean', 'Active');
     		
+    		$('#report_div').hide();
+        $('#report-total').hide();
+        $('#no-data').hide();
+    		
     		$.ajax({
                 url: 'reportByStation',
                 data: { 
@@ -142,6 +146,8 @@ $(function(){
                 		var total_orders_avg_time = 0;
                 		var total_items_avg_time  = 0;
                 		var total_actives = 0;
+                		
+                		var i = 0;
                 		
                 		response.forEach(function(obj) {
                 			
@@ -170,8 +176,18 @@ $(function(){
                 				obj.active == 1 ? true : false
                 			];
                 			data.addRow(device);
+                			
+                			// Columns width
+                			data.setProperty(i, 0, 'style', 'width:20%');
+                			data.setProperty(i, 1, 'style', 'width:15%');
+                			data.setProperty(i, 2, 'style', 'width:15%');
+                			data.setProperty(i, 3, 'style', 'width:20%');
+                			data.setProperty(i, 4, 'style', 'width:20%');
+                			data.setProperty(i, 5, 'style', 'width:10%');
+                			
+                			i++;
                 		});
-
+                		
                  	var table = new google.visualization.Table(document.getElementById('report_div'));
                 		
                  	var cssClasses = {
@@ -180,7 +196,7 @@ $(function(){
              			oddTableRow: 'odd-row-style'
                  	};
                  	
-                 	var pageSize = 10;
+                 	var pageSize = 1;
                  	
                  	var tableSettings = {
                  		'cssClassNames':cssClasses,
@@ -196,22 +212,12 @@ $(function(){
 	            	        pagingButtonsConfiguration: 'auto'
                  	}
                  	
-                 	$('#report_div').hide();
-                 	$('#report-total').hide();
-                 	$('#no-data').hide();
+                 	$('#report-loading').hide();
                  	
                  	if(response.length == 0) {
 	                		$('#no-data').fadeIn('slow');
 	
 	            		} else {
-	            			
-	            			// Columns width
-	            			data.setProperty(0, 0, 'style', 'width:20%');
-	            			data.setProperty(0, 1, 'style', 'width:15%');
-	            			data.setProperty(0, 2, 'style', 'width:15%');
-	            			data.setProperty(0, 3, 'style', 'width:20%');
-	            			data.setProperty(0, 4, 'style', 'width:20%');
-	            			data.setProperty(0, 5, 'style', 'width:10%');
 	            			
 	            			table.draw(data, tableSettings);
 	            			

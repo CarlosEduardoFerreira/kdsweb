@@ -417,7 +417,7 @@ class StoreController extends Controller
             $devices = [];
         }
         
-        return view('admin.stores.report', ['store' => $store, 'devices' => $devices]);
+        return view('admin.stores.report', ['store' => $store, 'devices' => $devices, 'selected' => $request->selected]);
     }
     
     

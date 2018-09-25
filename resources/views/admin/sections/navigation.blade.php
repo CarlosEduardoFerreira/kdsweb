@@ -76,14 +76,14 @@
                         
                         <input type="hidden" id="selected-page" value="{{ $selected }}">
                         
-                        <li id="li-store-config">
+                        <li id="li-store-config" class="">
                             <a id="a-store-config" onclick="goToStoreConfig()">
                                 <i class="fa fa-cogs" aria-hidden="true"></i>
                                 Configuration
                             </a>
                             
                         </li>
-                        <li id="li-store-reports">
+                        <li id="li-store-reports" class="">
                         		<a id="a-store-reports" onclick="goToStoreReports()">
                                 <i class="fa fa-line-chart" aria-hidden="true"></i>
                                 Reports
@@ -102,8 +102,9 @@
             		function checkPage() {
 					var selectedPage = document.getElementById("selected-page");
 					if (selectedPage != null) {
-        					var selectedValue = selectedPage.value;
-            				document.getElementById("a-store-"+selectedValue).classList.remove("current-page");
+        					if(selectedPage.value != '') {
+                    				document.getElementById("li-store-"+selectedPage.value).className += 'current-page';
+        					}
 					}
             		}
 

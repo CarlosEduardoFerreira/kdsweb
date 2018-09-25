@@ -47,10 +47,15 @@
     		</div>
     		
     		
-    		<div id="no-data" style="display:none;width:100%;padding:50px;text-align:center;
+    		<div id="no-data" style="display:none;width:100%;height:300px;padding:50px;text-align:center;
     		                  background:#feffff;border:1px solid #666;font-weight:200;font-size:16px;color:#222;">
-				There is no data to show. Check the filters.
-			</div>
+			There is no data to show. Check the filters.
+		</div>
+		
+		<div id="report-loading" style="width:100%;height:300px;padding:50px;text-align:center;background:#feffff;border:1px solid #666;">
+			<div style="font-weight:200;font-size:16px;color:#666;"> &nbsp; loading...</div>
+			<img src="/images/loading.gif" style="width:250px;">
+		</div>
     		
     </div>
 </div>
