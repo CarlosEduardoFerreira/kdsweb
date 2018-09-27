@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 
-
-
 class ApiController extends Controller
 {
+
+    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+
     /**
      * Display a listing of the resource.
      *
@@ -113,17 +114,8 @@ class ApiController extends Controller
             
             if ($passMatched) {
                 
-                // Check if the same serial number is activate in another store.
-                $sameSerialActive = DB::table('devices')
-                    ->where('store_guid', '<>',  $result[0]->store_guid)
-                    ->where('serial', '=', $device_serial)
-                    ->where('is_deleted', '=', 0)
-                    ->where('license', '=', 1)
-                    ->where('split_screen_parent_device_id', '=', 0)
-                    ->first();
-                    
-                if (isset($sameSerialActive)) {
-                    $response[0]["error"]  = "There is another KDS Station with the same serial number active in another store.";
+                if ($this->existDeviceInAnotherStore($result[0]->store_guid, $device_serial)) {
+                    $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
                     $response[0]["store_guid"] = $result[0]->store_guid;
@@ -157,12 +149,8 @@ class ApiController extends Controller
         $device = DB::table('devices')->where(['guid' => $device_guid])->first();
         if (isset($device)) {
             
-            $device = DB::table('devices')
-                ->where('serial', '=', $device_serial)
-                ->where('store_guid', '<>',  $store_guid)
-                ->where('license', '=', 1)->first();
-            if (isset($device)) {
-                $response[0]["error"]  = "This device is active in another store.";
+            if ($this->existDeviceInAnotherStore($store_guid, $device_serial)) {
+                $response[0]["error"] = $this->error_exist_device_in_another_store;
                 
             } else {
                 $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
@@ -590,6 +578,20 @@ class ApiController extends Controller
         stripslashes($value);
         
         return $value;
+    }
+
+
+    // Check if the same serial number is activate in another store.
+    public function existDeviceInAnotherStore($store_guid, $device_serial) {
+        $device = DB::table('devices')
+            ->where('serial', '=', $device_serial)
+            ->where('store_guid', '<>',  $store_guid)
+            ->where('is_deleted', '=', 0)
+            ->where('license', '=', 1)
+            ->where('split_screen_parent_device_id', '=', 0)
+            ->first();
+
+        return isset($device);
     }
     
 }
