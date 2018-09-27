@@ -14,10 +14,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 
-
-
 class ApiController extends Controller
 {
+
+    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+
     /**
      * Display a listing of the resource.
      *
@@ -114,7 +115,7 @@ class ApiController extends Controller
             if ($passMatched) {
                 
                 if ($this->existDeviceInAnotherStore($result[0]->store_guid, $device_serial)) {
-                    $response[0]["error"]  = "There is another KDS Station with the same serial number active in another store.";
+                    $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
                     $response[0]["store_guid"] = $result[0]->store_guid;
@@ -149,7 +150,7 @@ class ApiController extends Controller
         if (isset($device)) {
             
             if ($this->existDeviceInAnotherStore($store_guid, $device_serial)) {
-                $response[0]["error"]  = "This device is active in another store.";
+                $response[0]["error"] = $this->error_exist_device_in_another_store;
                 
             } else {
                 $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
