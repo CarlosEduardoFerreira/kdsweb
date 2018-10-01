@@ -16,9 +16,6 @@ use Ramsey\Uuid\Uuid;
 
 class ApiController extends Controller
 {
-
-    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
-
     /**
      * Display a listing of the resource.
      *
