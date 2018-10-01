@@ -23,6 +23,9 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
+    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+    
     public function index() {
         
         $request = file_get_contents("php://input");
