@@ -1,9 +1,35 @@
 $(function(){
 	
 	/** GLOBALS **/
-	var devicesIds = [];
-	var startDatetime = moment().subtract(moment.duration("24:00:00"));
-	var endDatetime = moment();
+	var reportId 		= $('#report-default-id').val();
+	var devicesIds 		= [];
+	var startDatetime 	= moment().subtract(moment.duration("24:00:00"));
+	var endDatetime 		= moment();
+	var headers 			= [];
+	
+	
+	/** filter choose report ************************************************/
+	$('#' + reportId).prop('checked', 'checked');
+	
+	
+	$('.choose-report').click(function(){
+		
+		// clear all checkbox
+		$('.choose-report').each(function(){
+			$(this).prop('checked', '');
+		});
+		
+		// set reportId
+		reportId = $(this).attr('for');
+		$('#' + reportId).prop('checked', 'checked');
+		
+		// set button text
+		$('#showModalChooseReport').text($(this).text());
+		
+		// build the report
+		drawTable();
+	});
+	/************************************************ filter choose report **/
 	
 	
 	/** filter devices ******************************************************/
@@ -83,7 +109,7 @@ $(function(){
 			}
 		})
 		
-		drawTable(devicesIds);
+		drawTable();
 	});
 	/****************************************************** filter devices **/
 	
@@ -106,7 +132,7 @@ $(function(){
 	    startDatetime = start;
 	    endDatetime   = end;
 	    
-	    drawTable(devicesIds);
+	    drawTable();
 	    
 //	    alert("datetime filter: " + startDatetime.format('YYYY-MM-DD HH:mm') + ' to ' + endDatetime.format('YYYY-MM-DD HH:mm'));
 	  });
@@ -114,147 +140,246 @@ $(function(){
 
 	
 	/** report table ********************************************************/
-    	google.charts.load('current', {'packages':['table']});
-    	google.charts.setOnLoadCallback(drawTable);
+    	function startReport() {
+    		google.charts.load('current', {'packages':['table']});
+        	google.charts.setOnLoadCallback(drawTable);
+    	}
     	
-    	function drawTable(devicesIds = []) {
+    	startReport();
+    	
+    	function drawTable() {
+    		//alert('reportId: ' + reportId + " devicesIds:" + devicesIds);
+    		
+    		/**
+    		 *  headers
+    		 *  0 = type used by google.visualization.DataTable()
+    		 *  1 = header text
+    		 *  2 = custom data type to handle on the iterate
+    		 *  3 = total integer
+    		 *  4 = column width percentage
+    		 *  5 = text align
+    		 */
+    		headers = [];
+    		
+    		if(reportId == $('#report-0').val()) { 		// Quantity and Average Time by Order
+        		
+    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
+    			headers[1] = ["string",  "Orders Quantity", "sum", 0, "25", "center"];
+    			headers[2] = ["string",  "Order Prep. Avg. Time", "time", 0, "30", "left"];
+    			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
+    			
+    		} else if(reportId == $('#report-1').val()) { 	// Quantity and Average Time by Item
+    			
+    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
+    			headers[1] = ["string",  "Items Quantity", "sum", 0, "25", "center"];
+    			headers[2] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
+    			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
+    			
+    		} else if(reportId == $('#report-2').val()) {	// Quantity and Average Time by Item Name
+    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
+    			headers[1] = ["string",  "Items Name", "text", 0, "30", "left"];
+    			headers[2] = ["string",  "Items Quantity", "sum", 0, "15", "center"];
+    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
+    		}
+    		
+    		buildReport();
+    		
+    	}
+    	
+    	
+    	function buildReport() {
     		var data = new google.visualization.DataTable();
-    		data.addColumn('string', 'KDS Station');
-    		data.addColumn('string', 'Orders Quantity');
-    		data.addColumn('string', 'Items Quantity');
-    		data.addColumn('string', 'Order Prep. Avg. Time');
-    		data.addColumn('string', 'Item Prep. Avg. Time');
-    		data.addColumn('boolean', 'Active');
+    		
+    		// Build table headers
+    		for(var i_col = 0; i_col < headers.length; i_col++) {
+    			data.addColumn(headers[i_col][0], headers[i_col][1]);
+    			// clear total
+    			headers[i_col][3] = 0;
+    		}
     		
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
         $('#report-loading').show();
-    		
-    		$.ajax({
-                url: 'reportByStation',
-                data: { 
-                		storeId: $('#store-id').val(), 
-                		devicesIds: devicesIds, 
-                		startDatetime: startDatetime.format('YYYY-MM-DD HH:mm'), 
-                		endDatetime: endDatetime.format('YYYY-MM-DD HH:mm') 
-                	},
-                success: function (response) {
+        
+        function getValue(i_col, column_type, column_value, sum_total) {
+        		
+			if(column_type == "sum" || column_type == "time") {
+				column_value = parseInt(column_value);
+				if (sum_total) {
+					headers[i_col][3] += column_value;
+				}
+			}
+			
+			if(column_type == "time") {
+				var avg_time_text = moment.duration(column_value, 'seconds').humanize();
+				if(column_value == 1) {
+					avg_time_text = column_value + " second";
+    				} else if(column_value < 60) {
+    					avg_time_text = column_value + " seconds";
+    				}
+				column_value = avg_time_text
+				
+			} else if(column_type == "active") {
+				column_value = column_value == "true" ? true : false;
+				if (sum_total) {
+					headers[i_col][3] += column_value ? 1 : 0;
+				}
+				
+			} else {
+				column_value = String(column_value);
+			}
+			
+			return column_value;
+        }
+            
+        $.ajax({
+            url: 'reportByStation',
+            data: { 
+            		storeId: $('#store-id').val(), 
+            		reportId: reportId,
+            		devicesIds: devicesIds, 
+            		startDatetime: startDatetime.format('YYYY-MM-DD HH:mm'), 
+            		endDatetime: endDatetime.format('YYYY-MM-DD HH:mm') 
+            	},
+            success: function (response) {
+            		
+            		var i_row = 0;
+            		
+            		var columns_count = headers.length
+            		
+            		var last_device = "";
+            		
+            		response.forEach(function(obj) {
+            			
+            			var device = [];
+            			
+            			// Set columns value/text
+            			for(var i_col = 0; i_col < columns_count; i_col++) {
+            				
+            				var column_type		= headers[i_col][2];
+            				var column_value 	= eval("obj.column_" + i_col);
+            				
+            				column_value = getValue(i_col, column_type, column_value, true);
 
-                		// Total 
-                		var total_orders = 0;
-                		var total_items  = 0;
-                		var total_orders_avg_time = 0;
-                		var total_items_avg_time  = 0;
-                		var total_actives = 0;
-                		
-                		var i = 0;
-                		
-                		response.forEach(function(obj) {
-                			
-                			// Total Sum
-                			total_orders += parseInt(obj.order_count);
-                			total_items  += parseInt(obj.item_count);
-                			total_orders_avg_time += parseInt(obj.order_avg_time);
-                			total_items_avg_time  += parseInt(obj.item_avg_time);
-                			total_actives += obj.active;
-                			
-                			var order_avg_time = moment.duration(parseInt(obj.order_avg_time), 'seconds').humanize();
-                			if(obj.order_avg_time < 60) {
-                				order_avg_time = parseInt(obj.order_avg_time) + " seconds";
-                			}
-                			var item_avg_time = moment.duration(parseInt(obj.item_avg_time), 'seconds').humanize();
-                			if(obj.item_avg_time < 60) {
-                				item_avg_time = parseInt(obj.item_avg_time) + " seconds";
-                			}
-                			
-                			var device = [
-                				String(obj.device_name),
-                				String(obj.order_count),
-                				String(obj.item_count),
-                				order_avg_time,
-                				item_avg_time,
-                				obj.active == 1 ? true : false
-                			];
-                			data.addRow(device);
-                			
-                			// Columns width
-                			data.setProperty(i, 0, 'style', 'width:20%');
-                			data.setProperty(i, 1, 'style', 'width:15%');
-                			data.setProperty(i, 2, 'style', 'width:15%');
-                			data.setProperty(i, 3, 'style', 'width:20%');
-                			data.setProperty(i, 4, 'style', 'width:20%');
-                			data.setProperty(i, 5, 'style', 'width:10%');
-                			
-                			i++;
-                		});
-                		
-                 	var table = new google.visualization.Table(document.getElementById('report_div'));
-                		
-                 	var cssClasses = {
-             			headerRow: 'tblHeaderClass', 
-             			hoverTableRow: 'tblHighlightClass',
-             			oddTableRow: 'odd-row-style'
-                 	};
+            				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
+            					if (last_device == column_value) {
+            						column_value = "";
+            					} else {
+            						last_device = column_value;
+            					}
+            				}
+            				
+            				device.push(column_value);
+            			}
+            			
+            			data.addRow(device);
+            			
+            			// Set columns width
+            			for(var i_col = 0; i_col < columns_count; i_col++) {
+
+            				var css_tr_color = "";
+            				if(reportId == $('#report-2').val()) { // Quantity and Average Time by Item Name (Device Name)
+            					if(device[0] == "" && i_col == 0) {
+            						css_tr_color = " background:#fefefe;";
+            					}
+            					
+            				}
+            				
+            				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
+            						"text-align:" + headers[i_col][5] + " !important; " +
+            						"padding-left:10px;" + css_tr_color);
+            			}
+
+            			i_row++;
+            		});
+            		
+             	var table = new google.visualization.Table(document.getElementById('report_div'));
+             	
+             	var sort = 'enable';
+             	if(reportId == $('#report-2').val()) { // Quantity and Average Time by Item Name (Device Name)
+             		sort = 'disable';
+             	}
+            		
+             	var cssClasses = {
+         			headerRow: 'tblHeaderClass', 
+         			hoverTableRow: 'tblHighlightClass',
+         			oddTableRow: 'odd-row-style'
+             	};
+             	
+             	var pageSize = 10;
+             	
+             	var tableSettings = {
+             		'cssClassNames':cssClasses,
+             		allowHtml: true,
+            			showRowNumber: false,
+            			sort: sort,
+            			width: '100%',
+            			height: 'auto',
+            			// sortColumn: 0,
+            			// sortAscending: true,
+            			page: 'enable',
+            	        pageSize: pageSize,
+            	        pagingSymbols: { prev: 'prev', next: 'next' },
+            	        pagingButtonsConfiguration: 'auto'
+             	}
+             	
+             	$('#report-loading').hide();
+             	
+             	if(response.length == 0) {
+                		$('#no-data').fadeIn('slow');
+
+            		} else {
+            			
+            			table.draw(data, tableSettings);
+            			
+            			// Show Report
+            			$('#report_div').fadeIn('slow');
+            			$('#report-total').fadeIn('slow');
+            			
+            			// Handle Total
+            			$('.report-total-values').remove();
+            			for(var i_col = 0; i_col < headers.length; i_col++) { // var i_col = 1 (Total Text does not sum)
+            				
+            				var column_type	= headers[i_col][2];
+            				var total_value  = headers[i_col][3];
+            				
+            				if (column_type == "text") {
+            					total_value = "";
+            					if (i_col == 0) {
+            						total_value = "Total";
+            					}
+            				
+            				} else if (column_type == "active") {
+	        					total_value = headers[i_col][3] + "/" + response.length;
+	        					
+	        				} else {
+//	        					alert("1: " + total_value)
+	        					total_value = getValue(i_col, column_type, total_value, false);
+//	        					alert("2: " + total_value)
+	        				}
+            				
+            				var td = $('<td width="' + headers[i_col][4] + '%" ' +
+            						'class="report-total-tds report-total-values" ' +
+            						'style="padding-left:10px; text-align:' + headers[i_col][5] + ';">' + 
+            						total_value + '</td>');
+            				$('#report-total-tr').append(td);
+            			}
+            			
+            			// Hover and Zebra
+                 	$('#report_div table').addClass('table-hover table-striped');
                  	
-                 	var pageSize = 10;
-                 	
-                 	var tableSettings = {
-                 		'cssClassNames':cssClasses,
-                 		allowHtml: true,
-	            			showRowNumber: false,
-	            			width: '100%',
-	            			height: 'auto',
-	            			// sortColumn: 0,
-	            			// sortAscending: true,
-	            			page: 'enable',
-	            	        pageSize: pageSize,
-	            	        pagingSymbols: { prev: 'prev', next: 'next' },
-	            	        pagingButtonsConfiguration: 'auto'
+                 	if(response.length < pageSize) {
+                 		$('.goog-custom-button-collapse-left').hide();
+                 		$('.goog-custom-button-collapse-right').hide();
                  	}
                  	
-                 	$('#report-loading').hide();
-                 	
-                 	if(response.length == 0) {
-	                		$('#no-data').fadeIn('slow');
-	
-	            		} else {
-	            			
-	            			table.draw(data, tableSettings);
-	            			
-	            			// Show Report
-	            			$('#report_div').fadeIn('slow');
-	            			$('#report-total').fadeIn('slow');
-	            			
-	            			// Fill Total
-	            			var total_orders_avg_time_txt = moment.duration(total_orders_avg_time, 'seconds').humanize();
-                			if(total_orders_avg_time < 60) {
-                				total_orders_avg_time_txt = total_orders_avg_time + " seconds";
-                			}
-                			var total_items_avg_time_txt = moment.duration(total_items_avg_time, 'seconds').humanize();
-                			if(total_items_avg_time < 60) {
-                				total_items_avg_time_txt = total_items_avg_time + " seconds";
-                			}
-	            			$('#report-total #total-orders').text(total_orders);
-	            			$('#report-total #total-items').text(total_items);
-	            			$('#report-total #total-orders-avg-time').text(total_orders_avg_time_txt);
-	            			$('#report-total #total-items-avg-time').text(total_items_avg_time_txt);
-	            			$('#report-total #total-actives').text(total_actives + "/" + response.length);
-	            			
-	            			// Hover and Zebra
-                     	$('#report_div table').addClass('table-hover table-striped');
-                     	
-                     	if(response.length < pageSize) {
-                     		$('.goog-custom-button-collapse-left').hide();
-                     		$('.goog-custom-button-collapse-right').hide();
-                     	}
-                     	
-	            		}
-                 	
-                }
+            		}
+             	
+            }
     		
     		});
-
+            
     	}
     	/******************************************************** report table **/
     	
