@@ -479,6 +479,7 @@ class StoreController extends Controller {
             
             if($devicesIds != "") {
                 $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
+                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
             $sql .=     "GROUP BY dn.name, dn.login, i.order_guid) select_orders
@@ -525,6 +526,7 @@ class StoreController extends Controller {
             
             if($devicesIds != "") {
                 $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
+                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
             $sql .=     "GROUP BY dn.name, dn.login, i.order_guid) select_orders
@@ -572,6 +574,7 @@ class StoreController extends Controller {
             
             if($devicesIds != "") {
                 $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
+                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
             $sql .=     "GROUP BY dn.name, i.name, dn.login, i.order_guid) select_orders
