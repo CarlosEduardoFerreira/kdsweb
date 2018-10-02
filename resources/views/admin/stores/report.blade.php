@@ -254,7 +254,7 @@
 
 @section('scripts')
     @parent
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    {{ Html::script(mix('assets/admin/js/google.charts.js')) }}
 	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}

@@ -55,7 +55,7 @@
 
                         <a class="btn btn-xs btn-warning settings-icons" href="{{ route('admin.stores.config', [$store->id]) }}"
                         			data-toggle="tooltip" data-placement="top" data-title="Config Store" style="background:#e7bf3f;">
-                            <i class="fa fa-sign-in"></i>
+                            <i class="fa fa-cogs"></i>
                         </a>
                         
                         <a class="btn btn-xs btn-success settings-icons" href="{{ route('admin.stores.report', [$store->id]) }}"
