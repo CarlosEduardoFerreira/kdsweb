@@ -451,22 +451,23 @@ class StoreController extends Controller {
                         	dn.name AS device_name,
                         	count(distinct i.order_guid) AS order_count,
                         	count(distinct i.guid) AS item_count,
-                
+                        
                         	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
                         		(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then
                                 (case when ib.prepared_local_time = 0 then ib.create_local_time else ib.prepared_local_time end) else ib.create_local_time end)) /
                                 count(distinct i.order_guid) AS order_avg_time,
-                
-                        	dn.login AS active
-                
+                        
+                        dn.login AS active
+                        
                         FROM item_bumps ib
-                        JOIN items i ON ib.guid = i.item_bump_guid
-                        JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 
-                
-                        JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = d.store_guid AND dn.id =
+                        JOIN items i ON ib.guid = i.item_bump_guid 
+                        JOIN orders o ON o.guid = i.order_guid 
+
+                        JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                        JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
                         	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                 
-                        JOIN users u ON u.store_guid = d.store_guid
+                        JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
                 
                         WHERE u.id = " . $request->get('storeId') .
                         " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
@@ -508,12 +509,13 @@ class StoreController extends Controller {
                                 
                             FROM item_bumps ib
                             JOIN items i ON ib.guid = i.item_bump_guid
-                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 
-                            
-                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = d.store_guid AND dn.id = 
+                            JOIN orders o ON o.guid = i.order_guid 
+
+                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
                             	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                                   
-                            JOIN users u ON u.store_guid = d.store_guid
+                            JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
                             
                             WHERE u.id = " . $request->get('storeId') . 
                             " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
@@ -556,12 +558,13 @@ class StoreController extends Controller {
                 
                             FROM item_bumps ib
                             JOIN items i ON ib.guid = i.item_bump_guid
-                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 
-                
-                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = d.store_guid AND dn.id =
+                            JOIN orders o ON o.guid = i.order_guid 
+
+                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
                             	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                 
-                            JOIN users u ON u.store_guid = d.store_guid
+                            JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
                 
                             WHERE u.id = " . $request->get('storeId') .
                             " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id

@@ -119,6 +119,9 @@ mix.styles([
 
 // Store Report JS
 mix.scripts([
+    'resources/assets/admin/js/google.charts.js',
+], 'public/assets/admin/js/google.charts.js').version();
+mix.scripts([
     'resources/assets/admin/js/report.js',
 ], 'public/assets/admin/js/report.js').version();
 mix.scripts([
