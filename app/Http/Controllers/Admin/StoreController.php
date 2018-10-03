@@ -569,12 +569,12 @@ class StoreController extends Controller {
                             WHERE u.id = " . $request->get('storeId') .
                             " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
-            
+                            
             $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
                                 then ib.done_local_time else ib.prepared_local_time end) >= $startDatetime
                                 AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
                                 then ib.done_local_time else ib.prepared_local_time end) <= $endDatetime)";
-            
+                            
             if($devicesIds != "") {
                 $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
@@ -589,6 +589,37 @@ class StoreController extends Controller {
     }
     
     
+    public function removeDevice(Request $request, User $store) {
+        
+        if($request->post('deviceGuid') === null) {
+            return "KDS Station Guid not provided.";
+        }
+        
+        $deviceGuid = $request->post('deviceGuid');
+        
+        $device = DB::table('devices')->where('guid', '=', $deviceGuid)->first();
+        
+        if(isset($device)) {
+            $data = [
+                'is_deleted'    => 1,
+                'license'    => 0,
+                'login'    => 0,
+                'update_time'   => time()
+            ];
+            DB::table('devices')->where('guid', $deviceGuid)->update($data);
+            
+            // Remove Split Screen
+            DB::table('devices')->where('split_screen_parent_device_id', $device->id)->update($data);
+            
+        } else {
+            return "KDS Station not found.";
+        }
+        
+        return "";
+        
+    }
+    
+    
     /**
      * Remove the specified resource from storage.
      *
@@ -599,6 +630,9 @@ class StoreController extends Controller {
     {
         //
     }
+    
+    
+    
     
 }
 

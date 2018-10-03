@@ -197,6 +197,8 @@ $(function(){
     			headers[i_col][3] = 0;
     		}
     		
+    		var pageSize = 10;
+    		
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
@@ -263,15 +265,15 @@ $(function(){
             				column_value = getValue(i_col, column_type, column_value, true);
 
             				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
-            					if (last_device == column_value) {
+            					if (i_row % pageSize != 0 && column_value == last_device)  {
             						column_value = "";
-            					} else {
-            						last_device = column_value;
             					}
             				}
             				
             				device.push(column_value);
             			}
+            			
+            			last_device = obj.column_0; // Should be always the Device Name
             			
             			data.addRow(device);
             			
@@ -306,8 +308,6 @@ $(function(){
          			hoverTableRow: 'tblHighlightClass',
          			oddTableRow: 'odd-row-style'
              	};
-             	
-             	var pageSize = 10;
              	
              	var tableSettings = {
              		'cssClassNames':cssClasses,
