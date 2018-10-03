@@ -425,12 +425,7 @@ class ApiController extends Controller
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
 
-        } else {
-            $sql .= " AND is_deleted != 1";
-
         }
-
-        //echo "sql: " . $sql . "|";
 
         return DB::select($sql);
         
@@ -443,7 +438,7 @@ class ApiController extends Controller
 
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
-
+            
         } else {
             $sql .= " AND is_deleted != 1";
         }
@@ -529,8 +524,10 @@ class ApiController extends Controller
     
     
     public function activeLicense(Request $request) {
+        
+        $device = DB::table('devices')->where(['guid' => $request->guid])->first();
+        
         if ($request->active) {
-            $device = DB::table('devices')->where(['guid' => $request->guid])->first();
             if (isset($device)) {
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
@@ -549,7 +546,10 @@ class ApiController extends Controller
         }
         
         $update_time = time();
-        $sql = "update devices set license = $request->active, update_time = $update_time where guid = '$request->guid'";
+        
+        $sql = "update devices set license = $request->active, update_time = $update_time 
+                where guid = '$request->guid' OR split_screen_parent_device_id = $device->id";
+        
         $result = DB::statement($sql);
         
         return array($result);
