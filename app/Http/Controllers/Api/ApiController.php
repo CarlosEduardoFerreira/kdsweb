@@ -187,7 +187,7 @@ class ApiController extends Controller
             $updt = $object['update_time'];
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
-            //echo "sqlCheck: $sqlCheck";
+            
             $result     = DB::select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
@@ -208,6 +208,11 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
+                    
+                    if(is_string($value)) {
+                        $value = $this->resolveApostrophe($value);
+                    }
+                    
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
@@ -219,6 +224,7 @@ class ApiController extends Controller
 
                         $sql .= "$key = $value , ";
                     }
+                    
                 }
             }
             
@@ -240,6 +246,30 @@ class ApiController extends Controller
 
         return $response;
         
+    }
+    
+    
+    public function resolveApostrophe($str) {
+        
+        $char = "'";
+        
+        $empty = str_replace($char, "", $str);
+        $empty = str_replace(" ", "", $empty);
+        $empty = str_replace(",", "", $empty);
+        
+        if($empty == "") {
+            return $str;
+        }
+        
+        $first = substr($str, 0, 1);
+        $last  = substr($str, strlen($str)-1, 1);
+        
+        if($first == $char && $last == $char) {
+            $word  = substr($str, 1, strlen($str) -2);
+            $str = $char . str_replace($char, "\'", $word) . $char;
+        }
+        
+        return $str;
     }
     
     
@@ -411,6 +441,8 @@ class ApiController extends Controller
             $sql .= " AND update_time > " . $request["min_update_time"];
 
         }
+        
+        $sql .= " AND is_deleted = 0 ";
 
         return DB::select($sql);
         
