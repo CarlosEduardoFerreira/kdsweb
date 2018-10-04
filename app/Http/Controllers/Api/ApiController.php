@@ -441,8 +441,6 @@ class ApiController extends Controller
             $sql .= " AND update_time > " . $request["min_update_time"];
 
         }
-        
-        $sql .= " AND is_deleted = 0 ";
 
         return DB::select($sql);
         
