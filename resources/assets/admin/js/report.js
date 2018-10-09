@@ -214,13 +214,7 @@ $(function(){
 			}
 			
 			if(column_type == "time") {
-				var avg_time_text = moment.duration(column_value, 'seconds').humanize();
-				if(column_value == 1) {
-					avg_time_text = column_value + " second";
-    				} else if(column_value < 60) {
-    					avg_time_text = column_value + " seconds";
-    				}
-				column_value = avg_time_text
+				column_value = convertTimeToRead(column_value);
 				
 			} else if(column_type == "active") {
 				column_value = column_value == "true" ? true : false;
@@ -383,4 +377,23 @@ $(function(){
     	}
     	/******************************************************** report table **/
     	
+    	
+    	function convertTimeToRead(time) {
+    		var sec_num = parseInt(time, 10); // don't forget the second param
+    	    var hours   = Math.floor(sec_num / 3600);
+    	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    	    hours = hours == 1 ? "1 hour" : (hours > 0 ? hours + " hours" : "");
+    	    minutes = minutes == 1 ? "1 minute" : (minutes > 0 ? minutes + " minutes" : "");
+    	    seconds = seconds == 1 ? "1 second" : (seconds > 0 ? seconds + " seconds" : "")
+    	    
+    	    return hours + " " + minutes + " " + seconds;
+    	}
+    	
 })
+
+
+
+
+
