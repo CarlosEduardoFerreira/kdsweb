@@ -35,9 +35,11 @@
 				{{ $reports[0]["title"] }}
 			</button>
 			
-			<?php if(count($devices) > 0) { ?>
-				<input type="text" name="daterange" value="" style="width:280px;float:right;text-align:center;" />
-			<?php } ?>
+			<div id="report-refresh-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:4px;">
+				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:28px;cursor:hand;">
+			</div>
+			
+			<input type="text" id="daterange" name="daterange" class="btn" value="" />
 			
 			<button type="button" id="showModalDevices" class="btn btn-primary" 
             		data-toggle="modal" data-target="#modalDevices" style="float:right;font-weight:200;font-size:16px;margin-right:20px;">
@@ -55,13 +57,12 @@
     		<div id="report-total" style="margin:0px 0px 0px 0px;display:none;">
     			<table style="width:100%;font-weight:200;">
     				<tr height="40px" id="report-total-tr">
-					
+					<!-- Total is handled on reports.js -->
     				</tr>
     			</table>
     		</div>
     		
-    		
-    		<div id="no-data" style="display:none;width:100%;height:300px;padding:50px;text-align:center;
+    		<div id="no-data" style="display:none;width:100%;min-height:300px;padding:50px;text-align:center;
     		                  background:#feffff;border:1px solid #666;font-weight:200;font-size:16px;color:#222;">
 			There is no data to show. Check the filters.
 		</div>
@@ -176,7 +177,10 @@
 
 @section('styles')
     @parent
+    
     {{ Html::style(mix('assets/admin/css/daterangepicker.css')) }}
+    {{ Html::style(mix('assets/admin/css/jquery-ui.min.css')) }}
+    
     <style>
     
     /* modal choose report */
@@ -248,16 +252,28 @@
     /* report total */
         .report-total-tds { border:1px solid #ccc; }
         
+    /* report date range */
+        #daterange { width:280px; float:right; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        
     </style>
 @endsection
 
 
 @section('scripts')
     @parent
+    
     {{ Html::script(mix('assets/admin/js/google.charts.js')) }}
 	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}
+	{{ Html::script(mix('assets/admin/js/jquery-ui.min.js')) }}
+	
+	<script>
+        	$(function(){
+        		$('#report-refresh-img').tooltip();
+        	});
+	</script>
+	
 @endsection
 
 

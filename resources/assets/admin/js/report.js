@@ -114,6 +114,13 @@ $(function(){
 	/****************************************************** filter devices **/
 	
 	
+	/** Refresh Button ******************************************************/
+	$('#report-refresh-img').click(function(){
+		drawTable();
+	});
+	/****************************************************** Refresh Button **/
+	
+	
 	/** filter dates ********************************************************/
 	$(function(){
 		$('.daterangepicker').css({ 'box-shadow':'0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' });
@@ -149,6 +156,9 @@ $(function(){
     	
     	function drawTable() {
     		//alert('reportId: ' + reportId + " devicesIds:" + devicesIds);
+    		
+    		// Refresh button hide
+    		$('#report-refresh-img').hide();
     		
     		/**
     		 *  headers
@@ -273,13 +283,12 @@ $(function(){
             			
             			// Set columns width
             			for(var i_col = 0; i_col < columns_count; i_col++) {
-
             				var css_tr_color = "";
+            				
             				if(reportId == $('#report-2').val()) { // Quantity and Average Time by Item Name (Device Name)
             					if(device[0] == "" && i_col == 0) {
             						css_tr_color = " background:#fefefe;";
             					}
-            					
             				}
             				
             				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
@@ -370,6 +379,9 @@ $(function(){
                  	
             		}
              	
+             	// Refresh button show
+             	$('#report-refresh-img').fadeIn('slow');
+             	
             }
     		
     		});
@@ -379,7 +391,7 @@ $(function(){
     	
     	
     	function convertTimeToRead(time) {
-    		var sec_num = parseInt(time, 10); // don't forget the second param
+    		var sec_num = parseInt(time, 10);
     	    var hours   = Math.floor(sec_num / 3600);
     	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
