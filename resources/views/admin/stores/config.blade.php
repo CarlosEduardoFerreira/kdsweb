@@ -1,6 +1,3 @@
-<?php
-use SebastianBergmann\CodeCoverage\Report\PHP;
-?>
 @extends('admin.layouts.config_base')
 
 @section('title',"Store Settings" )
@@ -190,23 +187,27 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                 $currentPage = $devices->currentPage();
             }
         ?>
+        <style>
+            .device-th { font-weight:400; background:#eee; color:#333; }
+        </style>
         <tr>
-            <th>ID</th>
-            <th>KDS Station Name</th>
-            <th>Serial Number</th>
-            <th>Function</th>
-            <th>Parent ID</th>
-            <th>Expeditor</th>
-            <th>Last Update</th>
-            <th>License</th>
+            <th class="device-th">ID</th>
+            <th class="device-th">KDS Station Name</th>
+            <th class="device-th">Serial Number</th>
+            <th class="device-th">Function</th>
+            <th class="device-th">Parent ID</th>
+            <th class="device-th">Expeditor</th>
+            <th class="device-th">Last Update</th>
+            <th class="device-th">License</th>
+            <th class="device-th">Remove</th>
         </tr>
         </thead>
         <tbody>
 
         @foreach($devices as $device)
-            <tr>
+            <tr height="50px" style="font-weight:200;color:#222;background:#fefefe;">
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">{{ $device->id }}</td>
-                	<td class="td-data" style="vertical-align:middle;">{{ $device->name}}</td>
+                	<td class="td-data" style="vertical-align:middle;">{{ $device->name }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ explode('-', $device->serial)[0] }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->function }}</td>
                 	<td class="td-data" style="vertical-align:middle;">{{ $device->parent_id == 0 ? "" : $device->parent_id }}</td>
@@ -227,6 +228,14 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
                         </label>
                 		<?php } ?>
                 	</td>
+                	<td class="td-data" style="vertical-align:middle;text-align:center;">
+                		<?php if ($device->split_screen_parent_device_id == 0) { ?>
+                    		<a class="btn btn-xs btn-danger remove-device" device_guid="{{ $device->guid }}" device_name="{{ $device->name }}"
+                            	data-toggle="modal" data-target="#modalRemoveDevice" data-title="Remove Device" >
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    <?php } ?>
+                	</td>
             </tr>
         @endforeach
         </tbody>
@@ -234,21 +243,22 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
 </div>
 
 
-<!-- Button trigger modal -->
-<button id="modal-btn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCenter" style="display:none;"></button>
-
-<!-- Modal -->
-<div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenterTitle" aria-hidden="true">
+<!-- Modal Remove Device -->
+<div class="modal fade" id="modalRemoveDevice" tabindex="-1" role="dialog" aria-labelledby="modalRemoveDevice" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         	<div class="modal-content">
         		<div class="modal-header">
-        			<h5 class="modal-title" id="modalLongTitle">Title</h5>
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            			<span aria-hidden="true">&times;</span>
+            		</button>
+        			<h5 class="modal-title" id="modalLongTitle">Remove KDS Station</h5>
         		</div>
-        		<div class="modal-body">
-        			Message
+        		<div id="are-you-sure" class="modal-body">
+        			Are you sure you want to remove this KDS Station?
         		</div>
     			<div class="modal-footer">
-    				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+    				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    				<button id="remove-device-confirm" type="button" class="btn btn-danger" data-dismiss="modal">Remove</button>
     			</div>
         	</div>
     </div>
@@ -550,6 +560,43 @@ use SebastianBergmann\CodeCoverage\Report\PHP;
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
     {{ Html::script(mix('assets/admin/js/validation_config.js')) }}
     <script>
+
+    // remove device
+    $(document).ready(function(){
+
+    		var deviceToRemoveGuid = "";
+        	
+		$('.remove-device').click(function(){
+			deviceToRemoveGuid = $(this).attr('device_guid');
+			var deviceName = $(this).attr('device_name');
+			$('#modalRemoveDevice #are-you-sure').html('Are you sure you want to remove the KDS Station ' + 
+					'\"<span style="color:red;">' + deviceName +  '\</span>"?')
+
+			
+		});
+
+		$('#remove-device-confirm').click(function(){
+			if(deviceToRemoveGuid != "") {
+				 $.ajax({
+					 	headers: {
+						    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						},
+			            url: 'removeDevice',
+			            type: 'POST',
+			            data: { 
+			            		deviceGuid: deviceToRemoveGuid
+			            	},
+			            success: function (response) {
+							if(response !== "") {
+								alert(response);
+							} else {
+								location.reload();
+							}
+			            }
+				 });
+			}
+		});
+    });
     
     function showTwilio() {
 		$('#mp-list').hide();

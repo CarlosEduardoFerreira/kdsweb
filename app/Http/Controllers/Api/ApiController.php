@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 
-
-
 class ApiController extends Controller
 {
     /**
@@ -23,6 +21,9 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
+    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+    
     public function index() {
         
         $request = file_get_contents("php://input");
@@ -77,6 +78,9 @@ class ApiController extends Controller
             } else if ($req == "GET_SERVER_TIME") {
                 $response = $this->getServerTime($request, $response);
                 
+            } else if ($req == "DEVICE_REPLACE") {
+                $response = $this->deviceReplace($request, $response);
+                
             }
 
             return response()->json($response);
@@ -110,17 +114,8 @@ class ApiController extends Controller
             
             if ($passMatched) {
                 
-                // Check if the same serial number is activate in another store.
-                $sameSerialActive = DB::table('devices')
-                    ->where('store_guid', '<>',  $result[0]->store_guid)
-                    ->where('serial', '=', $device_serial)
-                    ->where('is_deleted', '=', 0)
-                    ->where('license', '=', 1)
-                    ->where('split_screen_parent_device_id', '=', 0)
-                    ->first();
-                    
-                if (isset($sameSerialActive)) {
-                    $response[0]["error"]  = "There is another KDS Station with the same serial number active in another store.";
+                if ($this->existDeviceInAnotherStore($result[0]->store_guid, $device_serial)) {
+                    $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
                     $response[0]["store_guid"] = $result[0]->store_guid;
@@ -143,6 +138,40 @@ class ApiController extends Controller
     }
     
     
+    public function deviceReplace(array $request, array $response) {
+        
+        $response[0]["error"] = "";
+
+        $store_guid     = $request["store_guid"];
+        $device_guid    = $request["device_guid"];
+        $device_serial  = $request["device_serial"];
+        
+        $device = DB::table('devices')->where(['guid' => $device_guid])->first();
+        if (isset($device)) {
+            
+            if ($this->existDeviceInAnotherStore($store_guid, $device_serial)) {
+                $response[0]["error"] = $this->error_exist_device_in_another_store;
+                
+            } else {
+                $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
+                            WHERE guid = '$device_guid'";
+    
+                $result = DB::statement($sql);
+                
+                if (!$result) {
+                    $response[0]["error"]  = "Error to update device.";
+                }
+            }
+
+        } else {
+            $response[0]["error"] = "Device not found.";
+        }
+
+        return $response;
+        
+    }
+    
+    
     public function insertOrUpdateEntityWeb(array $request, array $response) {
         
         $entity = $request["entity"];
@@ -158,7 +187,7 @@ class ApiController extends Controller
             $updt = $object['update_time'];
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
-            //echo "sqlCheck: $sqlCheck";
+            
             $result     = DB::select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
@@ -179,14 +208,23 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
+                    
+                    if(is_string($value)) {
+                        $value = $this->resolveApostrophe($value);
+                    }
+                    
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
                         if ($key == "guid") {
                             continue;
+                        } else if ($key == "license" && $entity == "devices") {
+                            continue;
                         }
+
                         $sql .= "`$key` = $value , ";
                     }
+                    
                 }
             }
             
@@ -197,7 +235,7 @@ class ApiController extends Controller
             } else {
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
             }
-            
+
             $result = DB::statement($sql);
             
             if (!$result) {
@@ -208,6 +246,30 @@ class ApiController extends Controller
 
         return $response;
         
+    }
+    
+    
+    public function resolveApostrophe($str) {
+        
+        $char = "'";
+        
+        $empty = str_replace($char, "", $str);
+        $empty = str_replace(" ", "", $empty);
+        $empty = str_replace(",", "", $empty);
+        
+        if($empty == "") {
+            return $str;
+        }
+        
+        $first = substr($str, 0, 1);
+        $last  = substr($str, strlen($str)-1, 1);
+        
+        if($first == $char && $last == $char) {
+            $word  = substr($str, 1, strlen($str) -2);
+            $str = $char . str_replace($char, "\'", $word) . $char;
+        }
+        
+        return $str;
     }
     
     
@@ -378,12 +440,7 @@ class ApiController extends Controller
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
 
-        } else {
-            $sql .= " AND is_deleted != 1";
-
         }
-
-        //echo "sql: " . $sql . "|";
 
         return DB::select($sql);
         
@@ -396,7 +453,7 @@ class ApiController extends Controller
 
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
-
+            
         } else {
             $sql .= " AND is_deleted != 1";
         }
@@ -482,8 +539,10 @@ class ApiController extends Controller
     
     
     public function activeLicense(Request $request) {
+        
+        $device = DB::table('devices')->where(['guid' => $request->guid])->first();
+        
         if ($request->active) {
-            $device = DB::table('devices')->where(['guid' => $request->guid])->first();
             if (isset($device)) {
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
@@ -502,7 +561,10 @@ class ApiController extends Controller
         }
         
         $update_time = time();
-        $sql = "update devices set license = $request->active, update_time = $update_time where guid = '$request->guid'";
+        
+        $sql = "update devices set license = $request->active, update_time = $update_time 
+                where guid = '$request->guid' OR split_screen_parent_device_id = $device->id";
+        
         $result = DB::statement($sql);
         
         return array($result);
@@ -546,6 +608,20 @@ class ApiController extends Controller
         stripslashes($value);
         
         return $value;
+    }
+
+
+    // Check if the same serial number is activate in another store.
+    public function existDeviceInAnotherStore($store_guid, $device_serial) {
+        $device = DB::table('devices')
+            ->where('serial', '=', $device_serial)
+            ->where('store_guid', '<>',  $store_guid)
+            ->where('is_deleted', '=', 0)
+            ->where('license', '=', 1)
+            ->where('split_screen_parent_device_id', '=', 0)
+            ->first();
+
+        return isset($device);
     }
     
 }

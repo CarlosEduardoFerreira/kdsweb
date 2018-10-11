@@ -37,30 +37,32 @@
                     </td>
                     <td>{{ $store->created_at }}</td>
                     <td>{{ $store->updated_at }}</td>
-                    <td>
+                    <td width="200px" style="text-align:center;">
+                    
+                    		<style>
+                    		  .settings-icons { width:30px; }
+                    		</style>
 
-                        <a class="btn btn-xs btn-info" href="{{ route('admin.stores.show', [$store->id]) }}"
+                        <a class="btn btn-xs btn-info settings-icons" href="{{ route('admin.stores.show', [$store->id]) }}"
                             data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.show') }}">
                             <i class="fa fa-eye"></i>
                         </a>
 
-                        <a class="btn btn-xs btn-warning" href="{{ route('admin.stores.edit', [$store->id, 'filter' => false]) }}"
+                        <a class="btn btn-xs btn-primary settings-icons" href="{{ route('admin.stores.edit', [$store->id, 'filter' => false]) }}"
                             data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.edit') }}">
                             <i class="fa fa-pencil"></i>
                         </a>
 
-                        {{--@if(!$store->hasRole('administrator'))--}}
-                            {{--<button class="btn btn-xs btn-danger user_destroy"--}}
-                                    {{--data-url="{{ route('admin.stores.destroy', [$store->id]) }}"
-                                    data-toggle="tooltip" data-placement="top" data-title="{{ __('views.admin.users.index.delete') }}">--}}
-                                {{--<i class="fa fa-trash"></i>--}}
-                            {{--</button>--}}
-                        {{--@endif--}}
-
-                        <a class="btn btn-xs btn-primary" href="{{ route('admin.stores.config', [$store->id]) }}"
-                        			data-toggle="tooltip" data-placement="top" data-title="Config Store">
-                            <i class="fa fa-sign-in"></i>
+                        <a class="btn btn-xs btn-warning settings-icons" href="{{ route('admin.stores.config', [$store->id]) }}"
+                        			data-toggle="tooltip" data-placement="top" data-title="Config Store" style="background:#e7bf3f;">
+                            <i class="fa fa-cogs"></i>
                         </a>
+                        
+                        <a class="btn btn-xs btn-success settings-icons" href="{{ route('admin.stores.report', [$store->id]) }}"
+                        			data-toggle="tooltip" data-placement="top" data-title="Reports" style="background:#29a66b;">
+                            <i class="fa fa-line-chart"></i>
+                        </a>
+                        
 						<?php 
 						  //echo "store_guid: " . $store->store_guid;
 						?>

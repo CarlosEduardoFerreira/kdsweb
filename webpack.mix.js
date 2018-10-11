@@ -111,6 +111,27 @@ mix.scripts([
     'resources/assets/admin/js/validation_config.js',
 ], 'public/assets/admin/js/validation_config.js').version();
 
+
+// Store Report CSS
+mix.styles([
+    'resources/assets/admin/css/daterangepicker.css',
+], 'public/assets/admin/css/daterangepicker.css').version();
+
+// Store Report JS
+mix.scripts([
+    'resources/assets/admin/js/google.charts.js',
+], 'public/assets/admin/js/google.charts.js').version();
+mix.scripts([
+    'resources/assets/admin/js/report.js',
+], 'public/assets/admin/js/report.js').version();
+mix.scripts([
+	'resources/assets/admin/js/moment.min.js',
+], 'public/assets/admin/js/moment.min.js').version();
+mix.scripts([
+	'resources/assets/admin/js/daterangepicker.js',
+], 'public/assets/admin/js/daterangepicker.js').version();
+
+
 mix.styles([
     'node_modules/select2/dist/css/select2.css',
 ], 'public/assets/admin/css/users/edit.css').version();
