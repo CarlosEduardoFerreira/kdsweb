@@ -31,10 +31,23 @@
     			<!-- ------------------------------------------------------------------------------------------------- Reports by id -->
     			
             <button type="button" id="showModalChooseReport" class="btn btn-success" 
-            		data-toggle="modal" data-target="#modalChooseReport" style="font-weight:200;font-size:16px;">
+            		data-toggle="modal" data-target="#modalChooseReport" style="float:left;font-weight:200;font-size:16px;">
 				{{ $reports[0]["title"] }}
 			</button>
 			
+            <div class="dropdown per-page-dropdown" style="float:left;">
+                	<button class="btn btn-info dropdown-toggle" type="button" id="dropdownPerPage" data-toggle="dropdown" aria-expanded="true">
+                		<span id="per-page-value">10</span> <span>per page</span> <span class="caret"></span>
+                	</button>
+            		
+                	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownPerPage">
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">10</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">25</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">50</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">100</a></li>
+                </ul>
+            </div>
+
 			<div id="report-refresh-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:4px;">
 				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:28px;cursor:hand;">
 			</div>
@@ -224,6 +237,12 @@
         .form-group input[type="checkbox"]:checked + .btn-group > label span:first-child { display: inline-block; }
         .form-group input[type="checkbox"]:checked + .btn-group > label span:last-child { display: none; }
         .form-group .checkbox-minus-pLus { height:34px; }
+        
+    /* report filter per page */
+        .per-page-dropdown .dropdown-menu { min-width: 130px !important; }
+        .per-page-dropdown .btn { min-width: 130px !important; font-weight:200; font-size:16px; }
+        .per-page-dropdown li { min-width: 130px !important; text-align:center; }
+        .per-page-dropdown a  { font-weight:200; font-size:14px; }
 
     /* report table */
         .google-visualization-table { width:100% !important; margin:0 !important; }

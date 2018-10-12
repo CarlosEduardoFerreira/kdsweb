@@ -88,6 +88,17 @@ mix.styles([
     'node_modules/gentelella/build/css/custom.css',
 ], 'public/assets/admin/css/admin.css').version();
 
+// Bootstrap 4.1.3
+mix.styles([
+    'resources/assets/admin/css/bootstrap.min.css',
+], 'public/assets/admin/css/bootstrap.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/popper.min.js',
+], 'public/assets/admin/js/popper.min.js').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap.min.js',
+], 'public/assets/admin/js/bootstrap.min.js').version();
+
 
 mix.copy([
     'node_modules/gentelella/vendors/bootstrap/dist/fonts',

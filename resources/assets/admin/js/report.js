@@ -6,6 +6,7 @@ $(function(){
 	var startDatetime 	= moment().subtract(moment.duration("24:00:00"));
 	var endDatetime 		= moment();
 	var headers 			= [];
+	var perPage			= 10;
 	
 	
 	/** filter choose report ************************************************/
@@ -30,6 +31,20 @@ $(function(){
 		drawTable();
 	});
 	/************************************************ filter choose report **/
+	
+	
+	/** per page filter *****************************************************/
+	$('.per-page-dropdown a').click(function(){
+		var selected = $(this).text();
+		$('.per-page-dropdown #per-page-value').text(selected);
+		
+		// Set per page
+		perPage = parseInt(selected);
+		
+		// build the report
+		drawTable();
+    	});
+	/***************************************************** per page filter **/
 	
 	
 	/** filter devices ******************************************************/
@@ -207,8 +222,6 @@ $(function(){
     			headers[i_col][3] = 0;
     		}
     		
-    		var pageSize = 10;
-    		
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
@@ -269,7 +282,7 @@ $(function(){
             				column_value = getValue(i_col, column_type, column_value, true);
 
             				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
-            					if (i_row % pageSize != 0 && column_value == last_device)  {
+            					if (i_row % perPage != 0 && column_value == last_device)  {
             						column_value = "";
             					}
             				}
@@ -322,7 +335,7 @@ $(function(){
             			// sortColumn: 0,
             			// sortAscending: true,
             			page: 'enable',
-            	        pageSize: pageSize,
+            			pageSize: perPage,
             	        pagingSymbols: { prev: 'prev', next: 'next' },
             	        pagingButtonsConfiguration: 'auto'
              	}
@@ -372,7 +385,7 @@ $(function(){
             			// Hover and Zebra
                  	$('#report_div table').addClass('table-hover table-striped');
                  	
-                 	if(response.length < pageSize) {
+                 	if(response.length < perPage) {
                  		$('.goog-custom-button-collapse-left').hide();
                  		$('.goog-custom-button-collapse-right').hide();
                  	}
