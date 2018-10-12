@@ -201,10 +201,11 @@ $(function(){
     			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
     			
     		} else if(reportId == $('#report-2').val()) {	// Quantity and Average Time by Item Name
-    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
-    			headers[1] = ["string",  "Items Name", "text", 0, "30", "left"];
+    			headers[0] = ["string",  "KDS Station", "text", 0, "20", "left"];
+    			headers[1] = ["string",  "Items Name", "text", 0, "25", "left"];
     			headers[2] = ["string",  "Items Quantity", "sum", 0, "15", "center"];
-    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
+    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
+    			headers[4] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
     		}
     		
     		buildReport();
@@ -275,17 +276,25 @@ $(function(){
             			
             			// Set columns value/text
             			for(var i_col = 0; i_col < columns_count; i_col++) {
-            				
             				var column_type		= headers[i_col][2];
             				var column_value 	= eval("obj.column_" + i_col);
             				
-            				column_value = getValue(i_col, column_type, column_value, true);
-
-            				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
-            					if (i_row % perPage != 0 && column_value == last_device)  {
-            						column_value = "";
+            				// Quantity and Average Time by Item Name
+            				if(reportId == $('#report-2').val()) {
+            					
+            					if (i_col == 0) { // Device Name
+	            					if (i_row % perPage != 0 && column_value == last_device)  {
+	            						column_value = "";
+	            					}
+	            					
+            					} else if (i_col == 4) { // Total Prep. Time
+            						column_value = parseInt(obj.column_2) * parseInt(obj.column_3);
+                					
             					}
+            					
             				}
+            					
+            				column_value = getValue(i_col, column_type, column_value, true);
             				
             				device.push(column_value);
             			}
