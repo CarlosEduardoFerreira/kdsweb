@@ -31,13 +31,28 @@
     			<!-- ------------------------------------------------------------------------------------------------- Reports by id -->
     			
             <button type="button" id="showModalChooseReport" class="btn btn-success" 
-            		data-toggle="modal" data-target="#modalChooseReport" style="font-weight:200;font-size:16px;">
+            		data-toggle="modal" data-target="#modalChooseReport" style="float:left;font-weight:200;font-size:16px;">
 				{{ $reports[0]["title"] }}
 			</button>
 			
-			<?php if(count($devices) > 0) { ?>
-				<input type="text" name="daterange" value="" style="width:280px;float:right;text-align:center;" />
-			<?php } ?>
+            <div class="dropdown per-page-dropdown" style="float:left;">
+                	<button class="btn btn-info dropdown-toggle" type="button" id="dropdownPerPage" data-toggle="dropdown" aria-expanded="true">
+                		<span id="per-page-value">10</span> <span>per page</span> <span class="caret"></span>
+                	</button>
+            		
+                	<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownPerPage">
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">10</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">25</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">50</a></li>
+                		<li class="per-page-li"><a class="per-page-a" role="menuitem" tabindex="-1" href="#">100</a></li>
+                </ul>
+            </div>
+
+			<div id="report-refresh-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:4px;">
+				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:28px;cursor:hand;">
+			</div>
+			
+			<input type="text" id="daterange" name="daterange" class="btn" value="" />
 			
 			<button type="button" id="showModalDevices" class="btn btn-primary" 
             		data-toggle="modal" data-target="#modalDevices" style="float:right;font-weight:200;font-size:16px;margin-right:20px;">
@@ -55,13 +70,12 @@
     		<div id="report-total" style="margin:0px 0px 0px 0px;display:none;">
     			<table style="width:100%;font-weight:200;">
     				<tr height="40px" id="report-total-tr">
-					
+					<!-- Total is handled on reports.js -->
     				</tr>
     			</table>
     		</div>
     		
-    		
-    		<div id="no-data" style="display:none;width:100%;height:300px;padding:50px;text-align:center;
+    		<div id="no-data" style="display:none;width:100%;min-height:300px;padding:50px;text-align:center;
     		                  background:#feffff;border:1px solid #666;font-weight:200;font-size:16px;color:#222;">
 			There is no data to show. Check the filters.
 		</div>
@@ -176,7 +190,10 @@
 
 @section('styles')
     @parent
+    
     {{ Html::style(mix('assets/admin/css/daterangepicker.css')) }}
+    {{ Html::style(mix('assets/admin/css/jquery-ui.min.css')) }}
+    
     <style>
     
     /* modal choose report */
@@ -220,6 +237,12 @@
         .form-group input[type="checkbox"]:checked + .btn-group > label span:first-child { display: inline-block; }
         .form-group input[type="checkbox"]:checked + .btn-group > label span:last-child { display: none; }
         .form-group .checkbox-minus-pLus { height:34px; }
+        
+    /* report filter per page */
+        .per-page-dropdown .dropdown-menu { min-width: 130px !important; }
+        .per-page-dropdown .btn { min-width: 130px !important; font-weight:200; font-size:16px; }
+        .per-page-dropdown li { min-width: 130px !important; text-align:center; }
+        .per-page-dropdown a  { font-weight:200; font-size:14px; }
 
     /* report table */
         .google-visualization-table { width:100% !important; margin:0 !important; }
@@ -248,16 +271,28 @@
     /* report total */
         .report-total-tds { border:1px solid #ccc; }
         
+    /* report date range */
+        #daterange { width:280px; float:right; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        
     </style>
 @endsection
 
 
 @section('scripts')
     @parent
+    
     {{ Html::script(mix('assets/admin/js/google.charts.js')) }}
 	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}
+	{{ Html::script(mix('assets/admin/js/jquery-ui.min.js')) }}
+	
+	<script>
+        	$(function(){
+        		$('#report-refresh-img').tooltip();
+        	});
+	</script>
+	
 @endsection
 
 

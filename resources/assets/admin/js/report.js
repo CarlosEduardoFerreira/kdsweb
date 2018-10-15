@@ -6,6 +6,7 @@ $(function(){
 	var startDatetime 	= moment().subtract(moment.duration("24:00:00"));
 	var endDatetime 		= moment();
 	var headers 			= [];
+	var perPage			= 10;
 	
 	
 	/** filter choose report ************************************************/
@@ -30,6 +31,20 @@ $(function(){
 		drawTable();
 	});
 	/************************************************ filter choose report **/
+	
+	
+	/** per page filter *****************************************************/
+	$('.per-page-dropdown a').click(function(){
+		var selected = $(this).text();
+		$('.per-page-dropdown #per-page-value').text(selected);
+		
+		// Set per page
+		perPage = parseInt(selected);
+		
+		// build the report
+		drawTable();
+    	});
+	/***************************************************** per page filter **/
 	
 	
 	/** filter devices ******************************************************/
@@ -114,6 +129,13 @@ $(function(){
 	/****************************************************** filter devices **/
 	
 	
+	/** Refresh Button ******************************************************/
+	$('#report-refresh-img').click(function(){
+		drawTable();
+	});
+	/****************************************************** Refresh Button **/
+	
+	
 	/** filter dates ********************************************************/
 	$(function(){
 		$('.daterangepicker').css({ 'box-shadow':'0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' });
@@ -149,6 +171,9 @@ $(function(){
     	
     	function drawTable() {
     		//alert('reportId: ' + reportId + " devicesIds:" + devicesIds);
+    		
+    		// Refresh button hide
+    		$('#report-refresh-img').hide();
     		
     		/**
     		 *  headers
@@ -197,8 +222,6 @@ $(function(){
     			headers[i_col][3] = 0;
     		}
     		
-    		var pageSize = 10;
-    		
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
@@ -214,13 +237,7 @@ $(function(){
 			}
 			
 			if(column_type == "time") {
-				var avg_time_text = moment.duration(column_value, 'seconds').humanize();
-				if(column_value == 1) {
-					avg_time_text = column_value + " second";
-    				} else if(column_value < 60) {
-    					avg_time_text = column_value + " seconds";
-    				}
-				column_value = avg_time_text
+				column_value = convertTimeToRead(column_value);
 				
 			} else if(column_type == "active") {
 				column_value = column_value == "true" ? true : false;
@@ -265,7 +282,7 @@ $(function(){
             				column_value = getValue(i_col, column_type, column_value, true);
 
             				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
-            					if (i_row % pageSize != 0 && column_value == last_device)  {
+            					if (i_row % perPage != 0 && column_value == last_device)  {
             						column_value = "";
             					}
             				}
@@ -279,13 +296,12 @@ $(function(){
             			
             			// Set columns width
             			for(var i_col = 0; i_col < columns_count; i_col++) {
-
             				var css_tr_color = "";
+            				
             				if(reportId == $('#report-2').val()) { // Quantity and Average Time by Item Name (Device Name)
             					if(device[0] == "" && i_col == 0) {
             						css_tr_color = " background:#fefefe;";
             					}
-            					
             				}
             				
             				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
@@ -319,7 +335,7 @@ $(function(){
             			// sortColumn: 0,
             			// sortAscending: true,
             			page: 'enable',
-            	        pageSize: pageSize,
+            			pageSize: perPage,
             	        pagingSymbols: { prev: 'prev', next: 'next' },
             	        pagingButtonsConfiguration: 'auto'
              	}
@@ -369,12 +385,15 @@ $(function(){
             			// Hover and Zebra
                  	$('#report_div table').addClass('table-hover table-striped');
                  	
-                 	if(response.length < pageSize) {
+                 	if(response.length < perPage) {
                  		$('.goog-custom-button-collapse-left').hide();
                  		$('.goog-custom-button-collapse-right').hide();
                  	}
                  	
             		}
+             	
+             	// Refresh button show
+             	$('#report-refresh-img').fadeIn('slow');
              	
             }
     		
@@ -383,4 +402,23 @@ $(function(){
     	}
     	/******************************************************** report table **/
     	
+    	
+    	function convertTimeToRead(time) {
+    		var sec_num = parseInt(time, 10);
+    	    var hours   = Math.floor(sec_num / 3600);
+    	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    	    hours = hours == 1 ? "1 hour" : (hours > 0 ? hours + " hours" : "");
+    	    minutes = minutes == 1 ? "1 minute" : (minutes > 0 ? minutes + " minutes" : "");
+    	    seconds = seconds == 1 ? "1 second" : (seconds > 0 ? seconds + " seconds" : "")
+    	    
+    	    return hours + " " + minutes + " " + seconds;
+    	}
+    	
 })
+
+
+
+
+
