@@ -103,8 +103,9 @@ class Controller extends BaseController
         }
         
         $orderBy = "";
-        if(isset($_GET['sort']) && isset($_GET['order'])) {
-            $orderBy = "ORDER BY " . $_GET['sort'] . " " . $_GET['order'];
+        if(isset($_GET['sort'])) {
+            $direction =  isset($_GET['order']) ? $_GET['order'] : ( isset($_GET['direction']) ? $_GET['direction'] : "ASC" );
+            $orderBy   = "ORDER BY " . $_GET['sort'] . " " . $direction;
         }
         
         $users =  DB::select("SELECT distinct

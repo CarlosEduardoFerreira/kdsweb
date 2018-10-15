@@ -13,12 +13,12 @@
         
             <thead>
                 <tr>
-                	<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
-                    <th>Actions</th>
+                		<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
+                    	<th>Actions</th>
                 </tr>
             </thead>
             
@@ -75,4 +75,11 @@
             {{ $stores->links() }}
         </div>
     </div>
+    
 @endsection
+
+
+
+
+
+
