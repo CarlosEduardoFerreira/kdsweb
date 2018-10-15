@@ -20,16 +20,15 @@ $(document).ready(function() {
 	//---------------------------------------- Start Calls //
 	
 	
+	// Save / Submit
 	$('#btn-save-settings').click(function() {
-		if (handleTime()) {
-			//alert('OK')
+		if (validate()) {
 			$('#form-settings').submit();
-		} else {
-			//alert('ERROR')
 		}
 	});
 
 
+	// Reset Store Key
     $('#btn-reset-key').click(function() {
         if (handleTime()) {
             $('#store_key').val("");
@@ -62,6 +61,33 @@ $(document).ready(function() {
 		}
 	
 		handleTime();
+	}
+	
+	
+	// Licenses Quantity
+	$('#licenses_quantity').on('input',function(e){
+		validadeLicensesQuantity();
+	});
+	
+	
+	function validate() {
+		if(validadeLicensesQuantity()) {
+			return handleTime();
+		}
+	}
+	
+	
+	function validadeLicensesQuantity() {
+		$('#error-licenses-quantity').css('display','none');
+		
+		// License Quantity
+		var licensesQuantity = $('#licenses_quantity').val();
+		if(licensesQuantity == "" || licensesQuantity < 0) {
+			$('#error-licenses-quantity').css('display','inline');
+			return false;
+		}
+		
+		return true;
 	}
 	
 	

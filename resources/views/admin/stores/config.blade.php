@@ -157,12 +157,14 @@
                         Licenses Quantity:
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="licenses_quantity" name="licenses_quantity" type="number" style="width:100px;display:inline;text-align:center;"
+                        <input id="licenses_quantity" name="licenses_quantity" type="number" min="0" style="width:100px;display:inline;text-align:center;"
                         value="{{ $licenses_quantity }}" class="form-control" required>
+                        <span id="error-licenses-quantity" class="parsley-required" style="display:none;padding-left:10px;">Invalid number.</span>
                     </div>
+                    
                 </div>
             
-                <div class="form-group" style="margin-bottom:100px;">
+                <div class="form-group" style="margin-top:30px;margin-bottom:100px;">
                     <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3" style="text-align:right;">
                         <!-- <button type="submit" class="btn btn-success"> {{ __('views.admin.users.edit.save') }}</button> -->
                         <button id="btn-save-settings" type="button" class="btn btn-success">{{ __('views.admin.users.edit.save') }}</button>
@@ -552,6 +554,9 @@
         
         .lbl-enable { min-height:40px; }
         
+        /* errors */
+        .parsley-required { color:red; }
+        
     </style>
 @endsection
 
@@ -571,8 +576,6 @@
 			var deviceName = $(this).attr('device_name');
 			$('#modalRemoveDevice #are-you-sure').html('Are you sure you want to remove the KDS Station ' + 
 					'\"<span style="color:red;">' + deviceName +  '\</span>"?')
-
-			
 		});
 
 		$('#remove-device-confirm').click(function(){
