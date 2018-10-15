@@ -88,6 +88,7 @@ mix.styles([
     'node_modules/gentelella/build/css/custom.css',
 ], 'public/assets/admin/css/admin.css').version();
 
+
 // Bootstrap 4.1.3
 mix.styles([
     'resources/assets/admin/css/bootstrap.min.css',
@@ -99,10 +100,26 @@ mix.scripts([
     'resources/assets/admin/js/bootstrap.min.js',
 ], 'public/assets/admin/js/bootstrap.min.js').version();
 
-
 mix.copy([
     'node_modules/gentelella/vendors/bootstrap/dist/fonts',
 ], 'public/assets/admin/fonts');
+
+// Bootstrap Table 1.12.1
+mix.styles([
+    'resources/assets/admin/css/bootstrap-table.min.css',
+], 'public/assets/admin/css/bootstrap-table.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-table.min.js',
+], 'public/assets/admin/js/bootstrap-table.min.js').version();
+
+
+// JQuery Data Table 1.10.19
+mix.styles([
+    'resources/assets/admin/css/jquery.dataTable.min.css',
+], 'public/assets/admin/css/jquery.dataTable.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/jquery.dataTable.min.js',
+], 'public/assets/admin/js/jquery.dataTable.min.js').version();
 
 
 mix.scripts([
