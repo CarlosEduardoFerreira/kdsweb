@@ -230,7 +230,8 @@
                 	</td>
                 	<td class="td-data" style="vertical-align:middle;text-align:center;">
                 		<?php if ($device->split_screen_parent_device_id == 0) { ?>
-                    		<a class="btn btn-xs btn-danger remove-device" device_serial="{{ $device->serial }}" device_name="{{ $device->name }}"
+                    		<a class="btn btn-xs btn-danger remove-device" 
+                    			store_guid="{{ $device->store_guid }}" device_serial="{{ $device->serial }}" device_name="{{ $device->name }}"
                             	data-toggle="modal" data-target="#modalRemoveDevice" data-title="Remove Device" >
                             <i class="fa fa-trash"></i>
                         </a>
@@ -567,6 +568,7 @@
     		var deviceToRemoveGuid = "";
         	
 		$('.remove-device').click(function(){
+			storeGuid = $(this).attr('store_guid');
 			deviceToRemoveSerial = $(this).attr('device_serial');
 			var deviceName = $(this).attr('device_name');
 			$('#modalRemoveDevice #are-you-sure').html('Are you sure you want to remove the KDS Station ' + 
@@ -584,6 +586,7 @@
 			            url: 'removeDevice',
 			            type: 'POST',
 			            data: { 
+			            		storeGuid: storeGuid,
 			            		deviceSerial: deviceToRemoveSerial
 			            	},
 			            success: function (response) {

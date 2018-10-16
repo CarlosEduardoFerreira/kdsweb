@@ -595,9 +595,12 @@ class StoreController extends Controller {
             return "KDS Station Serial Number not provided.";
         }
         
+        $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
         
-        $device = DB::table('devices')->where('serial', '=', $deviceSerial)->first();
+        $device = DB::table('devices')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('serial', '=', $deviceSerial)->first();
         
         if(isset($device)) {
             $data = [
@@ -606,7 +609,9 @@ class StoreController extends Controller {
                 'login'    => 0,
                 'update_time'   => time()
             ];
-            DB::table('devices')->where('serial', $deviceSerial)->update($data);
+            DB::table('devices')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('serial', $deviceSerial)->update($data);
             
         } else {
             return "KDS Station not found.";
