@@ -465,8 +465,15 @@ class ApiController extends Controller
 
             if ($request["entity"] == "notification_questions") {
                 $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
-                $defaultQuestion = DB::select($defaultQuestionSQL)[0];
-
+                $questionsDefault = DB::select($defaultQuestionSQL);
+                
+                if(count($questionsDefault) == 0) {
+                    $response[0]["error"]  = "System Default Notifications not configured.";
+                    return $response;
+                }
+                
+                $defaultQuestion = $questionsDefault[0];
+                
                 $question = DB::table('notification_questions');
 
                 $data = [
@@ -484,25 +491,32 @@ class ApiController extends Controller
 
             } else if ($request["entity"] == "notification_answers") {
                 $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
-                $defaultAnswers = DB::select($defaultAnswersSQL);
+                $AnswersDefault = DB::select($defaultAnswersSQL);
 
                 $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = '" . $request["store_guid"] . "' limit 1";
-                $questionGuid = DB::select($questionSQL)[0]->guid;
+                $questionsDefault   = DB::select($questionSQL);
+                
+                if(count($questionsDefault) == 0 || count($AnswersDefault) == 0) {
+                    $response[0]["error"]  = "System Default Notifications not configured.";
+                    return $response;
+                }
+                
+                $questionGuid = $questionsDefault[0]->guid;
 
-                foreach ($defaultAnswers as $defaultAnswer) {
-                    $answer = DB::table('notification_answers');
+                foreach ($AnswersDefault as $answer) {
+                    $answersDB = DB::table('notification_answers');
 
                     $data = [
                         'guid'          => Uuid::uuid4(),
-                        'title'         => $defaultAnswer->title,
-                        'message'       => $defaultAnswer->message,
+                        'title'         => $answer->title,
+                        'message'       => $answer->message,
                         'create_time'   => $created_at,
                         'update_time'   => $created_at,
                         'store_guid'    => $request["store_guid"],
                         'question_guid' => $questionGuid
                     ];
 
-                    $answer->insert($data);
+                    $answersDB->insert($data);
                 }
 
                 $result = DB::select($sql);

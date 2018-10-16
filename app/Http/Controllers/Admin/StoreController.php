@@ -591,13 +591,13 @@ class StoreController extends Controller {
     
     public function removeDevice(Request $request, User $store) {
         
-        if($request->post('deviceGuid') === null) {
-            return "KDS Station Guid not provided.";
+        if($request->post('deviceSerial') === null) {
+            return "KDS Station Serial Number not provided.";
         }
         
-        $deviceGuid = $request->post('deviceGuid');
+        $deviceSerial = $request->post('deviceSerial');
         
-        $device = DB::table('devices')->where('guid', '=', $deviceGuid)->first();
+        $device = DB::table('devices')->where('serial', '=', $deviceSerial)->first();
         
         if(isset($device)) {
             $data = [
@@ -606,10 +606,7 @@ class StoreController extends Controller {
                 'login'    => 0,
                 'update_time'   => time()
             ];
-            DB::table('devices')->where('guid', $deviceGuid)->update($data);
-            
-            // Remove Split Screen
-            DB::table('devices')->where('split_screen_parent_device_id', $device->id)->update($data);
+            DB::table('devices')->where('serial', $deviceSerial)->update($data);
             
         } else {
             return "KDS Station not found.";
