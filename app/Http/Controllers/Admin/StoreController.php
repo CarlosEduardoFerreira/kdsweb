@@ -600,6 +600,7 @@ class StoreController extends Controller {
         
         $device = DB::table('devices')
             ->where('store_guid', '=', $storeGuid)
+            ->where('is_deleted', '=', 0)
             ->where('serial', '=', $deviceSerial)->first();
         
         if(isset($device)) {
@@ -611,6 +612,7 @@ class StoreController extends Controller {
             ];
             DB::table('devices')
                 ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0)
                 ->where('serial', $deviceSerial)->update($data);
             
         } else {
