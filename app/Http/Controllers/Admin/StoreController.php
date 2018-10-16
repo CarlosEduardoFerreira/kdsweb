@@ -598,22 +598,19 @@ class StoreController extends Controller {
         $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
         
-        $device = DB::table('devices')
+        $devices = DB::table('devices')
             ->where('store_guid', '=', $storeGuid)
             ->where('is_deleted', '=', 0)
-            ->where('serial', '=', $deviceSerial)->first();
+            ->where('serial', '=', $deviceSerial);
         
-        if(isset($device)) {
+        if(count($devices) > 0) {
             $data = [
                 'is_deleted'    => 1,
                 'license'    => 0,
                 'login'    => 0,
                 'update_time'   => time()
             ];
-            DB::table('devices')
-                ->where('store_guid', '=', $storeGuid)
-                ->where('is_deleted', '=', 0)
-                ->where('serial', $deviceSerial)->update($data);
+            $devices->update($data);
             
         } else {
             return "KDS Station not found.";
