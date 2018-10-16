@@ -591,25 +591,26 @@ class StoreController extends Controller {
     
     public function removeDevice(Request $request, User $store) {
         
-        if($request->post('deviceGuid') === null) {
-            return "KDS Station Guid not provided.";
+        if($request->post('deviceSerial') === null) {
+            return "KDS Station Serial Number not provided.";
         }
         
-        $deviceGuid = $request->post('deviceGuid');
+        $storeGuid = $request->post('storeGuid');
+        $deviceSerial = $request->post('deviceSerial');
         
-        $device = DB::table('devices')->where('guid', '=', $deviceGuid)->first();
+        $devices = DB::table('devices')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('is_deleted', '=', 0)
+            ->where('serial', '=', $deviceSerial);
         
-        if(isset($device)) {
+        if(count($devices) > 0) {
             $data = [
                 'is_deleted'    => 1,
                 'license'    => 0,
                 'login'    => 0,
                 'update_time'   => time()
             ];
-            DB::table('devices')->where('guid', $deviceGuid)->update($data);
-            
-            // Remove Split Screen
-            DB::table('devices')->where('split_screen_parent_device_id', $device->id)->update($data);
+            $devices->update($data);
             
         } else {
             return "KDS Station not found.";
