@@ -39,7 +39,7 @@ class StoreController extends Controller {
             return $accessDenied;
         }
         
-        $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
+        $stores = Controller::filterUsers($request, 4, $storegroupId);
         
         return view('admin.stores.index', ['stores' => $stores]);
     }
