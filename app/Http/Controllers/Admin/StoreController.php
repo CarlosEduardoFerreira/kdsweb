@@ -6,6 +6,7 @@ use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Vars;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -15,13 +16,6 @@ use DateTimeZone;
 use PhpParser\Builder\Use_;
 
 class StoreController extends Controller {
-    
-    
-    private $reports = array(
-        ["title" => "Quantity and Average Time by Order",      "id" => "quantity_and_average_time_by_order"],
-        ["title" => "Quantity and Average Time by Item",       "id" => "quantity_and_average_time_by_item"],
-        ["title" => "Quantity and Average Time by Item Name",  "id" => "quantity_and_average_time_by_item_name"]
-    );
     
     function __construct() {
         parent::__construct();
@@ -58,18 +52,19 @@ class StoreController extends Controller {
         $storegroups = array();
         
         $me = Auth::user();
-        echo "role_id: " . $me->roles[0]->id ."<br>";
+        
         if ($me->roles[0]->id == 3) {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
+            $storegroups  = Controller::filterUsers($request, 3, $me->id);
         }
         // ------------------------------------------------------- StoreGroups //
         
         $countries = DB::select("select * from countries order by name");
         
         $store->country = 231;   // United States
+        $store->timezone = Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
             'countries' => $countries, 'me' => $me]);
@@ -78,15 +73,18 @@ class StoreController extends Controller {
     
     public function insert(Request $request)
     {
-        $created_at = new DateTime();
-        $created_at->setTimezone(new DateTimeZone("America/New_York"));
+        $now = new DateTime();
+        
+        $dateTimezone = new DateTime();
+        $dateTimezone->setTimezone(new DateTimeZone($request->get('timezone')));
+        $dateTimezone->setTime(4,0);
         
         $usersTable = DB::table('users');
         
         $data = [
-            'parent_id'       => $request->get('parent_id'),    // Store Group ID
+            'parent_id'       => $request->get('parent_id'),        // Store Group ID
             'business_name'   => $request->get('business_name'),    // Legal Business Name
-            'dba'             => $request->get('dba'),              // DBA: (Doing business as)
+            'dba'             => $request->get('dba'),              // DBA: (Doing Business As)
             'last_name'       => $request->get('last_name'),
             'name'            => $request->get('name'),             // First Name
             'email'           => $request->get('email'),
@@ -97,9 +95,9 @@ class StoreController extends Controller {
             'state'           => $request->get('state'),
             'country'         => $request->get('country'),
             'zipcode'         => $request->get('zipcode'),
+            'timezone'        => $request->get('timezone'),
             'username'        => $request->get('username'),
-            'created_at'      => $created_at,
-            'updated_at'      => $created_at
+            'created_at'      => $now
         ];
         
         if ($request->get('password') != "") {
@@ -122,11 +120,11 @@ class StoreController extends Controller {
             'server_password'          => "",
             'socket_port'              => 1111,
             'auto_done_order_hourly'   => 0,
-            'auto_done_order_time'     => 0,
-            'timezone'                 => "America/New_York",
+            'auto_done_order_time'     => $dateTimezone->getTimestamp(),
             'smart_order'              => 0,
             'licenses_quantity'        => 0,
-            'store_key'                => substr(Uuid::uuid4(), 0, 8)
+            'store_key'                => substr(Uuid::uuid4(), 0, 8),
+            'create_time'              => $now->getTimestamp()
         ];
 
         $settingsTable->insert($data);
@@ -207,6 +205,8 @@ class StoreController extends Controller {
 //         if (isset($store->state) && $store->state != "") {
 //             $cities     = DB::select("select * from cities where state_id = $store->state order by name");
 //         }
+
+        $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
             'countries' => $countries, 'states' => $states, 'me' => $me]);
@@ -246,6 +246,8 @@ class StoreController extends Controller {
         
         $adminSettings = DB::table('admin_settings')->first();
         
+        $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
+        
         return view('admin.stores.config', [
             'store' => $store, 
             'devices'=> $devices, 
@@ -277,6 +279,7 @@ class StoreController extends Controller {
         $store->state           = $request->get('state');
         $store->country         = $request->get('country');
         $store->zipcode         = $request->get('zipcode');
+        $store->timezone        = $request->get('timezone');
         $store->username        = $request->get('username');
 
         if ($request->get('password') != "") {
@@ -318,7 +321,7 @@ class StoreController extends Controller {
         // auto_done_order_time
         $auto_done_order_time = explode(":", $request->get('auto_done_order_time'));
         $kdsTime = new DateTime();
-        $kdsTime->setTimezone(new DateTimeZone(isset($store->timezone_) ? $store->timezone_ : "America/New_York"));
+        $kdsTime->setTimezone(new DateTimeZone(isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault));
         $kdsTime->setTime($auto_done_order_time[0], $auto_done_order_time[1]);
         $auto_done_order_time = $kdsTime->getTimestamp();
         
@@ -329,7 +332,6 @@ class StoreController extends Controller {
                     'socket_port'              => $request->get('socket_port'),
                     'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
                     'auto_done_order_time'     => $auto_done_order_time,
-                    //'timezone'                 => $request->get('timezone'),
                     'smart_order'              => $request->get('smart_order'),
                     'licenses_quantity'        => $request->get('licenses_quantity'),
                     'update_time'              => time()
@@ -423,7 +425,7 @@ class StoreController extends Controller {
             $devices = [];
         }
         
-        return view('admin.stores.report', ['reports' => $this->reports, 'store' => $store, 
+        return view('admin.stores.report', ['reports' => Vars::$reportIds, 'store' => $store, 
             'devices' => $devices, 'selected' => $request->selected]);
     }
     

@@ -40,8 +40,8 @@ class DashboardController extends Controller
     public function index()
     {
         $me = Auth::user();
-
-        $users = Controller::filterUsers(null, 0, 0, 0);
+        
+        $users = Controller::filterUsers(null, 0, 0);
 
         //echo "count users: " . count($users);
 

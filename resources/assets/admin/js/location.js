@@ -4,7 +4,8 @@
     
     $('#country').change(function(){
 	    	//alert('test 2');
-	    	var countryID = $(this).val();    
+	    	var countryID = $(this).val();
+	    	var stateEdit = $('#state-edit').val();
 	    	if(countryID){
 	    		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 	    		$.ajax({
@@ -18,7 +19,8 @@
 		    	            $("#state").empty();
 		    	            //$("#state").append('<option>Select</option>');
 		    	            for(var i=0; i<states.length; i++) {
-		    	            		$("#state").append("<option value='" + states[i].id + "'>" + states[i].name + "</option>");
+		    	            		var selected = stateEdit == states[i].id ? "selected" : "";
+		    	            		$("#state").append("<option value='" + states[i].id + "' " + selected + ">" + states[i].name + "</option>");
 		    	            }
 		    	        }else{
 		    	           $("#state").empty();
@@ -32,6 +34,7 @@
     });
     
     $('#country').change();
+    
 
 //    $('#state').on('change',function(){
 //	    	var stateID = $(this).val();    
