@@ -68,9 +68,11 @@ class Controller extends BaseController
         
         $whereRole = (isset($filterRole) && $filterRole != 0) ? "users_roles.role_id = $filterRole" : "users_roles.role_id != 0" ;
         
+        $filter = isset($request->filter) ? $request->filter : false;
+        
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
         
-        if ($me->roles[0]->name == 'administrator' and (isset($request->filter) and !$request->filter)) {
+        if ($me->roles[0]->name == 'administrator' and !$filter) {
             $whereParentId = "";
             
         } else if (isset($parentId) and $parentId != 0) {

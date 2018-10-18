@@ -7,6 +7,7 @@ use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Vars;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -54,12 +55,12 @@ class StoreGroupController extends Controller
         $resellers = array();
         
         $me = Auth::user();
-        echo "role_id: " . $me->roles[0]->id ."<br>";
+        
         if ($me->roles[0]->id == 2) {
             $resellers[0] = $me;
             
         } else {
-            $resellers  = Controller::filterUsers(null, 2, $me->id, $request->filter);
+            $resellers  = Controller::filterUsers($request, 2, $me->id);
         }
         // ------------------------------------------------------- Resellers //
         
@@ -93,7 +94,7 @@ class StoreGroupController extends Controller
 //         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $created_at = new DateTime();
-        $created_at->setTimezone(new DateTimeZone("America/New_York"));
+        $created_at->setTimezone(new DateTimeZone(Vars::$timezoneDefault));
         
         $usersTable = DB::table('users');
         

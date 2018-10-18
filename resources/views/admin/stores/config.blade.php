@@ -21,7 +21,6 @@
                     $auto_done_order_hourly = isset($settings->auto_done_order_hourly) ? $settings->auto_done_order_hourly : "0";
                     $auto_done_order_time   = isset($settings->auto_done_order_time) ? $settings->auto_done_order_time : "0";
                     
-                    $timezone    = isset($settings->timezone) ? $settings->timezone : "America/New_York";
                     $smart_order = isset($settings->smart_order) ? $settings->smart_order : "0";
                     
                     $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0";
@@ -91,7 +90,7 @@
                     <div class="col-md-6 col-sm-6 col-xs-12">
                     		<?php 
                         		$kdsTime = new DateTime();
-                        		$kdsTime->setTimezone(new DateTimeZone($timezone));
+                        		$kdsTime->setTimezone(new DateTimeZone($store->timezone));
                         		$kdsTime->setTimestamp($auto_done_order_time);
                         		$hours24 = $kdsTime->format('H:i');
                         		$hours = $kdsTime->format('H');

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Vars;
 use Illuminate\Support\Facades\Validator;
 use DateTime;
 use DateTimeZone;
@@ -58,7 +59,7 @@ class ResellerController extends Controller
     public function insert(Request $request)
     {
         $created_at = new DateTime();
-        $created_at->setTimezone(new DateTimeZone("America/New_York"));
+        $created_at->setTimezone(new DateTimeZone(Vars::$timezoneDefault));
         
         $usersTable = DB::table('users');
         
@@ -176,7 +177,7 @@ class ResellerController extends Controller
         $reseller->zipcode         = $request->get('zipcode');
         
         $updated_at = new DateTime();
-        $updated_at->setTimezone(new DateTimeZone("America/New_York"));
+        $updated_at->setTimezone(new DateTimeZone(Vars::$timezoneDefault));
         $reseller->updated_at      = $updated_at;
 
         if ($request->get('password') != "") {
