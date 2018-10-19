@@ -607,11 +607,81 @@ class StoreController extends Controller {
         
         if(count($devices) > 0) {
             $data = [
-                'is_deleted'    => 1,
-                'license'    => 0,
-                'login'    => 0,
-                'update_time'   => time()
+                'is_deleted' => 1,
+                'license' => 0,
+                'login' => 0,
+                'update_time' => time()
             ];
+            
+            foreach($devices->get() as $device) {
+                
+                // ** Remove expeditors ******************************************* //
+                $expeditors = DB::select("SELECT * FROM devices 
+                    WHERE store_guid = '$storeGuid' 
+                    AND is_deleted = 0 
+                    AND ( expeditor = '$device->id' 
+                            OR expeditor LIKE '%,$device->id,%' 
+                            OR expeditor LIKE '%,$device->id' 
+                            OR expeditor LIKE '$device->id,%' 
+                        )");
+                
+                if(count($expeditors) > 0) {
+                    
+                    foreach($expeditors as $expeditor) {
+                        
+                        $expeditorIds = explode(',', $expeditor->expeditor);
+                        $expeditorIdsNew = "";
+                        
+                        foreach($expeditorIds as $expeditorId) {
+                            if($expeditorId == $device->id) {
+                                continue;
+                            }
+                            
+                            $expeditorIdsNew .= $expeditorId . ",";
+                        }
+                        
+                        if(substr($expeditorIdsNew, -1) == ',') {
+                            $expeditorIdsNew = rtrim($expeditorIdsNew,",");
+                        }
+                        
+                        $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$expeditor->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ***************************************** Remove expeditors ** //
+                
+                // ** Remove parent id ****************************************** //
+                $parents = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( parent_id = $device->id
+                        )");
+                
+                if(count($parents) > 0) {
+                    foreach($parents as $parent) {
+                        $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$parent->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ***************************************** Remove parent id ** //
+                
+                // ** Remove transfer ****************************************** //
+                $transfers = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( bump_transfer_device_id = $device->id
+                        )");
+                
+                if(count($transfers) > 0) {
+                    foreach($transfers as $transfer) {
+                        $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$transfer->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ****************************************** Remove transfer ** //
+                
+            }
+            
             $devices->update($data);
             
         } else {
