@@ -174,9 +174,13 @@ class ApiController extends Controller
     
     public function insertOrUpdateEntityWeb(array $request, array $response) {
         
+        $appVersion = isset($request["appVersion"]) ? $request["appVersion"] : 0;
+        
         $entity = $request["entity"];
         $data   = $request["data"];
-
+        
+        $objGuidArray = array();
+        
         $response[0]["error"] = null;
 
         foreach ($data as $object) {
@@ -213,6 +217,10 @@ class ApiController extends Controller
                         $value = $this->resolveApostrophe($value);
                     }
                     
+                    if ($key == "upload_time") {
+                        $value = time();
+                    }
+                    
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
@@ -233,15 +241,23 @@ class ApiController extends Controller
             if($func == "INS") {
                 $sql .= ")";
             } else {
-                $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
+                $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL OR upload_time < 2)";
             }
 
             $result = DB::statement($sql);
             
-            if (!$result) {
+            if ($result) {
+                array_push($objGuidArray, $guid);
+                
+            } else {
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
+        }
+        
+        // On KDS 1.1 version and below "appVersion" parameter is not handled
+        if($appVersion < 1.2 && !isset($response[0]["error"])) { 
+            $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
         }
 
         return $response;
