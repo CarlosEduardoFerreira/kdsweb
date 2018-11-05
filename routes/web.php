@@ -119,12 +119,23 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Report
     Route::get('stores/{store}/report', 'StoreController@report')->name('stores.report');
     Route::get('stores/{store}/reportByStation', 'StoreController@reportByStation')->name('stores.reportByStation');
+    // Load Devices Table
+    Route::post('stores/{store}/loadDevicesTable', 'StoreController@loadDevicesTable')->name('stores.loadDevicesTable');
+    // Get Expeditors
+    Route::post('stores/{store}/getExpeditors', 'StoreController@getExpeditors')->name('stores.getExpeditors');
+    // Get Parents
+    Route::post('stores/{store}/getParentsByFunction', 'StoreController@getParentsByFunction')->name('stores.getParentsByFunction');
+    // Get Transfers
+    Route::post('stores/{store}/getTransfers', 'StoreController@getTransfers')->name('stores.getTransfers');
+    // Get Device Settings
+    Route::post('stores/{store}/getDeviceSettings', 'StoreController@getDeviceSettings')->name('stores.getDeviceSettings');
+    // Update Device
+    Route::post('stores/{store}/updateDevice', 'StoreController@updateDevice')->name('stores.updateDevice');
     // Remove Device
-    // Delete Action
     Route::post('stores/{store}/removeDevice', 'StoreController@removeDevice')->name('stores.removeDevice');
     // --------------------------------------------------------------------------------- Stores //
 
-    // Users (Users is every system user. Even Admin)
+    // Users (Users is every system user. Even Admin, Resellers, Storegroups and Stores)
     Route::get('users', 'UserController@index')->name('users');
     Route::get('users/{user}', 'UserController@show')->name('users.show');
     Route::get('users/{user}/edit', 'UserController@edit')->name('users.edit');

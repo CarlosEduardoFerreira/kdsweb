@@ -86,6 +86,7 @@
 
 @section('styles')
     @parent
+    
     <style>
         #store-filters { margin-bottom:10px; }
 		#store-filters #search-input { width:280px; height:36px; text-align:center; border:1px solid #ddd; 
@@ -96,7 +97,7 @@
 
 @section('scripts')
 	@parent
-
+	
     <script>
 		$(function(){
 

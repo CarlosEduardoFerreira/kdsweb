@@ -112,6 +112,22 @@ mix.scripts([
     'resources/assets/admin/js/bootstrap-table.min.js',
 ], 'public/assets/admin/js/bootstrap-table.min.js').version();
 
+//Bootstrap Select 1.13.1
+mix.styles([
+    'resources/assets/admin/css/bootstrap-select.css',
+], 'public/assets/admin/css/bootstrap-select.css').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-select.min.js',
+], 'public/assets/admin/js/bootstrap-select.min.js').version();
+
+
+// JQuery UI 1.12.1
+mix.styles([
+ 'resources/assets/admin/css/jquery-ui.min.css',
+], 'public/assets/admin/css/jquery-ui.min.css').version();
+mix.scripts([
+	'resources/assets/admin/js/jquery-ui.min.js',
+], 'public/assets/admin/js/jquery-ui.min.js').version();
 
 // JQuery Data Table 1.10.19
 mix.styles([
@@ -120,6 +136,11 @@ mix.styles([
 mix.scripts([
     'resources/assets/admin/js/jquery.dataTable.min.js',
 ], 'public/assets/admin/js/jquery.dataTable.min.js').version();
+
+//JQuery Mask 1.14.15
+mix.scripts([
+    'resources/assets/admin/js/jquery.mask.js',
+], 'public/assets/admin/js/jquery.mask.js').version();
 
 
 mix.scripts([
@@ -159,14 +180,6 @@ mix.scripts([
 	'resources/assets/admin/js/daterangepicker.js',
 ], 'public/assets/admin/js/daterangepicker.js').version();
 
-// JQuery UI
-mix.styles([
-    'resources/assets/admin/css/jquery-ui.min.css',
-], 'public/assets/admin/css/jquery-ui.min.css').version();
-mix.scripts([
-	'resources/assets/admin/js/jquery-ui.min.js',
-], 'public/assets/admin/js/jquery-ui.min.js').version();
-
 
 mix.styles([
     'node_modules/select2/dist/css/select2.css',
@@ -199,10 +212,3 @@ mix.styles([
     'resources/assets/admin/css/dashboard.css',
 ], 'public/assets/admin/css/dashboard.css').version();
 
-
-/*
- |--------------------------------------------------------------------------
- | Frontend
- |--------------------------------------------------------------------------
- |
- */
