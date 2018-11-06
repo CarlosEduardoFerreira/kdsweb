@@ -137,6 +137,7 @@
         
         function loadExpeditors($value = null) {
 
+        		var deviceGuid 		= $modal.find('#device-settings-device-guid').val();
             var deviceFunction = $modal.find("#device-settings-function").val();
 
             $modal.find("#device-settings-expeditor").prop('disabled', false);
@@ -152,7 +153,8 @@
 	            url: 'getExpeditors',
 	            type: 'POST',
 	            data: {
-	            		storeGuid: "{{$store->store_guid}}"
+	            		storeGuid: "{{$store->store_guid}}",
+	            		deviceGuid: deviceGuid
 	            	},
 	            success: function (expeditors) {
 // 		            alert(expeditors.length)
@@ -171,8 +173,8 @@
         
         function loadParentsByFunction() {
 
-        		var deviceGuid = $modal.find('#device-settings-device-guid').val();
-            var deviceFunction = $modal.find("#device-settings-function").val();
+        		var deviceGuid 		= $modal.find('#device-settings-device-guid').val();
+            var deviceFunction 	= $modal.find("#device-settings-function").val();
 
         		$modal.find("#device-settings-parent-id").prop('disabled', false);
         	
@@ -189,7 +191,7 @@
                 data: {
                 		storeGuid: "{{$store->store_guid}}",
                 		deviceGuid: deviceGuid,
-                		functionChild : deviceFunction
+                		deviceFunction : deviceFunction
                 	},
                 success: function (parents) {
                 		$modal.find("#device-settings-parent-id").html('');
@@ -450,7 +452,6 @@
         
     $('#device-settings-printer-network-ip').mask('099.099.099.099');
 
-
         // Save Device Settings
         $modal.find('#device-settings-save').click(function(){
         		
@@ -493,11 +494,11 @@
 	            		device: dataObj
 	            	},
 	            	success: function (response) {
-// 	            		alert("response[errorId]: " + response["errorId"] + "\nresponse[errorMsg]: " + response["errorMsg"] + 
-// 	    	            		"\nresponse.length: " + response.length + "\nresponse: " + response);
+		            	
 		            if(response["errorId"] === undefined) {
 			            $('#modalDeviceSettings').modal('hide');
-			            
+			            loadDevicesTable();
+
 		            } else {
 		            		var $element = $modal.find('#' + response["errorId"]);
 			            	
@@ -532,12 +533,15 @@
             				{ field: 'remove', title: 'Remove', class: 'devices-td-config' }
             			];
 
+        
         var data = [];
 
         var deviceToRemoveGuid = "";
 		var deviceToRemoveSerial = "";
 
+		
 		function loadDevicesTable() {
+
 			$.ajax({
         			 	headers: token,
         	            url: 'loadDevicesTable',
@@ -546,6 +550,8 @@
         	            		storeGuid: "{{$store->store_guid}}"
         	            	},
         	            success: function (devices) {
+            	            
+        	            		data = [];
         	            		
         	            		for(var i=0; i<devices.length; i++) {
 
@@ -596,14 +602,16 @@
                     	        });
                 	            
             	            	}
-
+						
         	            		// Build Table
         	            		$('#devices-table').bootstrapTable({ 
         	            			pagination: true,
         	            			search:true,
-            	            		columns: columns, 
-            	            		data: data 
+            	            		columns: columns
             	            	});
+
+            	            	// Load Table (update data when it is reloaded)
+        	            		$('#devices-table').bootstrapTable("load", data);
 
         	            		// Device License ------------------------------------------------------------------------------- //
         	            		var URL_BASE = window.location.protocol + "//" + window.location.host;

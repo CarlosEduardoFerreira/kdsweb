@@ -324,9 +324,12 @@ class StoreController extends Controller {
             return $expeditors;
         }
         
-        $expeditors = DB::select("SELECT * FROM devices WHERE store_guid = '$request->storeGuid' 
+        $expeditors = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid' 
                                         AND is_deleted = 0
-                                        AND (`function` = 'EXPEDITOR' OR `function` = 'BACKUP_EXPE') ORDER BY name");
+                                        AND guid != '$request->deviceGuid' 
+                                        AND (`function` = 'EXPEDITOR' OR `function` = 'BACKUP_EXPE') 
+                                        ORDER BY name");
         
         return response()->json($expeditors);
     }
@@ -344,19 +347,24 @@ class StoreController extends Controller {
             return $parents;
         }
         
-        if(!isset($request->functionChild) or $request->functionChild == '') {
+        if(!isset($request->deviceFunction) or $request->deviceFunction == '') {
             return $parents;
         }
         
-        if($request->functionChild == 'BACKUP_EXPE') {
-            $parentFunction = "EXPEDITOR";
+        if($request->deviceFunction == 'BACKUP_PREP') {
+            $parentFunction = "'PREPARATION','BACKUP_PREP'";
+            
+        } else if($request->deviceFunction == 'BACKUP_EXPE') {
+            $parentFunction = "'EXPEDITOR','BACKUP_EXPE'";
+            
         } else {
-            $parentFunction = "PREPARATION";
+            $parentFunction = "'PREPARATION'";
         }
         
-        $parents = DB::select("SELECT * FROM devices WHERE store_guid = '$request->storeGuid'
+        $parents = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid'
                                         AND is_deleted = 0
-                                        AND `function` = '$parentFunction' 
+                                        AND `function` IN ($parentFunction) 
                                         AND guid != '$request->deviceGuid' 
                                         ORDER BY name");
         
@@ -376,10 +384,12 @@ class StoreController extends Controller {
             return $transfers;
         }
             
-        $transfers = DB::select("SELECT * FROM devices WHERE store_guid = '$request->storeGuid'
+        $transfers = DB::select("SELECT * FROM devices 
+                                    WHERE store_guid = '$request->storeGuid'
                                     AND is_deleted = 0
                                     AND guid != '$request->deviceGuid' 
-                                    AND (`function` = 'PREPARATION' OR `function` = 'BACKUP_PREP') ORDER BY name");
+                                    AND (`function` = 'PREPARATION' OR `function` = 'BACKUP_PREP') 
+                                    ORDER BY name");
         
         return response()->json($transfers);
     }
@@ -406,6 +416,7 @@ class StoreController extends Controller {
         if(!empty($response)) {
             return $response;
         }
+        $deviceScreenId = $request->device['device-settings-device-screen-id'];
         
         // ID
         $response = $this->validationDeviceFieldInUse($request, "device-settings-id", "ID", true, $storeGuid, $deviceGuid, "id");
@@ -436,6 +447,7 @@ class StoreController extends Controller {
         $devices = DB::table('devices')
         ->where('store_guid', '=', $storeGuid)
         ->where('guid', '=', $deviceGuid)
+        ->where('screen_id', '=', $deviceScreenId)
         ->where('is_deleted', '=', 0);
 
         if(count($devices) > 0) {
@@ -444,6 +456,7 @@ class StoreController extends Controller {
             $settingsLocal = DB::table('settings_local')
             ->where('store_guid', '=', $storeGuid)
             ->where('device_guid', '=', $deviceGuid)
+            ->where('screen_id', '=', $deviceScreenId)
             ->where('is_deleted', '=', 0);
 
             if(count($settingsLocal) > 0) {
@@ -478,6 +491,7 @@ class StoreController extends Controller {
                     DB::table('settings_line_display')
                     ->where('store_guid', '=', $storeGuid)
                     ->where('device_guid', '=', $deviceGuid)
+                    ->where('screen_id', '=', $deviceScreenId)
                     ->where('is_deleted', '=', 0)
                     ->where('column_number', '=', $i)
                     ->update([
