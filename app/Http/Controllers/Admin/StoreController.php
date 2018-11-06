@@ -257,6 +257,310 @@ class StoreController extends Controller {
             'adminSettings' => $adminSettings
         ]);
     }
+    
+    
+    public function loadDevicesTable(Request $request) {
+        
+        $devices = [];
+        
+        if(isset($request->storeGuid) and $request->storeGuid != '') {
+
+            $devices = DB::select("SELECT * FROM devices 
+                WHERE store_guid =  '$request->storeGuid' 
+                AND is_deleted = 0
+                order by license desc , id asc");
+        }
+        
+        return response()->json($devices);
+    }
+    
+    
+    public function getDeviceSettings(Request $request) {
+        
+        $deviceSettings = [];
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $deviceSettings;
+        }
+        
+        if(!isset($request->deviceScreenId) or $request->deviceScreenId == '') {
+            return $deviceSettings;
+        }
+        
+        $deviceSettings = DB::select("SELECT * FROM devices 
+            WHERE is_deleted = 0 
+            AND guid = '$request->deviceGuid'
+            AND screen_id = $request->deviceScreenId");
+            
+        if(count($deviceSettings) > 0) {
+            
+            // Settings Local
+            $settingsLocal = DB::select("SELECT * FROM settings_local 
+                WHERE is_deleted = 0 
+                AND device_guid = '$request->deviceGuid'
+                AND screen_id = $request->deviceScreenId");
+            
+            $deviceSettings["settings_local"] = $settingsLocal;
+            
+            // Settings Line Display
+            $settingsLineDisplay = DB::select("SELECT * FROM settings_line_display
+                WHERE is_deleted = 0
+                AND device_guid = '$request->deviceGuid'
+                AND screen_id = $request->deviceScreenId
+                ORDER BY column_number"); // Order By "column_number" to be easier to handle on JS file
+            
+            $deviceSettings["settings_line_display"] = array($settingsLineDisplay);
+        }
+        
+        return response()->json($deviceSettings);
+    }
+    
+    
+    public function getExpeditors(Request $request) {
+        
+        $expeditors = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $expeditors;
+        }
+        
+        $expeditors = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid' 
+                                        AND is_deleted = 0
+                                        AND guid != '$request->deviceGuid' 
+                                        AND (`function` = 'EXPEDITOR' OR `function` = 'BACKUP_EXPE') 
+                                        ORDER BY name");
+        
+        return response()->json($expeditors);
+    }
+    
+    
+    public function getParentsByFunction(Request $request) {
+        
+        $parents = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $parents;
+        }
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $parents;
+        }
+        
+        if(!isset($request->deviceFunction) or $request->deviceFunction == '') {
+            return $parents;
+        }
+        
+        if($request->deviceFunction == 'BACKUP_PREP') {
+            $parentFunction = "'PREPARATION','BACKUP_PREP'";
+            
+        } else if($request->deviceFunction == 'BACKUP_EXPE') {
+            $parentFunction = "'EXPEDITOR','BACKUP_EXPE'";
+            
+        } else {
+            $parentFunction = "'PREPARATION'";
+        }
+        
+        $parents = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid'
+                                        AND is_deleted = 0
+                                        AND `function` IN ($parentFunction) 
+                                        AND guid != '$request->deviceGuid' 
+                                        ORDER BY name");
+        
+        return response()->json($parents);
+    }
+    
+    
+    public function getTransfers(Request $request) {
+        
+        $transfers = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $transfers;
+        }
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $transfers;
+        }
+            
+        $transfers = DB::select("SELECT * FROM devices 
+                                    WHERE store_guid = '$request->storeGuid'
+                                    AND is_deleted = 0
+                                    AND guid != '$request->deviceGuid' 
+                                    AND (`function` = 'PREPARATION' OR `function` = 'BACKUP_PREP') 
+                                    ORDER BY name");
+        
+        return response()->json($transfers);
+    }
+    
+    
+    public function updateDevice(Request $request) {
+        
+        // Store Guid
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-store-guid", "Store Guid");
+        if(!empty($response)) {
+            return $response;
+        } 
+        $storeGuid = $request->device['device-settings-store-guid'];
+        
+        // Device Guid
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-device-guid", "Device Guid");
+        if(!empty($response)) {
+            return $response;
+        }
+        $deviceGuid = $request->device['device-settings-device-guid'];
+        
+        // Screen ID
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-device-screen-id", "Screen ID");
+        if(!empty($response)) {
+            return $response;
+        }
+        $deviceScreenId = $request->device['device-settings-device-screen-id'];
+        
+        // ID
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-id", "ID", true, $storeGuid, $deviceGuid, "id");
+        if(!empty($response)) {
+            return $response;
+        }
+        
+        // Host (Read XML Order)
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-host", "Host", true, $storeGuid, $deviceGuid, "xml_order");
+        if(!empty($response)) {
+            return $response;
+        }
+        
+        // Order Status
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-ontime", "On Time Before");
+        if(!empty($response)) {
+            return $response;
+        }
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-almost", "Almost Delayed After");
+        if(!empty($response)) {
+            return $response;
+        }
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-delayed", "Delayed After");
+        if(!empty($response)) {
+            return $response;
+        }
+
+        $devices = DB::table('devices')
+        ->where('store_guid', '=', $storeGuid)
+        ->where('guid', '=', $deviceGuid)
+        ->where('screen_id', '=', $deviceScreenId)
+        ->where('is_deleted', '=', 0);
+
+        if(count($devices) > 0) {
+
+            // -- Update Settings Local --------------------------------------------------------------------- //
+            $settingsLocal = DB::table('settings_local')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('device_guid', '=', $deviceGuid)
+            ->where('screen_id', '=', $deviceScreenId)
+            ->where('is_deleted', '=', 0);
+
+            if(count($settingsLocal) > 0) {
+                $settingsLocal->update([
+                    'display_orders_columns'        => $request->device['device-settings-orders-columns'],
+                    'display_sort_orders'           => $request->device['device-settings-sort-orders'],
+                    'display_order_status_ontime'   => $request->device['device-settings-order-status-ontime'],
+                    'display_order_status_almost'   => $request->device['device-settings-order-status-almost'],
+                    'display_order_status_delayed'  => $request->device['device-settings-order-status-delayed'],
+                    'header_top_left'               => $request->device['device-settings-order-header-top-left'],
+                    'header_top_right'              => $request->device['device-settings-order-header-top-right'],
+                    'header_bottom_left'            => $request->device['device-settings-order-header-bottom-left'],
+                    'header_bottom_right'           => $request->device['device-settings-order-header-bottom-right'],
+                    'anchor_enable_new'             => $request->device['device-settings-anchor-enable-new'],
+                    'anchor_time_new'               => $request->device['device-settings-anchor-seconds-new'],
+                    'anchor_enable_prioritized'     => $request->device['device-settings-anchor-enable-prioritized'],
+                    'anchor_time_prioritized'       => $request->device['device-settings-anchor-seconds-prioritized'],
+                    'anchor_enable_delayed'         => $request->device['device-settings-anchor-enable-delayed'],
+                    'anchor_time_delayed'           => $request->device['device-settings-anchor-seconds-delayed'],
+                    'anchor_enable_ready'           => $request->device['device-settings-anchor-enable-ready'],
+                    'anchor_time_ready'             => $request->device['device-settings-anchor-seconds-ready'],
+                    'summary_enable'                => $request->device['device-settings-summary-enable'],
+                    'summary_type'                  => $request->device['device-settings-summary-type'],
+                    'update_time'   => time()
+                ]);
+            }
+            // --------------------------------------------------------------------- Update Settings Local -- //
+
+            // -- Update Settings Line Display -------------------------------------------------------------- //
+            if($request->device['device-settings-line-display-enable']) {
+                for($i = 1; $i <= 4; $i++) {
+                    DB::table('settings_line_display')
+                    ->where('store_guid', '=', $storeGuid)
+                    ->where('device_guid', '=', $deviceGuid)
+                    ->where('screen_id', '=', $deviceScreenId)
+                    ->where('is_deleted', '=', 0)
+                    ->where('column_number', '=', $i)
+                    ->update([
+                        'column_name'       => $request->device["device-settings-line-display-column-$i-text"],
+                        'column_percent'    => $request->device["device-settings-line-display-column-$i-percent"],
+                        'update_time'       => time()
+                    ]);
+                }
+            }
+            // -------------------------------------------------------------- Update Settings Line Display -- //
+
+            // -- Update Device ----------------------------------------------------------------------------- //
+            $data = [
+                'name'                      => $request->device['device-settings-name'],
+                'id'                        => $request->device['device-settings-id'],
+                'function'                  => $request->device['device-settings-function'],
+                'expeditor'                 => $request->device['device-settings-expeditor'],
+                'parent_id'                 => isset($request->device['device-settings-parent-id']) ? $request->device['device-settings-parent-id'] : 0,
+                'xml_order'                 => $request->device['device-settings-host'],
+                'line_display'              => $request->device['device-settings-line-display-enable'],
+                'bump_transfer_device_id'   => $request->device['device-settings-line-display-transfer-device-id'],
+                'printer_ethernet_enable'   => $request->device['device-settings-printer-network-enable'],
+                'printer_address'           => $request->device['device-settings-printer-network-ip'],
+                'printer_port'              => $request->device['device-settings-printer-network-port'],
+                'printer_print_receives'    => $request->device['device-settings-printer-network-new-enable'],
+                'printer_print_bumps'       => $request->device['device-settings-printer-network-bump-enable'],
+                'update_time'   => time()
+            ];
+            $devices->update($data);
+            // ----------------------------------------------------------------------------- Update Device -- //
+            
+        } else {
+            $response = array();
+            $response["errorId"]  = "kds-web-error";
+            $response["errorMsg"] = "KDS Station not found. (DB).";
+            return response()->json($response);
+        }
+    }
+    
+    
+    function validationDeviceFieldInUse(Request $request, $fieldId, $fieldName, $inUse = false, $storeGuid = "", $deviceGuid = "", $column = "") {
+        $response = array();
+        
+        if(!isset($request->device[$fieldId]) or $request->device[$fieldId] == '') {
+            $response["errorId"]  = $fieldId;
+            $response["errorMsg"] = "The field $fieldName cannot be empty.";
+            return response()->json($response);
+            
+        } else if($inUse) {
+            
+            $field   = $request->device[$fieldId];
+            
+            $sameDeviceId = DB::select("SELECT * FROM devices
+                                    WHERE store_guid = '$storeGuid'
+                                    AND guid != '$deviceGuid'
+                                    AND is_deleted = 0
+                                    AND $column = $field");
+            
+            if(count($sameDeviceId) > 0) {
+                $response["errorId"]  = $fieldId;
+                $response["errorMsg"] = "This KDS Station $fieldName is already in use.";
+                return response()->json($response);
+            }
+            
+        }
+        
+        return $response;
+    }
+    
 
     /**
      * Update the specified resource in storage.
@@ -599,6 +903,7 @@ class StoreController extends Controller {
         
         $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
+        $deviceGuid = $request->post('deviceGuid');
         
         $devices = DB::table('devices')
             ->where('store_guid', '=', $storeGuid)
@@ -606,6 +911,28 @@ class StoreController extends Controller {
             ->where('serial', '=', $deviceSerial);
         
         if(count($devices) > 0) {
+            
+            // Remove Settings Local
+            $settingsLocal = DB::table('settings_local')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0)
+                ->where('device_guid', '=', $deviceGuid);
+            
+            if(count($settingsLocal) > 0) {
+                $settingsLocal->update(['is_deleted' => 1]);
+            }
+            
+            // Remove Settings Line Display
+            $settingsLineDisplay = DB::table('settings_line_display')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('is_deleted', '=', 0)
+            ->where('device_guid', '=', $deviceGuid);
+            
+            if(count($settingsLineDisplay) > 0) {
+                $settingsLineDisplay->update(['is_deleted' => 1]);
+            }
+            
+            // Remove Device
             $data = [
                 'is_deleted' => 1,
                 'license' => 0,
