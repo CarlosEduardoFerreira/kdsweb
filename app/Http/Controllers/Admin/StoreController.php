@@ -745,7 +745,7 @@ class StoreController extends Controller {
         $sql = "";
         
         // Quantity and Average Time by Order
-        if($reportId == $this->reports[0]["id"]) {
+        if($reportId == Vars::$reportIds[0]["id"]) {
             
             $sql = "SELECT
                     	select_orders.device_name AS column_0,
@@ -793,7 +793,7 @@ class StoreController extends Controller {
                 GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item
-        } else if($reportId == $this->reports[1]["id"]) { 
+        } else if($reportId == Vars::$reportIds[1]["id"]) { 
             
             $sql = "SELECT 
                         	select_orders.device_name AS column_0,
@@ -841,7 +841,7 @@ class StoreController extends Controller {
                     GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item Name
-        } else if($reportId == $this->reports[2]["id"]) {
+        } else if($reportId == Vars::$reportIds[2]["id"]) {
             
             $sql = "SELECT
                         	select_orders.device_name AS column_0,

@@ -15,7 +15,7 @@
     		<input id="store-id" type="hidden" value="{{ $store->id }}">
     		
     		<div id="report_filter" style="height:60px;padding:10px;font-weight:200;color:#000;font-size:16px;">
-    		
+
     			<input type="hidden" id="report-default-id" value="{{ $reports[0]['id'] }}">
     			
     			<!-- Reports by id ------------------------------------------------------------------------------------------------- -->
@@ -282,10 +282,10 @@
     @parent
     
     {{ Html::script(mix('assets/admin/js/google.charts.js')) }}
-	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}
 	{{ Html::script(mix('assets/admin/js/jquery-ui.min.js')) }}
+	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	
 	<script>
         	$(function(){
