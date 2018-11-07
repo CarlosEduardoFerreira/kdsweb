@@ -24,6 +24,7 @@ $(document).ready(function() {
 	$('#btn-save-settings').click(function() {
 		if (validate()) {
 			$('#form-settings').submit();
+			sendNotificationToFirebase();
 		}
 	});
 

@@ -137,10 +137,16 @@ mix.scripts([
     'resources/assets/admin/js/jquery.dataTable.min.js',
 ], 'public/assets/admin/js/jquery.dataTable.min.js').version();
 
-//JQuery Mask 1.14.15
+// JQuery Mask 1.14.15
 mix.scripts([
     'resources/assets/admin/js/jquery.mask.js',
 ], 'public/assets/admin/js/jquery.mask.js').version();
+
+
+// Firebase API
+mix.scripts([
+    'resources/assets/admin/js/firebase-api.js',
+], 'public/assets/admin/js/firebase-api.js').version();
 
 
 mix.scripts([
