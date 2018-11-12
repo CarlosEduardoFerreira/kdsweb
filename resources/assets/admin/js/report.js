@@ -222,7 +222,9 @@ $(function(){
     			// clear total
     			headers[i_col][3] = 0;
     		}
-    		
+			
+		$('#report-export-excel').hide();
+
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
@@ -266,9 +268,13 @@ $(function(){
             		
             		var i_row = 0;
             		
-            		var columns_count = headers.length
+            		var columns_count = headers.length;
             		
-            		var last_device = "";
+				var last_device = "";
+					
+				if(response.length > 0) {
+					$('#report-export-excel').fadeIn();
+				}
             		
             		response.forEach(function(obj) {
             			
@@ -356,7 +362,12 @@ $(function(){
 
             		} else {
             			
-            			table.draw(data, tableSettings);
+					table.draw(data, tableSettings);
+
+					// Add click listener
+					$("#report-export-excel").click(function() {
+						exportData("report-export-excel", data);
+					});
             			
             			// Show Report
             			$('#report_div').fadeIn('slow');
@@ -409,7 +420,32 @@ $(function(){
     		});
             
     	}
-    	/******************************************************** report table **/
+	/******************************************************** report table **/
+
+
+	function exportData(elementID, data) {
+		var columns;
+		var content;
+		var link;
+
+		// build column headings
+		columns = '';
+		for (var i = 0; i < data.getNumberOfColumns(); i++) {
+			columns += data.getColumnLabel(i);
+			if (i < data.getNumberOfColumns() - 1) {
+				columns += ',';
+			}
+		}
+		columns += '\n';
+
+		content = columns + google.visualization.dataTableToCsv(data);
+
+		link = document.getElementById(elementID);
+		//downloadLink.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+		link.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURI(content);
+		link.download = reportId + ".xlsx";
+		link.target = '_blank';
+	}
     	
     	
     	function convertTimeToRead(time) {
