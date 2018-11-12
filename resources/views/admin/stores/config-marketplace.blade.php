@@ -141,9 +141,13 @@
                     <input id="sms_start_custom" name="sms_start_custom" type="text" style="display:inline-table;" 
                         sms_default="{{ $adminSettings->sms_order_start_message }}" sms_custom="{{ $sms_start_custom }}" value="{{ $start_message }}" 
                         class="form-control col-md-8 col-xs-8" <?=$sms_start_use_default ? 'disabled' : '';?>>
+
+					<button id="btn-start-add-store-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_store_name')); ?></button>
+					<button id="btn-start-add-customer-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_customer_name')); ?></button>
+					<button id="btn-start-add-order-id-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_order_id')); ?></button>
                 </div>
             </div>
-            
+
             <div class="divider" style="width:50%;margin:auto;margin-top:20px;margin-bottom:20px;"></div>
             
             <div class="form-group">
@@ -177,6 +181,10 @@
                     <input id="sms_ready_custom" name="sms_ready_custom" type="text" style="display:inline-table;" 
                     		sms_default="{{ $adminSettings->sms_order_ready_message }}" sms_custom="{{ $sms_ready_custom }}" value="{{ $ready_message }}" 
                     		class="form-control col-md-8 col-xs-8" <?=$sms_ready_use_default ? 'disabled' : '';?>>
+
+					<button id="btn-ready-add-store-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_store_name')); ?></button>
+					<button id="btn-ready-add-customer-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_customer_name')); ?></button>
+					<button id="btn-ready-add-order-id-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_order_id')); ?></button>
                 </div>
             </div>
             
@@ -213,6 +221,10 @@
                     <input id="sms_done_custom" name="sms_done_custom" type="text" style="display:inline-table;" 
                     		sms_default="{{ $adminSettings->sms_order_done_message }}" sms_custom="{{ $sms_done_custom }}" value="{{ $done_message }}" 
                     		class="form-control col-md-8 col-xs-8" <?=$sms_done_use_default ? 'disabled' : '';?>>
+
+					<button id="btn-done-add-store-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_store_name')); ?></button>
+					<button id="btn-done-add-customer-name-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_customer_name')); ?></button>
+					<button id="btn-done-add-order-id-key" type="button" class="btn btn-success" style="margin-top: 10px"><?php echo e(__('views.admin.users.edit.add_order_id')); ?></button>
                 </div>
             </div>
             

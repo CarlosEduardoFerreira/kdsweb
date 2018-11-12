@@ -354,6 +354,14 @@ class ApiController extends Controller
                         $msg = str_replace("[STORE_NAME]", $request["store_name"], $msg);
                     }
 
+                    if (isset($request["order_id"])) {
+                        $msg = str_replace("[ORDER_ID]", $request["order_id"], $msg);
+                    }
+
+                    if (isset($request["customer_name"])) {
+                        $msg = str_replace("[CUSTOMER_NAME]", $request["customer_name"], $msg);
+                    }
+
                     $response[0]["msg"] = $msg;
 
                     $validAccount = trim($storeSettings->sms_account_sid) != "";
