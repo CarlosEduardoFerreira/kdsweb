@@ -169,5 +169,5 @@
   "views.membership.not_valid": "not valid",
   "views.admin.users.edit.add_store_name": "Add Store Name",
   "views.admin.users.edit.add_customer_name": "Add Customer Name",
-  "views.admin.users.edit.add_order_id": "Add Order ID",
+  "views.admin.users.edit.add_order_id": "Add Order ID"
 }
