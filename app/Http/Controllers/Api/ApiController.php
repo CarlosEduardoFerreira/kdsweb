@@ -12,10 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use DateTime;
-use DateTimeZone;
-
-
+use Ramsey\Uuid\Uuid;
 
 class ApiController extends Controller
 {
@@ -24,6 +21,9 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    
+    private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+    
     public function index() {
         
         $request = file_get_contents("php://input");
@@ -71,8 +71,18 @@ class ApiController extends Controller
                 
             } else if ($req == 'SMS_ORDER') {
                 $response = $this->smsOrder($request, $response);
+
+            } else if ($req == "GET_ENTITY") {
+                $response = $this->getEntities($request, $response);
+
+            } else if ($req == "GET_SERVER_TIME") {
+                $response = $this->getServerTime($request, $response);
+                
+            } else if ($req == "DEVICE_REPLACE") {
+                $response = $this->deviceReplace($request, $response);
+                
             }
-            
+
             return response()->json($response);
         }
         
@@ -104,17 +114,8 @@ class ApiController extends Controller
             
             if ($passMatched) {
                 
-                // Check if the same serial number is activate in another store.
-                $sameSerialActive = DB::table('devices')
-                    ->where('store_guid', '<>',  $result[0]->store_guid)
-                    ->where('serial', '=', $device_serial)
-                    ->where('is_deleted', '=', 0)
-                    ->where('license', '=', 1)
-                    ->where('split_screen_parent_device_id', '=', 0)
-                    ->first();
-                    
-                if (isset($sameSerialActive)) {
-                    $response[0]["error"]  = "There is another KDS Station with the same serial number active in another store.";
+                if ($this->existDeviceInAnotherStore($result[0]->store_guid, $device_serial)) {
+                    $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
                     $response[0]["store_guid"] = $result[0]->store_guid;
@@ -137,13 +138,51 @@ class ApiController extends Controller
     }
     
     
+    public function deviceReplace(array $request, array $response) {
+        
+        $response[0]["error"] = "";
+
+        $store_guid     = $request["store_guid"];
+        $device_guid    = $request["device_guid"];
+        $device_serial  = $request["device_serial"];
+        
+        $device = DB::table('devices')->where(['guid' => $device_guid])->first();
+        if (isset($device)) {
+            
+            if ($this->existDeviceInAnotherStore($store_guid, $device_serial)) {
+                $response[0]["error"] = $this->error_exist_device_in_another_store;
+                
+            } else {
+                $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
+                            WHERE guid = '$device_guid'";
+    
+                $result = DB::statement($sql);
+                
+                if (!$result) {
+                    $response[0]["error"]  = "Error to update device.";
+                }
+            }
+
+        } else {
+            $response[0]["error"] = "Device not found.";
+        }
+
+        return $response;
+        
+    }
+    
+    
     public function insertOrUpdateEntityWeb(array $request, array $response) {
+        
+        $appVersion = isset($request["appVersion"]) ? $request["appVersion"] : 0;
         
         $entity = $request["entity"];
         $data   = $request["data"];
         
         $objGuidArray = array();
         
+        $response[0]["error"] = null;
+
         foreach ($data as $object) {
             
             $func = "UPD"; // Update
@@ -152,7 +191,7 @@ class ApiController extends Controller
             $updt = $object['update_time'];
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
-            //echo "sqlCheck: $sqlCheck";
+            
             $result     = DB::select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
@@ -173,14 +212,27 @@ class ApiController extends Controller
             
             foreach($object as $key=>$value) {
                 if(!is_array($value)) {
+                    
+                    if(is_string($value)) {
+                        $value = $this->resolveApostrophe($value);
+                    }
+                    
+                    if ($key == "upload_time") {
+                        $value = time();
+                    }
+                    
                     if($func == "INS") {
                         $sql .= "$value , ";
                     } else {
                         if ($key == "guid") {
                             continue;
+                        } else if ($key == "license" && $entity == "devices") {
+                            continue;
                         }
+
                         $sql .= "$key = $value , ";
                     }
+                    
                 }
             }
             
@@ -189,9 +241,9 @@ class ApiController extends Controller
             if($func == "INS") {
                 $sql .= ")";
             } else {
-                $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL)";
+                $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL OR upload_time < 2)";
             }
-            
+
             $result = DB::statement($sql);
             
             if ($result) {
@@ -201,13 +253,39 @@ class ApiController extends Controller
                 $response[0]["error"]  = "Error trying $func: $sql";
                 break;
             }
-            
         }
         
-        $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
-        
+        // On KDS 1.1 version and below "appVersion" parameter is not handled
+        if($appVersion < 1.2 && !isset($response[0]["error"])) { 
+            $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
+        }
+
         return $response;
         
+    }
+    
+    
+    public function resolveApostrophe($str) {
+        
+        $char = "'";
+        
+        $empty = str_replace($char, "", $str);
+        $empty = str_replace(" ", "", $empty);
+        $empty = str_replace(",", "", $empty);
+        
+        if($empty == "") {
+            return $str;
+        }
+        
+        $first = substr($str, 0, 1);
+        $last  = substr($str, strlen($str)-1, 1);
+        
+        if($first == $char && $last == $char) {
+            $word  = substr($str, 1, strlen($str) -2);
+            $str = $char . str_replace($char, "\'", $word) . $char;
+        }
+        
+        return $str;
     }
     
     
@@ -290,9 +368,10 @@ class ApiController extends Controller
                         $response[0]["phone"] = $request["order_phone"];
                         
                         try {
-                            $create_time = (new DateTime())->getTimestamp();
+                            $create_time = time();
                             $sql = "INSERT INTO sms_order_sent (store_guid, order_guid, order_status, sms_message, create_time)
-                                VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
+                                    VALUES('".$request["store_guid"]."', '".$request["order_guid"]."', 
+                                        '".$request["order_status"]."', '".addslashes($msg)."', $create_time)";
                             $insert_result = DB::statement($sql);
                             
                             $response[0]["sms_order_sent_insert_result"] = $insert_result;
@@ -377,15 +456,91 @@ class ApiController extends Controller
         if (isset($request["min_update_time"])) {
             $sql .= " AND update_time > " . $request["min_update_time"];
 
-        } else {
-            $sql .= " AND is_deleted != 1";
-
         }
-
-        //echo "sql: " . $sql . "|";
 
         return DB::select($sql);
         
+    }
+
+
+    public function getEntities(array $request, array $response) {
+
+        $sql = "SELECT * FROM ". $request["entity"] ." WHERE store_guid = '" . $request["store_guid"] . "'";
+
+        if (isset($request["min_update_time"])) {
+            $sql .= " AND update_time > " . $request["min_update_time"];
+            
+        } else {
+            $sql .= " AND is_deleted != 1";
+        }
+
+        $result = DB::select($sql);
+
+        if (count($result) == 0 && !isset($request["min_update_time"])) {
+            $created_at = time();
+
+            if ($request["entity"] == "notification_questions") {
+                $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
+                $questionsDefault = DB::select($defaultQuestionSQL);
+                
+                if(count($questionsDefault) == 0) {
+                    $response[0]["error"]  = "System Default Notifications not configured.";
+                    return $response;
+                }
+                
+                $defaultQuestion = $questionsDefault[0];
+                
+                $question = DB::table('notification_questions');
+
+                $data = [
+                    'guid'        => Uuid::uuid4(),
+                    'title'       => $defaultQuestion->title,
+                    'message'     => $defaultQuestion->message,
+                    'create_time' => $created_at,
+                    'update_time' => $created_at,
+                    'store_guid'  => $request["store_guid"]
+                ];
+
+                $question->insert($data);
+
+                $result = DB::select($sql);
+
+            } else if ($request["entity"] == "notification_answers") {
+                $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
+                $AnswersDefault = DB::select($defaultAnswersSQL);
+
+                $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = '" . $request["store_guid"] . "' limit 1";
+                $questionsDefault   = DB::select($questionSQL);
+                
+                if(count($questionsDefault) == 0 || count($AnswersDefault) == 0) {
+                    $response[0]["error"]  = "System Default Notifications not configured.";
+                    return $response;
+                }
+                
+                $questionGuid = $questionsDefault[0]->guid;
+
+                foreach ($AnswersDefault as $answer) {
+                    $answersDB = DB::table('notification_answers');
+
+                    $data = [
+                        'guid'          => Uuid::uuid4(),
+                        'title'         => $answer->title,
+                        'message'       => $answer->message,
+                        'create_time'   => $created_at,
+                        'update_time'   => $created_at,
+                        'store_guid'    => $request["store_guid"],
+                        'question_guid' => $questionGuid
+                    ];
+
+                    $answersDB->insert($data);
+                }
+
+                $result = DB::select($sql);
+            }
+        }
+
+        return $result;
+
     }
     
     
@@ -414,8 +569,10 @@ class ApiController extends Controller
     
     
     public function activeLicense(Request $request) {
+        
+        $device = DB::table('devices')->where(['guid' => $request->guid])->first();
+        
         if ($request->active) {
-            $device = DB::table('devices')->where(['guid' => $request->guid])->first();
             if (isset($device)) {
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
@@ -433,8 +590,11 @@ class ApiController extends Controller
             }
         }
         
-        $update_time = (new DateTime())->getTimestamp();
-        $sql = "update devices set license = $request->active where guid = '$request->guid'";
+        $update_time = time();
+        
+        $sql = "update devices set license = $request->active, update_time = $update_time 
+                where guid = '$request->guid' OR split_screen_parent_device_id = $device->id";
+        
         $result = DB::statement($sql);
         
         return array($result);
@@ -449,7 +609,8 @@ class ApiController extends Controller
         
         $device = DB::table('settings')->where('store_guid', '=', $storeGuid)->first();
         if (isset($device)) {
-            $sql = "update settings set last_connection_time = $lastConnectionTime where store_guid = '$storeGuid'";
+            $update_time = time();
+            $sql = "update settings set last_connection_time = $lastConnectionTime, update_time = $update_time where store_guid = '$storeGuid'";
             $result = DB::statement($sql);
             
             if ($result) {
@@ -464,12 +625,33 @@ class ApiController extends Controller
     }
     
     
+    public function getServerTime(array $request, array $response) {
+        $serverTime = array();
+        $serverTime["server_time"] = time();
+        return array($serverTime);
+    }
+    
+    
     public function stripslashes_deep($value) {
         $value = is_array($value) ?
         array_map('stripslashes_deep', $value) :
         stripslashes($value);
         
         return $value;
+    }
+
+
+    // Check if the same serial number is activate in another store.
+    public function existDeviceInAnotherStore($store_guid, $device_serial) {
+        $device = DB::table('devices')
+            ->where('serial', '=', $device_serial)
+            ->where('store_guid', '<>',  $store_guid)
+            ->where('is_deleted', '=', 0)
+            ->where('license', '=', 1)
+            ->where('split_screen_parent_device_id', '=', 0)
+            ->first();
+
+        return isset($device);
     }
     
 }

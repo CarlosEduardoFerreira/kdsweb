@@ -70,15 +70,25 @@
                     <?php 
                         //$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
                         
-                        $selected = isset($selected) ? $selected : 'false';
+                        $selected = isset($selected) ? $selected : '';
                     
                         if(auth()->user()->hasRole('store')) { ?>
+                        
+                        <input type="hidden" id="selected-page" value="{{ $selected }}">
+                        
                         <li id="li-store-config" class="">
-                            <a id="a-store-config" onclick="goToStoreConfig()" selected="<?=$selected?>">
+                            <a id="a-store-config" onclick="goToStoreConfig()">
                                 <i class="fa fa-cogs" aria-hidden="true"></i>
                                 Configuration
                             </a>
+                            
                         </li>
+                        <li id="li-store-reports" class="">
+                        		<a id="a-store-reports" onclick="goToStoreReports()">
+                                <i class="fa fa-line-chart" aria-hidden="true"></i>
+                                Reports
+                            	</a>
+                         </li>
                     <?php } ?>
 
                 </ul>
@@ -88,43 +98,26 @@
             <div id="log">&nbsp;</div>
             
             <script type="text/javascript">
-//                 document.addEventListener('DOMContentLoaded', function() {
-//                     	//alert('store-config');
-//                 	}, false);
-
-// 				function sleep(ms) {
-//                   return new Promise(resolve => setTimeout(resolve, ms));
-//                 }
 
             		function checkPage() {
-// 					var url = window.location.href.split("#");
-					var aStoreConfig = document.getElementById("a-store-config");
-					if (aStoreConfig != null) {
-        					var selected = document.getElementById("a-store-config").getAttribute('selected');
-        					//document.getElementById("log").innerHTML = "url: <?=$selected?>|" + selected + "|";
-            				if (selected != 'false') {
-//	     					document.getElementById("div-store-config").className += 'active';
-                    			document.getElementById("li-store-config").className += 'current-page';
-            				} else {
-//                     		document.getElementById("div-store-config").className -= 'active';
-//                     		document.getElementById("div-store-config").className -= 'current-page';
-                         }
+					var selectedPage = document.getElementById("selected-page");
+					if (selectedPage != null) {
+        					if(selectedPage.value != '') {
+                    				document.getElementById("li-store-"+selectedPage.value).className += 'current-page';
+        					}
 					}
             		}
 
-//             		while (document.readyState != "complete") {
-//                 		sleep(5000);
-//             			checkPage();
-//             		}
 				checkPage();
+				
             		function goToStoreConfig() {
-					window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'true']) }}";
+					window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'config']) }}";
             		}
-            		
-//                 var aStoreConfig = document.getElementById("store-config");
-//                 aStoreConfig.onclick = function(){
-//                 		alert('store-config');
-//                 	};
+
+            		function goToStoreReports() {
+    					window.location.href = "{{ route('admin.stores.report', [auth()->user()->id, 'selected' => 'reports']) }}";
+                	}
+
             </script>
 
             <div class="menu_section">

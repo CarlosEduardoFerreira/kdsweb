@@ -106,6 +106,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('stores/{store}', 'StoreController@update')->name('stores.update');
     // Config View
     Route::get('stores/{store}/config', 'StoreController@config')->name('stores.config');
+    // Config Devices View
+    Route::get('stores/{store}/config#devices', 'StoreController@config')->name('stores.config#devices');
     // Marketplace
     Route::get('stores/{store}/config#marketplace', 'StoreController@config')->name('stores.config#marketplace');
     // Update Settings Action
@@ -114,6 +116,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('stores/{store}/updateTwilio', 'StoreController@updateTwilio')->name('stores.updateTwilio');
     // Delete Action
     Route::delete('stores/{store}', 'StoreController@destroy')->name('stores.destroy');
+    // Report
+    Route::get('stores/{store}/report', 'StoreController@report')->name('stores.report');
+    Route::get('stores/{store}/reportByStation', 'StoreController@reportByStation')->name('stores.reportByStation');
+    // Remove Device
+    // Delete Action
+    Route::post('stores/{store}/removeDevice', 'StoreController@removeDevice')->name('stores.removeDevice');
     // --------------------------------------------------------------------------------- Stores //
 
     // Users (Users is every system user. Even Admin)
