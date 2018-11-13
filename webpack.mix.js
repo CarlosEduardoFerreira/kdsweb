@@ -104,6 +104,13 @@ mix.copy([
     'node_modules/gentelella/vendors/bootstrap/dist/fonts',
 ], 'public/assets/admin/fonts');
 
+
+//Bootstrap 3.3.7
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-3.3.7.min.js',
+], 'public/assets/admin/js/bootstrap-3.3.7.min.js').version();
+
+
 // Bootstrap Table 1.12.1
 mix.styles([
     'resources/assets/admin/css/bootstrap-table.min.css',
@@ -120,6 +127,11 @@ mix.scripts([
     'resources/assets/admin/js/bootstrap-select.min.js',
 ], 'public/assets/admin/js/bootstrap-select.min.js').version();
 
+
+//JQuery 3.3.1
+mix.scripts([
+    'resources/assets/admin/js/jquery-3.3.1.min.js',
+], 'public/assets/admin/js/jquery-3.3.1.min.js').version();
 
 // JQuery UI 1.12.1
 mix.styles([

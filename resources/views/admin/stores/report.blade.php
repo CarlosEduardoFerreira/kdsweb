@@ -5,8 +5,6 @@
 
 @section('report')
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   
 <div class="row" style="min-height:900px; margin:0px;">
     <div id="report_main" style="padding-top:10px;">
@@ -48,8 +46,14 @@
                 </ul>
             </div>
 
-			<div id="report-refresh-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:4px;">
-				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:28px;cursor:hand;">
+			<div id="report-refresh-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:6px;">
+				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:26px;cursor:hand;">
+			</div>
+			
+			<div id="report-download-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:3px;">
+				<a id="report-export-excel" href="#" style="display:none;">
+					<img src="/images/cloud-download.png" title="Download" style="margin:auto;height:30px;cursor:hand;">
+				</a>
 			</div>
 			
 			<input type="text" id="daterange" name="daterange" class="btn" value="" />
@@ -280,7 +284,8 @@
 
 @section('scripts')
     @parent
-    
+    {{ Html::script(mix('assets/admin/js/jquery-3.3.1.min.js')) }}
+    {{ Html::script(mix('assets/admin/js/bootstrap-3.3.7.min.js')) }}
     {{ Html::script(mix('assets/admin/js/google.charts.js')) }}
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}
@@ -290,6 +295,7 @@
 	<script>
         	$(function(){
         		$('#report-refresh-img').tooltip();
+        		$('#report-export-excel img').tooltip();
         	});
 	</script>
 	
