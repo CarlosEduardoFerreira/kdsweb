@@ -351,107 +351,107 @@
         }
 
 
-     // -- Handle Device Settings Features Slide Up/Down -------------------------------------------------- //
-    $modal.find('.device-settings-feature-title').each(function(){
-
-		var $title = $(this);
-		var $enable = $title.find('.device-settings-feature-enable');
-		var $arrows = $title.find('.device-settings-arrow');
-		
-		var id = $title.attr('id');
-		var $config = $('#' + id + "-config");
-
-		function configSlideOpen() {
-			closeAllConfigs();
-			
-			$arrows.find('i.fa-angle-down').hide();
-			$arrows.find('i.fa-angle-up').fadeIn();
-			$config.slideDown();
-
-			var scrollTo = parseInt($title.attr('scroll-to'));
-
-			$modal.find(".card-body").animate({ scrollTop: scrollTo });
-		}
-
-		function configSlideClose() {
-			$arrows.find('i.fa-angle-up').hide();
-			$arrows.find('i.fa-angle-down').fadeIn();
-			$config.slideUp();
-		}
-		
-		$arrows.find('i').click(function(e){
-			e.preventDefault();
-			if($(this).hasClass('fa-angle-down')) {
-				configSlideOpen();
-			} else {
-				configSlideClose();
-			}
-		});
-
-		$enable.click(function() {
-			if($(this).prop("checked")) {
-				$arrows.fadeIn();
-				configSlideOpen();
-			} else {
-				configSlideClose();
-				$arrows.hide();
-			}
-		});
-
-    });
- 	// -------------------------------------------------- Handle Device Settings Features Slide Up/Down -- //
-
- 	
- 	function closeAllConfigs() {
-        	$('.device-settings-feature-title').each(function(){
-        		$(this).find('i.fa-angle-up').hide();
-        		$(this).find('i.fa-angle-down').fadeIn();
-        		$('#' + $(this).attr('id') + '-config').slideUp();
-        	});
-    	}
-
-
-	function lineDisplayDisable() {
-		var deviceFunction = $modal.find("#device-settings-function").val();
-		var $enable = $modal.find('#device-settings-line-display-enable');
-		if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'BACKUP_EXPE') {
-			// Disabled Line Display and Transfer
-        		$enable.prop('checked', false);
-        		$modal.find('#device-settings-line-display-transfer-device-id').val(0).selectpicker('refresh');
-        		// Hide divs
-        		$modal.find('.device-settings-line-display-hide').hide('slow');
-        		$modal.find('.device-settings-line-display-text').fadeTo("slow",0.3);
-		} else {
-			// Show divs
-        		$modal.find('.device-settings-line-display-hide').show('slow');
-        		$modal.find('.device-settings-line-display-text').fadeTo("slow",1);
-		}
-		if($enable.prop("checked") == false) { // checked can be undefined = true
-			$modal.find('.device-settings-line-display-arrow').hide();
-		} else {
-			$modal.find('.device-settings-line-display-arrow').show('slow');
-		}
-		closeAllConfigs();
-	}
-
-
-    $modal.find("#device-settings-function").change(function(){
-		loadExpeditors();
-    		loadParentsByFunction();
-    		lineDisplayDisable();
-    });
-
+         // -- Handle Device Settings Features Slide Up/Down -------------------------------------------------- //
+        $modal.find('.device-settings-feature-title').each(function(){
     
-    $modal.find(".num-99999").keyup(function () {
-        	if(this.value > 99999) {
-        		this.value = this.value.substring(0,5);
-        	} else {
-        		this.value = this.value.replace(/[^0-9\.]/g,'');
-        	}
-    });
-
+        		var $title = $(this);
+        		var $enable = $title.find('.device-settings-feature-enable');
+        		var $arrows = $title.find('.device-settings-arrow');
+        		
+        		var id = $title.attr('id');
+        		var $config = $('#' + id + "-config");
         
-    $('#device-settings-printer-network-ip').mask('099.099.099.099');
+        		function configSlideOpen() {
+        			closeAllConfigs();
+        			
+        			$arrows.find('i.fa-angle-down').hide();
+        			$arrows.find('i.fa-angle-up').fadeIn();
+        			$config.slideDown();
+        
+        			var scrollTo = parseInt($title.attr('scroll-to'));
+        
+        			$modal.find(".card-body").animate({ scrollTop: scrollTo });
+        		}
+        
+        		function configSlideClose() {
+        			$arrows.find('i.fa-angle-up').hide();
+        			$arrows.find('i.fa-angle-down').fadeIn();
+        			$config.slideUp();
+        		}
+        		
+        		$arrows.find('i').click(function(e){
+        			e.preventDefault();
+        			if($(this).hasClass('fa-angle-down')) {
+        				configSlideOpen();
+        			} else {
+        				configSlideClose();
+        			}
+        		});
+        
+        		$enable.click(function() {
+        			if($(this).prop("checked")) {
+        				$arrows.fadeIn();
+        				configSlideOpen();
+        			} else {
+        				configSlideClose();
+        				$arrows.hide();
+        			}
+        		});
+    
+        });
+     	// -------------------------------------------------- Handle Device Settings Features Slide Up/Down -- //
+    
+     	
+     	function closeAllConfigs() {
+            	$('.device-settings-feature-title').each(function(){
+            		$(this).find('i.fa-angle-up').hide();
+            		$(this).find('i.fa-angle-down').fadeIn();
+            		$('#' + $(this).attr('id') + '-config').slideUp();
+            	});
+        	}
+    
+    
+        	function lineDisplayDisable() {
+        		var deviceFunction = $modal.find("#device-settings-function").val();
+        		var $enable = $modal.find('#device-settings-line-display-enable');
+        		if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'BACKUP_EXPE') {
+        			// Disabled Line Display and Transfer
+                		$enable.prop('checked', false);
+                		$modal.find('#device-settings-line-display-transfer-device-id').val(0).selectpicker('refresh');
+                		// Hide divs
+                		$modal.find('.device-settings-line-display-hide').hide('slow');
+                		$modal.find('.device-settings-line-display-text').fadeTo("slow",0.3);
+        		} else {
+        			// Show divs
+                		$modal.find('.device-settings-line-display-hide').show('slow');
+                		$modal.find('.device-settings-line-display-text').fadeTo("slow",1);
+        		}
+        		if($enable.prop("checked") == false) { // checked can be undefined = true
+        			$modal.find('.device-settings-line-display-arrow').hide();
+        		} else {
+        			$modal.find('.device-settings-line-display-arrow').show('slow');
+        		}
+        		closeAllConfigs();
+        	}
+    
+    
+        $modal.find("#device-settings-function").change(function(){
+    		loadExpeditors();
+        		loadParentsByFunction();
+        		lineDisplayDisable();
+        });
+    
+        
+        $modal.find(".num-99999").keyup(function () {
+            	if(this.value > 99999) {
+            		this.value = this.value.substring(0,5);
+            	} else {
+            		this.value = this.value.replace(/[^0-9\.]/g,'');
+            	}
+        });
+    
+            
+        $('#device-settings-printer-network-ip').mask('099.099.099.099');
 
         // Save Device Settings
         $modal.find('#device-settings-save').click(function(){
@@ -533,6 +533,7 @@
             				{ field: 'parent_id', title: 'Parent ID' }, 
             				{ field: 'expeditor', title: 'Expeditor' }, 
             				{ field: 'last_update', title: 'Last Update', class: 'devices-td-config' }, 
+            				{ field: 'app_version', title: 'Version', class: 'devices-td-config' },
             				{ field: 'license', title: 'License', class: 'devices-td-config' }, 
             				{ field: 'settings', title: 'Settings', class: 'devices-td-config' }, 
             				{ field: 'remove', title: 'Remove', class: 'devices-td-config' }
@@ -601,6 +602,7 @@
                     	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
                     	            expeditor: devices[i].expeditor,
                     	            last_update: timeConverter(devices[i].update_time),
+                    	            app_version: devices[i].app_version,
                     	            license: licenseHTML,
                     	            settings: settingsHTML,
                                 remove: removeHTML
