@@ -195,6 +195,7 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
+                		<input type="hidden" id="state-edit" value="{{$user->state}}">
                     <select name="state" id="state" class="form-control" style="width:350px" required>
                     <?php if(isset($states)) { ?>
                         @foreach($states as $state)
@@ -232,13 +233,32 @@
                     		<?php 
                     		$selected = $user->country == $country->id ? "selected" : "";
                     		?>
-                    		<option value="{{$country->id}}" <?=$selected ?>> {{$country->name}}</option>
+                    		<option value="{{$country->id}}" <?=$selected ?>>{{$country->name}}</option>
                     @endforeach
                     </select>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
-
+            
+            <?php if ($obj == 'store') { ?>
+            <div class="form-group">
+            		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="timezone" >
+                    Timezone:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                		<select id="timezone" name="timezone" class="form-control" style="width:350px;" required>
+                		<?php $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL); ?>
+                		@foreach($timezones as $timezone)
+                			<?php 
+                			$selected = $user->timezone == $timezone ? "selected" : "";
+                    		?>
+                    		<option value="{{$timezone}}" <?=$selected ?>> {{ $timezone }}</option>
+                		@endforeach
+                		</select>
+                </div>
+			</div>
+			<?php } ?>
+			
 			@if($user->exists)
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="active" >

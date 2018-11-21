@@ -89,9 +89,76 @@ mix.styles([
 ], 'public/assets/admin/css/admin.css').version();
 
 
+// Bootstrap 4.1.3
+mix.styles([
+    'resources/assets/admin/css/bootstrap.min.css',
+], 'public/assets/admin/css/bootstrap.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/popper.min.js',
+], 'public/assets/admin/js/popper.min.js').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap.min.js',
+], 'public/assets/admin/js/bootstrap.min.js').version();
+
 mix.copy([
     'node_modules/gentelella/vendors/bootstrap/dist/fonts',
 ], 'public/assets/admin/fonts');
+
+
+//Bootstrap 3.3.7
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-3.3.7.min.js',
+], 'public/assets/admin/js/bootstrap-3.3.7.min.js').version();
+
+
+// Bootstrap Table 1.12.1
+mix.styles([
+    'resources/assets/admin/css/bootstrap-table.min.css',
+], 'public/assets/admin/css/bootstrap-table.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-table.min.js',
+], 'public/assets/admin/js/bootstrap-table.min.js').version();
+
+//Bootstrap Select 1.13.1
+mix.styles([
+    'resources/assets/admin/css/bootstrap-select.css',
+], 'public/assets/admin/css/bootstrap-select.css').version();
+mix.scripts([
+    'resources/assets/admin/js/bootstrap-select.min.js',
+], 'public/assets/admin/js/bootstrap-select.min.js').version();
+
+
+//JQuery 3.3.1
+mix.scripts([
+    'resources/assets/admin/js/jquery-3.3.1.min.js',
+], 'public/assets/admin/js/jquery-3.3.1.min.js').version();
+
+// JQuery UI 1.12.1
+mix.styles([
+ 'resources/assets/admin/css/jquery-ui.min.css',
+], 'public/assets/admin/css/jquery-ui.min.css').version();
+mix.scripts([
+	'resources/assets/admin/js/jquery-ui.min.js',
+], 'public/assets/admin/js/jquery-ui.min.js').version();
+
+// JQuery Data Table 1.10.19
+mix.styles([
+    'resources/assets/admin/css/jquery.dataTable.min.css',
+], 'public/assets/admin/css/jquery.dataTable.min.css').version();
+mix.scripts([
+    'resources/assets/admin/js/jquery.dataTable.min.js',
+], 'public/assets/admin/js/jquery.dataTable.min.js').version();
+
+// JQuery Mask 1.14.15
+mix.scripts([
+    'resources/assets/admin/js/jquery.mask.js',
+], 'public/assets/admin/js/jquery.mask.js').version();
+
+
+// Firebase API
+mix.scripts([
+    'resources/assets/admin/js/firebase-api.js',
+], 'public/assets/admin/js/firebase-api.js').version();
 
 
 mix.scripts([
@@ -163,10 +230,3 @@ mix.styles([
     'resources/assets/admin/css/dashboard.css',
 ], 'public/assets/admin/css/dashboard.css').version();
 
-
-/*
- |--------------------------------------------------------------------------
- | Frontend
- |--------------------------------------------------------------------------
- |
- */

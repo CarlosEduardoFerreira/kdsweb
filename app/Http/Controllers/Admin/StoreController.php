@@ -6,6 +6,7 @@ use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Vars;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -15,13 +16,6 @@ use DateTimeZone;
 use PhpParser\Builder\Use_;
 
 class StoreController extends Controller {
-    
-    
-    private $reports = array(
-        ["title" => "Quantity and Average Time by Order",      "id" => "quantity_and_average_time_by_order"],
-        ["title" => "Quantity and Average Time by Item",       "id" => "quantity_and_average_time_by_item"],
-        ["title" => "Quantity and Average Time by Item Name",  "id" => "quantity_and_average_time_by_item_name"]
-    );
     
     function __construct() {
         parent::__construct();
@@ -39,7 +33,7 @@ class StoreController extends Controller {
             return $accessDenied;
         }
         
-        $stores = Controller::filterUsers($request, 4, $storegroupId, $request->filter);
+        $stores = Controller::filterUsers($request, 4, $storegroupId);
         
         return view('admin.stores.index', ['stores' => $stores]);
     }
@@ -58,18 +52,19 @@ class StoreController extends Controller {
         $storegroups = array();
         
         $me = Auth::user();
-        echo "role_id: " . $me->roles[0]->id ."<br>";
+        
         if ($me->roles[0]->id == 3) {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
+            $storegroups  = Controller::filterUsers($request, 3, $me->id);
         }
         // ------------------------------------------------------- StoreGroups //
         
         $countries = DB::select("select * from countries order by name");
         
         $store->country = 231;   // United States
+        $store->timezone = Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
             'countries' => $countries, 'me' => $me]);
@@ -78,15 +73,18 @@ class StoreController extends Controller {
     
     public function insert(Request $request)
     {
-        $created_at = new DateTime();
-        $created_at->setTimezone(new DateTimeZone("America/New_York"));
+        $now = new DateTime();
+        
+        $dateTimezone = new DateTime();
+        $dateTimezone->setTimezone(new DateTimeZone($request->get('timezone')));
+        $dateTimezone->setTime(4,0);
         
         $usersTable = DB::table('users');
         
         $data = [
-            'parent_id'       => $request->get('parent_id'),    // Store Group ID
+            'parent_id'       => $request->get('parent_id'),        // Store Group ID
             'business_name'   => $request->get('business_name'),    // Legal Business Name
-            'dba'             => $request->get('dba'),              // DBA: (Doing business as)
+            'dba'             => $request->get('dba'),              // DBA: (Doing Business As)
             'last_name'       => $request->get('last_name'),
             'name'            => $request->get('name'),             // First Name
             'email'           => $request->get('email'),
@@ -97,9 +95,9 @@ class StoreController extends Controller {
             'state'           => $request->get('state'),
             'country'         => $request->get('country'),
             'zipcode'         => $request->get('zipcode'),
+            'timezone'        => $request->get('timezone'),
             'username'        => $request->get('username'),
-            'created_at'      => $created_at,
-            'updated_at'      => $created_at
+            'created_at'      => $now
         ];
         
         if ($request->get('password') != "") {
@@ -122,11 +120,11 @@ class StoreController extends Controller {
             'server_password'          => "",
             'socket_port'              => 1111,
             'auto_done_order_hourly'   => 0,
-            'auto_done_order_time'     => 0,
-            'timezone'                 => "America/New_York",
+            'auto_done_order_time'     => $dateTimezone->getTimestamp(),
             'smart_order'              => 0,
             'licenses_quantity'        => 0,
-            'store_key'                => substr(Uuid::uuid4(), 0, 8)
+            'store_key'                => substr(Uuid::uuid4(), 0, 8),
+            'create_time'              => $now->getTimestamp()
         ];
 
         $settingsTable->insert($data);
@@ -207,6 +205,8 @@ class StoreController extends Controller {
 //         if (isset($store->state) && $store->state != "") {
 //             $cities     = DB::select("select * from cities where state_id = $store->state order by name");
 //         }
+
+        $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
             'countries' => $countries, 'states' => $states, 'me' => $me]);
@@ -246,6 +246,8 @@ class StoreController extends Controller {
         
         $adminSettings = DB::table('admin_settings')->first();
         
+        $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
+        
         return view('admin.stores.config', [
             'store' => $store, 
             'devices'=> $devices, 
@@ -255,6 +257,310 @@ class StoreController extends Controller {
             'adminSettings' => $adminSettings
         ]);
     }
+    
+    
+    public function loadDevicesTable(Request $request) {
+        
+        $devices = [];
+        
+        if(isset($request->storeGuid) and $request->storeGuid != '') {
+
+            $devices = DB::select("SELECT * FROM devices 
+                WHERE store_guid =  '$request->storeGuid' 
+                AND is_deleted = 0
+                order by license desc , id asc");
+        }
+        
+        return response()->json($devices);
+    }
+    
+    
+    public function getDeviceSettings(Request $request) {
+        
+        $deviceSettings = [];
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $deviceSettings;
+        }
+        
+        if(!isset($request->deviceScreenId) or $request->deviceScreenId == '') {
+            return $deviceSettings;
+        }
+        
+        $deviceSettings = DB::select("SELECT * FROM devices 
+            WHERE is_deleted = 0 
+            AND guid = '$request->deviceGuid'
+            AND screen_id = $request->deviceScreenId");
+            
+        if(count($deviceSettings) > 0) {
+            
+            // Settings Local
+            $settingsLocal = DB::select("SELECT * FROM settings_local 
+                WHERE is_deleted = 0 
+                AND device_guid = '$request->deviceGuid'
+                AND screen_id = $request->deviceScreenId");
+            
+            $deviceSettings["settings_local"] = $settingsLocal;
+            
+            // Settings Line Display
+            $settingsLineDisplay = DB::select("SELECT * FROM settings_line_display
+                WHERE is_deleted = 0
+                AND device_guid = '$request->deviceGuid'
+                AND screen_id = $request->deviceScreenId
+                ORDER BY column_number"); // Order By "column_number" to be easier to handle on JS file
+            
+            $deviceSettings["settings_line_display"] = array($settingsLineDisplay);
+        }
+        
+        return response()->json($deviceSettings);
+    }
+    
+    
+    public function getExpeditors(Request $request) {
+        
+        $expeditors = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $expeditors;
+        }
+        
+        $expeditors = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid' 
+                                        AND is_deleted = 0
+                                        AND guid != '$request->deviceGuid' 
+                                        AND (`function` = 'EXPEDITOR' OR `function` = 'BACKUP_EXPE') 
+                                        ORDER BY name");
+        
+        return response()->json($expeditors);
+    }
+    
+    
+    public function getParentsByFunction(Request $request) {
+        
+        $parents = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $parents;
+        }
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $parents;
+        }
+        
+        if(!isset($request->deviceFunction) or $request->deviceFunction == '') {
+            return $parents;
+        }
+        
+        if($request->deviceFunction == 'BACKUP_PREP') {
+            $parentFunction = "'PREPARATION','BACKUP_PREP'";
+            
+        } else if($request->deviceFunction == 'BACKUP_EXPE') {
+            $parentFunction = "'EXPEDITOR','BACKUP_EXPE'";
+            
+        } else {
+            $parentFunction = "'PREPARATION'";
+        }
+        
+        $parents = DB::select("SELECT * FROM devices 
+                                        WHERE store_guid = '$request->storeGuid'
+                                        AND is_deleted = 0
+                                        AND `function` IN ($parentFunction) 
+                                        AND guid != '$request->deviceGuid' 
+                                        ORDER BY name");
+        
+        return response()->json($parents);
+    }
+    
+    
+    public function getTransfers(Request $request) {
+        
+        $transfers = [];
+        
+        if(!isset($request->storeGuid) or $request->storeGuid == '') {
+            return $transfers;
+        }
+        
+        if(!isset($request->deviceGuid) or $request->deviceGuid == '') {
+            return $transfers;
+        }
+            
+        $transfers = DB::select("SELECT * FROM devices 
+                                    WHERE store_guid = '$request->storeGuid'
+                                    AND is_deleted = 0
+                                    AND guid != '$request->deviceGuid' 
+                                    AND (`function` = 'PREPARATION' OR `function` = 'BACKUP_PREP') 
+                                    ORDER BY name");
+        
+        return response()->json($transfers);
+    }
+    
+    
+    public function updateDevice(Request $request) {
+        
+        // Store Guid
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-store-guid", "Store Guid");
+        if(!empty($response)) {
+            return $response;
+        } 
+        $storeGuid = $request->device['device-settings-store-guid'];
+        
+        // Device Guid
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-device-guid", "Device Guid");
+        if(!empty($response)) {
+            return $response;
+        }
+        $deviceGuid = $request->device['device-settings-device-guid'];
+        
+        // Screen ID
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-device-screen-id", "Screen ID");
+        if(!empty($response)) {
+            return $response;
+        }
+        $deviceScreenId = $request->device['device-settings-device-screen-id'];
+        
+        // ID
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-id", "ID", true, $storeGuid, $deviceGuid, "id");
+        if(!empty($response)) {
+            return $response;
+        }
+        
+        // Host (Read XML Order)
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-host", "Host", true, $storeGuid, $deviceGuid, "xml_order");
+        if(!empty($response)) {
+            return $response;
+        }
+        
+        // Order Status
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-ontime", "On Time Before");
+        if(!empty($response)) {
+            return $response;
+        }
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-almost", "Almost Delayed After");
+        if(!empty($response)) {
+            return $response;
+        }
+        $response = $this->validationDeviceFieldInUse($request, "device-settings-order-status-delayed", "Delayed After");
+        if(!empty($response)) {
+            return $response;
+        }
+
+        $devices = DB::table('devices')
+        ->where('store_guid', '=', $storeGuid)
+        ->where('guid', '=', $deviceGuid)
+        ->where('screen_id', '=', $deviceScreenId)
+        ->where('is_deleted', '=', 0);
+
+        if(count($devices) > 0) {
+
+            // -- Update Settings Local --------------------------------------------------------------------- //
+            $settingsLocal = DB::table('settings_local')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('device_guid', '=', $deviceGuid)
+            ->where('screen_id', '=', $deviceScreenId)
+            ->where('is_deleted', '=', 0);
+
+            if(count($settingsLocal) > 0) {
+                $settingsLocal->update([
+                    'display_orders_columns'        => $request->device['device-settings-orders-columns'],
+                    'display_sort_orders'           => $request->device['device-settings-sort-orders'],
+                    'display_order_status_ontime'   => $request->device['device-settings-order-status-ontime'],
+                    'display_order_status_almost'   => $request->device['device-settings-order-status-almost'],
+                    'display_order_status_delayed'  => $request->device['device-settings-order-status-delayed'],
+                    'header_top_left'               => $request->device['device-settings-order-header-top-left'],
+                    'header_top_right'              => $request->device['device-settings-order-header-top-right'],
+                    'header_bottom_left'            => $request->device['device-settings-order-header-bottom-left'],
+                    'header_bottom_right'           => $request->device['device-settings-order-header-bottom-right'],
+                    'anchor_enable_new'             => $request->device['device-settings-anchor-enable-new'],
+                    'anchor_time_new'               => $request->device['device-settings-anchor-seconds-new'],
+                    'anchor_enable_prioritized'     => $request->device['device-settings-anchor-enable-prioritized'],
+                    'anchor_time_prioritized'       => $request->device['device-settings-anchor-seconds-prioritized'],
+                    'anchor_enable_delayed'         => $request->device['device-settings-anchor-enable-delayed'],
+                    'anchor_time_delayed'           => $request->device['device-settings-anchor-seconds-delayed'],
+                    'anchor_enable_ready'           => $request->device['device-settings-anchor-enable-ready'],
+                    'anchor_time_ready'             => $request->device['device-settings-anchor-seconds-ready'],
+                    'summary_enable'                => $request->device['device-settings-summary-enable'],
+                    'summary_type'                  => $request->device['device-settings-summary-type'],
+                    'update_time'   => time()
+                ]);
+            }
+            // --------------------------------------------------------------------- Update Settings Local -- //
+
+            // -- Update Settings Line Display -------------------------------------------------------------- //
+            if($request->device['device-settings-line-display-enable']) {
+                for($i = 1; $i <= 4; $i++) {
+                    DB::table('settings_line_display')
+                    ->where('store_guid', '=', $storeGuid)
+                    ->where('device_guid', '=', $deviceGuid)
+                    ->where('screen_id', '=', $deviceScreenId)
+                    ->where('is_deleted', '=', 0)
+                    ->where('column_number', '=', $i)
+                    ->update([
+                        'column_name'       => $request->device["device-settings-line-display-column-$i-text"],
+                        'column_percent'    => $request->device["device-settings-line-display-column-$i-percent"],
+                        'update_time'       => time()
+                    ]);
+                }
+            }
+            // -------------------------------------------------------------- Update Settings Line Display -- //
+
+            // -- Update Device ----------------------------------------------------------------------------- //
+            $data = [
+                'name'                      => $request->device['device-settings-name'],
+                'id'                        => $request->device['device-settings-id'],
+                'function'                  => $request->device['device-settings-function'],
+                'expeditor'                 => $request->device['device-settings-expeditor'],
+                'parent_id'                 => isset($request->device['device-settings-parent-id']) ? $request->device['device-settings-parent-id'] : 0,
+                'xml_order'                 => $request->device['device-settings-host'],
+                'line_display'              => $request->device['device-settings-line-display-enable'],
+                'bump_transfer_device_id'   => $request->device['device-settings-line-display-transfer-device-id'],
+                'printer_ethernet_enable'   => $request->device['device-settings-printer-network-enable'],
+                'printer_address'           => $request->device['device-settings-printer-network-ip'],
+                'printer_port'              => $request->device['device-settings-printer-network-port'],
+                'printer_print_receives'    => $request->device['device-settings-printer-network-new-enable'],
+                'printer_print_bumps'       => $request->device['device-settings-printer-network-bump-enable'],
+                'update_time'   => time()
+            ];
+            $devices->update($data);
+            // ----------------------------------------------------------------------------- Update Device -- //
+            
+        } else {
+            $response = array();
+            $response["errorId"]  = "kds-web-error";
+            $response["errorMsg"] = "KDS Station not found. (DB).";
+            return response()->json($response);
+        }
+    }
+    
+    
+    function validationDeviceFieldInUse(Request $request, $fieldId, $fieldName, $inUse = false, $storeGuid = "", $deviceGuid = "", $column = "") {
+        $response = array();
+        
+        if(!isset($request->device[$fieldId]) or $request->device[$fieldId] == '') {
+            $response["errorId"]  = $fieldId;
+            $response["errorMsg"] = "The field $fieldName cannot be empty.";
+            return response()->json($response);
+            
+        } else if($inUse) {
+            
+            $field   = $request->device[$fieldId];
+            
+            $sameDeviceId = DB::select("SELECT * FROM devices
+                                    WHERE store_guid = '$storeGuid'
+                                    AND guid != '$deviceGuid'
+                                    AND is_deleted = 0
+                                    AND $column = $field");
+            
+            if(count($sameDeviceId) > 0) {
+                $response["errorId"]  = $fieldId;
+                $response["errorMsg"] = "This KDS Station $fieldName is already in use.";
+                return response()->json($response);
+            }
+            
+        }
+        
+        return $response;
+    }
+    
 
     /**
      * Update the specified resource in storage.
@@ -277,6 +583,7 @@ class StoreController extends Controller {
         $store->state           = $request->get('state');
         $store->country         = $request->get('country');
         $store->zipcode         = $request->get('zipcode');
+        $store->timezone        = $request->get('timezone');
         $store->username        = $request->get('username');
 
         if ($request->get('password') != "") {
@@ -318,7 +625,7 @@ class StoreController extends Controller {
         // auto_done_order_time
         $auto_done_order_time = explode(":", $request->get('auto_done_order_time'));
         $kdsTime = new DateTime();
-        $kdsTime->setTimezone(new DateTimeZone(isset($store->timezone_) ? $store->timezone_ : "America/New_York"));
+        $kdsTime->setTimezone(new DateTimeZone(isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault));
         $kdsTime->setTime($auto_done_order_time[0], $auto_done_order_time[1]);
         $auto_done_order_time = $kdsTime->getTimestamp();
         
@@ -329,7 +636,6 @@ class StoreController extends Controller {
                     'socket_port'              => $request->get('socket_port'),
                     'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
                     'auto_done_order_time'     => $auto_done_order_time,
-                    //'timezone'                 => $request->get('timezone'),
                     'smart_order'              => $request->get('smart_order'),
                     'licenses_quantity'        => $request->get('licenses_quantity'),
                     'update_time'              => time()
@@ -423,7 +729,7 @@ class StoreController extends Controller {
             $devices = [];
         }
         
-        return view('admin.stores.report', ['reports' => $this->reports, 'store' => $store, 
+        return view('admin.stores.report', ['reports' => Vars::$reportIds, 'store' => $store, 
             'devices' => $devices, 'selected' => $request->selected]);
     }
     
@@ -439,7 +745,7 @@ class StoreController extends Controller {
         $sql = "";
         
         // Quantity and Average Time by Order
-        if($reportId == $this->reports[0]["id"]) {
+        if($reportId == Vars::$reportIds[0]["id"]) {
             
             $sql = "SELECT
                     	select_orders.device_name AS column_0,
@@ -487,7 +793,7 @@ class StoreController extends Controller {
                 GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item
-        } else if($reportId == $this->reports[1]["id"]) { 
+        } else if($reportId == Vars::$reportIds[1]["id"]) { 
             
             $sql = "SELECT 
                         	select_orders.device_name AS column_0,
@@ -535,7 +841,7 @@ class StoreController extends Controller {
                     GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item Name
-        } else if($reportId == $this->reports[2]["id"]) {
+        } else if($reportId == Vars::$reportIds[2]["id"]) {
             
             $sql = "SELECT
                         	select_orders.device_name AS column_0,
@@ -597,6 +903,7 @@ class StoreController extends Controller {
         
         $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
+        $deviceGuid = $request->post('deviceGuid');
         
         $devices = DB::table('devices')
             ->where('store_guid', '=', $storeGuid)
@@ -604,12 +911,104 @@ class StoreController extends Controller {
             ->where('serial', '=', $deviceSerial);
         
         if(count($devices) > 0) {
+            
+            // Remove Settings Local
+            $settingsLocal = DB::table('settings_local')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0)
+                ->where('device_guid', '=', $deviceGuid);
+            
+            if(count($settingsLocal) > 0) {
+                $settingsLocal->update(['is_deleted' => 1]);
+            }
+            
+            // Remove Settings Line Display
+            $settingsLineDisplay = DB::table('settings_line_display')
+            ->where('store_guid', '=', $storeGuid)
+            ->where('is_deleted', '=', 0)
+            ->where('device_guid', '=', $deviceGuid);
+            
+            if(count($settingsLineDisplay) > 0) {
+                $settingsLineDisplay->update(['is_deleted' => 1]);
+            }
+            
+            // Remove Device
             $data = [
-                'is_deleted'    => 1,
-                'license'    => 0,
-                'login'    => 0,
-                'update_time'   => time()
+                'is_deleted' => 1,
+                'license' => 0,
+                'login' => 0,
+                'update_time' => time()
             ];
+            
+            foreach($devices->get() as $device) {
+                
+                // ** Remove expeditors ******************************************* //
+                $expeditors = DB::select("SELECT * FROM devices 
+                    WHERE store_guid = '$storeGuid' 
+                    AND is_deleted = 0 
+                    AND ( expeditor = '$device->id' 
+                            OR expeditor LIKE '%,$device->id,%' 
+                            OR expeditor LIKE '%,$device->id' 
+                            OR expeditor LIKE '$device->id,%' 
+                        )");
+                
+                if(count($expeditors) > 0) {
+                    
+                    foreach($expeditors as $expeditor) {
+                        
+                        $expeditorIds = explode(',', $expeditor->expeditor);
+                        $expeditorIdsNew = "";
+                        
+                        foreach($expeditorIds as $expeditorId) {
+                            if($expeditorId == $device->id) {
+                                continue;
+                            }
+                            
+                            $expeditorIdsNew .= $expeditorId . ",";
+                        }
+                        
+                        if(substr($expeditorIdsNew, -1) == ',') {
+                            $expeditorIdsNew = rtrim($expeditorIdsNew,",");
+                        }
+                        
+                        $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$expeditor->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ***************************************** Remove expeditors ** //
+                
+                // ** Remove parent id ****************************************** //
+                $parents = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( parent_id = $device->id
+                        )");
+                
+                if(count($parents) > 0) {
+                    foreach($parents as $parent) {
+                        $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$parent->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ***************************************** Remove parent id ** //
+                
+                // ** Remove transfer ****************************************** //
+                $transfers = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( bump_transfer_device_id = $device->id
+                        )");
+                
+                if(count($transfers) > 0) {
+                    foreach($transfers as $transfer) {
+                        $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$transfer->guid'";
+                        $result = DB::statement($sql);
+                    }
+                }
+                // ****************************************** Remove transfer ** //
+                
+            }
+            
             $devices->update($data);
             
         } else {

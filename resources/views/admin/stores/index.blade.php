@@ -8,17 +8,22 @@
     		<div style="text-align:right;padding:10px;">
     			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new', ['filter' => false]) }}">New</a>
     		</div>
+    		
+    		<div id="store-filters">
+        		<input type="text" id="search-input" class="btn">
+        		<a id="btn-search" class="btn btn-info">Go</a>
+    		</div> 
     
-        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+        <table class="table table-striped table-bordered dt-responsive nowrap">
         
             <thead>
                 <tr>
-                	<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
-                    <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
-                    <th>Actions</th>
+                		<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
+                    	<th>Actions</th>
                 </tr>
             </thead>
             
@@ -75,4 +80,88 @@
             {{ $stores->links() }}
         </div>
     </div>
+    
 @endsection
+
+
+@section('styles')
+    @parent
+    
+    <style>
+        #store-filters { margin-bottom:10px; }
+		#store-filters #search-input { width:280px; height:36px; text-align:center; border:1px solid #ddd; 
+		  font-size:16px; font-weight:200; color:#000; cursor:text; border:1px solid #5bc0de; }
+    </style>
+@endsection
+
+
+@section('scripts')
+	@parent
+	
+    <script>
+		$(function(){
+
+			const searchInput = $('#search-input');
+
+			var getUrlParameter = function getUrlParameter(sParam) {
+			    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+			        sURLVariables = sPageURL.split('&'),
+			        sParameterName,
+			        i;
+
+			    for (i = 0; i < sURLVariables.length; i++) {
+			        sParameterName = sURLVariables[i].split('=');
+
+			        if (sParameterName[0] === sParam) {
+			            return sParameterName[1] === undefined ? true : sParameterName[1];
+			        }
+			    }
+			};
+
+			if (getUrlParameter('search') != undefined) {
+				var search = getUrlParameter('search');
+				searchInput.val(search);
+				searchInput.focus();
+			}
+
+			function goFilter() {
+				var search = emptyStr(searchInput.val()) ? "" : "&search=" + searchInput.val() ;
+				var URL_BASE = window.location.protocol + "//" + window.location.host;
+				var url =  URL_BASE + "/admin/stores/0?filter=0" + search;
+				window.location.href = url;
+			}
+
+			/** Search Input Placeholder **********************************/
+			var searchPlaceholder = "Search by Business Name or E-mail";
+
+			searchInput.attr("placeholder", searchPlaceholder);
+			searchInput.focusout(function(){
+				$(this).attr("placeholder", searchPlaceholder);
+			});
+			searchInput.focusin(function(){
+				$(this).attr("placeholder", "");
+			});
+			/********************************** Search Input Placeholder **/
+			
+			$('#btn-search').click(function(){
+				goFilter();
+			});
+
+			function emptyStr(str) {
+				return str.replace(/\s/g, '') == "";
+			}
+
+            searchInput.keyup(function(){
+            		event.preventDefault();
+            	  	if (event.keyCode === 13) {
+            	  		goFilter();
+            	  	}
+            });
+            
+		});
+    </script>
+@endsection
+
+
+
+

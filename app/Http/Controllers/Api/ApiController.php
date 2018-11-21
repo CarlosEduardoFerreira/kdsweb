@@ -201,7 +201,7 @@ class ApiController extends Controller
                 $sql  = "INSERT INTO $entity ";
                 $sql .= "(";
                 foreach($object as $key=>$value) {
-                    $sql .= "$key , ";
+                    $sql .= "`$key` , ";
                 }
                 $sql  = rtrim($sql , ", ");
                 $sql .= ") VALUES(";
@@ -230,7 +230,7 @@ class ApiController extends Controller
                             continue;
                         }
 
-                        $sql .= "$key = $value , ";
+                        $sql .= "`$key` = $value , ";
                     }
                     
                 }
@@ -352,6 +352,14 @@ class ApiController extends Controller
                 if (isset($msg) && !is_null($msg) && $msg != "") {
                     if (isset($request["store_name"])) {
                         $msg = str_replace("[STORE_NAME]", $request["store_name"], $msg);
+                    }
+
+                    if (isset($request["order_id"])) {
+                        $msg = str_replace("[ORDER_ID]", $request["order_id"], $msg);
+                    }
+
+                    if (isset($request["customer_name"])) {
+                        $msg = str_replace("[CUSTOMER_NAME]", $request["customer_name"], $msg);
                     }
 
                     $response[0]["msg"] = $msg;

@@ -43,7 +43,7 @@
                     <ul class="nav nav-tabs" role="tablist" style="background:white;">
                         	<li>
                         		<a id="first-tab" class="atabs" href="#settings" role="tab" data-toggle="tab">
-                        			<i class="fa fa-cogs tab-icons"></i>&nbsp;&nbsp;Settings
+                        			<i class="fa fa-cogs tab-icons"></i>&nbsp;&nbsp;General
                         		</a>
                         	</li>
                         	<li>

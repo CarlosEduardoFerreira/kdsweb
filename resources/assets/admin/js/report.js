@@ -6,6 +6,7 @@ $(function(){
 	var startDatetime 	= moment().subtract(moment.duration("24:00:00"));
 	var endDatetime 		= moment();
 	var headers 			= [];
+	var perPage			= 10;
 	
 	
 	/** filter choose report ************************************************/
@@ -30,6 +31,20 @@ $(function(){
 		drawTable();
 	});
 	/************************************************ filter choose report **/
+	
+	
+	/** per page filter *****************************************************/
+	$('.per-page-dropdown a').click(function(){
+		var selected = $(this).text();
+		$('.per-page-dropdown #per-page-value').text(selected);
+		
+		// Set per page
+		perPage = parseInt(selected);
+		
+		// build the report
+		drawTable();
+    	});
+	/***************************************************** per page filter **/
 	
 	
 	/** filter devices ******************************************************/
@@ -114,6 +129,13 @@ $(function(){
 	/****************************************************** filter devices **/
 	
 	
+	/** Refresh Button ******************************************************/
+	$('#report-refresh-img').click(function(){
+		drawTable();
+	});
+	/****************************************************** Refresh Button **/
+	
+	
 	/** filter dates ********************************************************/
 	$(function(){
 		$('.daterangepicker').css({ 'box-shadow':'0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)' });
@@ -150,6 +172,9 @@ $(function(){
     	function drawTable() {
     		//alert('reportId: ' + reportId + " devicesIds:" + devicesIds);
     		
+    		// Refresh button hide
+    		$('#report-refresh-img').hide();
+    		
     		/**
     		 *  headers
     		 *  0 = type used by google.visualization.DataTable()
@@ -176,10 +201,11 @@ $(function(){
     			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
     			
     		} else if(reportId == $('#report-2').val()) {	// Quantity and Average Time by Item Name
-    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
-    			headers[1] = ["string",  "Items Name", "text", 0, "30", "left"];
+    			headers[0] = ["string",  "KDS Station", "text", 0, "20", "left"];
+    			headers[1] = ["string",  "Items Name", "text", 0, "25", "left"];
     			headers[2] = ["string",  "Items Quantity", "sum", 0, "15", "center"];
-    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
+    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
+    			headers[4] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
     		}
     		
     		buildReport();
@@ -196,9 +222,9 @@ $(function(){
     			// clear total
     			headers[i_col][3] = 0;
     		}
-    		
-    		var pageSize = 10;
-    		
+			
+		$('#report-export-excel').hide();
+
     		$('#report_div').hide();
         $('#report-total').hide();
         $('#no-data').hide();
@@ -214,13 +240,7 @@ $(function(){
 			}
 			
 			if(column_type == "time") {
-				var avg_time_text = moment.duration(column_value, 'seconds').humanize();
-				if(column_value == 1) {
-					avg_time_text = column_value + " second";
-    				} else if(column_value < 60) {
-    					avg_time_text = column_value + " seconds";
-    				}
-				column_value = avg_time_text
+				column_value = convertTimeToRead(column_value);
 				
 			} else if(column_type == "active") {
 				column_value = column_value == "true" ? true : false;
@@ -248,9 +268,13 @@ $(function(){
             		
             		var i_row = 0;
             		
-            		var columns_count = headers.length
+            		var columns_count = headers.length;
             		
-            		var last_device = "";
+				var last_device = "";
+					
+				if(response.length > 0) {
+					$('#report-export-excel').fadeIn();
+				}
             		
             		response.forEach(function(obj) {
             			
@@ -258,17 +282,25 @@ $(function(){
             			
             			// Set columns value/text
             			for(var i_col = 0; i_col < columns_count; i_col++) {
-            				
             				var column_type		= headers[i_col][2];
             				var column_value 	= eval("obj.column_" + i_col);
             				
-            				column_value = getValue(i_col, column_type, column_value, true);
-
-            				if(reportId == $('#report-2').val() && i_col == 0) { // Quantity and Average Time by Item Name (Device Name)
-            					if (i_row % pageSize != 0 && column_value == last_device)  {
-            						column_value = "";
+            				// Quantity and Average Time by Item Name
+            				if(reportId == $('#report-2').val()) {
+            					
+            					if (i_col == 0) { // Device Name
+	            					if (i_row % perPage != 0 && column_value == last_device)  {
+	            						column_value = "";
+	            					}
+	            					
+            					} else if (i_col == 4) { // Total Prep. Time
+            						column_value = parseInt(obj.column_2) * parseInt(obj.column_3);
+                					
             					}
+            					
             				}
+            					
+            				column_value = getValue(i_col, column_type, column_value, true);
             				
             				device.push(column_value);
             			}
@@ -279,13 +311,12 @@ $(function(){
             			
             			// Set columns width
             			for(var i_col = 0; i_col < columns_count; i_col++) {
-
             				var css_tr_color = "";
+            				
             				if(reportId == $('#report-2').val()) { // Quantity and Average Time by Item Name (Device Name)
             					if(device[0] == "" && i_col == 0) {
             						css_tr_color = " background:#fefefe;";
             					}
-            					
             				}
             				
             				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
@@ -319,7 +350,7 @@ $(function(){
             			// sortColumn: 0,
             			// sortAscending: true,
             			page: 'enable',
-            	        pageSize: pageSize,
+            			pageSize: perPage,
             	        pagingSymbols: { prev: 'prev', next: 'next' },
             	        pagingButtonsConfiguration: 'auto'
              	}
@@ -331,7 +362,12 @@ $(function(){
 
             		} else {
             			
-            			table.draw(data, tableSettings);
+					table.draw(data, tableSettings);
+
+					// Add click listener
+					$("#report-export-excel").click(function() {
+						exportData("report-export-excel", data);
+					});
             			
             			// Show Report
             			$('#report_div').fadeIn('slow');
@@ -369,18 +405,65 @@ $(function(){
             			// Hover and Zebra
                  	$('#report_div table').addClass('table-hover table-striped');
                  	
-                 	if(response.length < pageSize) {
+                 	if(response.length < perPage) {
                  		$('.goog-custom-button-collapse-left').hide();
                  		$('.goog-custom-button-collapse-right').hide();
                  	}
                  	
             		}
              	
+             	// Refresh button show
+             	$('#report-refresh-img').fadeIn('slow');
+             	
             }
     		
     		});
             
     	}
-    	/******************************************************** report table **/
+	/******************************************************** report table **/
+
+
+	function exportData(elementID, data) {
+		var columns;
+		var content;
+		var link;
+
+		// build column headings
+		columns = '';
+		for (var i = 0; i < data.getNumberOfColumns(); i++) {
+			columns += data.getColumnLabel(i);
+			if (i < data.getNumberOfColumns() - 1) {
+				columns += ',';
+			}
+		}
+		columns += '\n';
+
+		content = columns + google.visualization.dataTableToCsv(data);
+
+		link = document.getElementById(elementID);
+		//downloadLink.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+		link.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURI(content);
+		link.download = reportId + ".xlsx";
+		link.target = '_blank';
+	}
+    	
+    	
+    	function convertTimeToRead(time) {
+    		var sec_num = parseInt(time, 10);
+    	    var hours   = Math.floor(sec_num / 3600);
+    	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    	    hours = hours == 1 ? "1 hour" : (hours > 0 ? hours + " hours" : "");
+    	    minutes = minutes == 1 ? "1 minute" : (minutes > 0 ? minutes + " minutes" : "");
+    	    seconds = seconds == 1 ? "1 second" : (seconds > 0 ? seconds + " seconds" : "")
+    	    
+    	    return hours + " " + minutes + " " + seconds;
+    	}
     	
 })
+
+
+
+
+

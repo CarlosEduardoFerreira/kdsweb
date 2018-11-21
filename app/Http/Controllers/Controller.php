@@ -20,32 +20,7 @@ class Controller extends BaseController
     
     
     function __construct() {
-//         $me = Auth::user();
-//         $objectId = 0;
         
-//         if (isset($store) && $store->id != $me->id) {
-//             $objectId = $store->id;
-            
-//         } else if (isset($storegroup) && $storegroup->id != $me->id) {
-//             $objectId = $storegroup->id;
-            
-//         } else if (isset($reseller) && $reseller->id != $me->id) {
-//             $objectId = $reseller->id;
-            
-//         } else if (isset($storeId) && $storeId != $me->id) {
-//             $objectId = $storeId;
-            
-//         } else if (isset($storegroupId) && $storegroupId != $me->id) {
-//             $objectId = $storegroupId;
-            
-//         } else if (isset($resellerId) && $resellerId != $me->id) {
-//             $objectId = $resellerId;
-            
-//         }
-//         echo "objectId: $objectId | me: $me->id |";
-//         if ($objectId != 0 || !$this->checkPermission($me, $objectId)) {
-//             return response()->view('admin.forbidden');
-//         }
     }
     
     function canIsee(User $me, int $objectId) {
@@ -87,24 +62,32 @@ class Controller extends BaseController
      *  $filterRole = The role to show.
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, int $filter = null) {
+    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null) {
         
         $me = Auth::user();
         
         $whereRole = (isset($filterRole) && $filterRole != 0) ? "users_roles.role_id = $filterRole" : "users_roles.role_id != 0" ;
         
+        $filter = isset($request->filter) ? $request->filter : false;
+        
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)";
         
-        if ($me->roles[0]->name == 'administrator' and (isset($filter) and !$filter)) {
+        if ($me->roles[0]->name == 'administrator' and !$filter) {
             $whereParentId = "";
             
         } else if (isset($parentId) and $parentId != 0) {
             $whereParentId = "AND (stores.parent_id = $parentId OR storegroups.parent_id = $parentId OR resellers.parent_id = $parentId)";
         }
         
+        $whereSearch = "";
+        if($filterRole == 4 && $request->search != null) {
+            $whereSearch = "AND ( UPPER(stores.business_name) LIKE UPPER('%$request->search%') OR UPPER(stores.email) LIKE UPPER('%$request->search%') )";
+        }
+        
         $orderBy = "";
-        if(isset($_GET['sort']) && isset($_GET['order'])) {
-            $orderBy = "ORDER BY " . $_GET['sort'] . " " . $_GET['order'];
+        if(isset($_GET['sort'])) {
+            $direction =  isset($_GET['order']) ? $_GET['order'] : ( isset($_GET['direction']) ? $_GET['direction'] : "ASC" );
+            $orderBy   = "ORDER BY " . $_GET['sort'] . " " . $direction;
         }
         
         $users =  DB::select("SELECT distinct
@@ -114,7 +97,7 @@ class Controller extends BaseController
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
                                 INNER JOIN users_roles ON users_roles.user_id = stores.id
-                                WHERE $whereRole $whereParentId
+                                WHERE $whereRole $whereParentId $whereSearch
                                 $orderBy");
         
         if ($request != null) {
