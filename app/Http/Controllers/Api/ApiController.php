@@ -118,11 +118,24 @@ class ApiController extends Controller
                     $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
-                    $response[0]["store_guid"] = $result[0]->store_guid;
-                    $response[0]["store_name"] = $result[0]->business_name;
                     
-                    $sqlStoreKey = "SELECT store_key FROM settings WHERE store_guid = '" .$result[0]->store_guid. "'";
-                    $response[0]["store_key"] = DB::select($sqlStoreKey)[0]->store_key;
+                    // Check Device App Version
+                    $appVersionCode = isset($request["appVersionCode"]) ? $request["appVersionCode"] : 0;
+                    $devices = DB::select("SELECT * FROM devices WHERE store_guid = '" . $result[0]->store_guid . "' AND is_deleted = 0");
+                    foreach($devices as $device) {
+                        $deviceVersionCode = isset($device->app_version_code) ? $device->app_version_code : 0;
+                        if($appVersionCode < $deviceVersionCode) {
+                            $response[0]["error"] = "This KDS Station needs to be updated. Go to App Store to update the KDS app.";
+                        }
+                    }
+                    
+                    if(!isset($response[0]["error"])) {
+                        $response[0]["store_guid"] = $result[0]->store_guid;
+                        $response[0]["store_name"] = $result[0]->business_name;
+                        
+                        $sqlStoreKey = "SELECT store_key FROM settings WHERE store_guid = '" .$result[0]->store_guid. "'";
+                        $response[0]["store_key"] = DB::select($sqlStoreKey)[0]->store_key;
+                    }
                 }
                 
             } else {
