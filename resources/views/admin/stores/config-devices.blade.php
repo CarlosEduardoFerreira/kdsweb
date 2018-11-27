@@ -119,11 +119,11 @@
                             
                             </div>
                             
-                            <hr />
+                            <hr class="separator-1" />
                             
                             {{-- Summary ----------------------------------------------------------------------------------------- --}}
                             
-                            <div id="device-settings-feature-summary" class="col-lg-12 device-settings-feature-title" scroll-to="230">
+                            <div id="device-settings-feature-summary" class="col-lg-12 device-settings-feature-title" scroll-to="240">
                             
                                 <label class="col-lg-3 col-form-label form-control-label label-left label-group">Summary</label>
                                 	<div class="col-lg-8">
@@ -164,11 +164,11 @@
                              
                              {{-- ----------------------------------------------------------------------------------------- Summary --}}
                              
-                             <hr />
+                             <hr class="separator-1" />
                             	
                             	{{-- Line Display ------------------------------------------------------------------------------------- --}}
                             	
-                            	<div id="device-settings-feature-line-display" class="col-lg-12 device-settings-feature-title" scroll-to="320">
+                            	<div id="device-settings-feature-line-display" class="col-lg-12 device-settings-feature-title" scroll-to="350">
                             	
                                 	<label class="col-lg-3 col-form-label form-control-label label-left label-group device-settings-line-display-text">
                                 		Line Display
@@ -192,7 +192,7 @@
                             	<div id="device-settings-feature-line-display-config" class="col-lg-12 device-settings-feature-config">
                             	
                             		{{-- Line Display Column 1 --}}
-                            		<div class="form-group row">
+                            		<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Column 1</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-4">
@@ -213,7 +213,7 @@
                                 	</div>
                                 	
                                 	{{-- Line Display Column 2 --}}
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Column 2</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-4">
@@ -234,7 +234,7 @@
                                 	</div>
                                 	
                                 	{{-- Line Display Column 3 --}}
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Column 3</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-4">
@@ -255,7 +255,7 @@
                                 	</div>
                                 	
                                 	{{-- Line Display Column 4 --}}
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Column 4</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-4">
@@ -294,11 +294,11 @@
                             	
                             	{{-- ------------------------------------------------------------------------------------- Line Display --}}
                             	
-                            	<hr />
+                            	<hr class="separator-1" />
                             	
                             	{{-- Printer ------------------------------------------------------------------------------------------ --}}
                             	
-                            	<div id="device-settings-feature-printer" class="col-lg-12 device-settings-feature-title" scroll-to="390">
+                            	<div id="device-settings-feature-printer" class="col-lg-12 device-settings-feature-title" scroll-to="450">
                             	
                                 	<label class="col-lg-3 col-form-label form-control-label label-left label-group">Printer</label>
                                 	<div class="col-lg-8">
@@ -366,11 +366,11 @@
                             	
                             	{{-- ------------------------------------------------------------------------------------------ Printer --}}
                             	
-                            	<hr />
+                            	<hr class="separator-1" />
                             
                             	{{-- Order Status ------------------------------------------------------------------------------------- --}}
                             
-                            	<div id="device-settings-feature-order-status" class="col-lg-12 device-settings-feature-title" scroll-to="500">
+                            	<div id="device-settings-feature-order-status" class="col-lg-12 device-settings-feature-title" scroll-to="560">
                             	
                             		<label class="col-lg-11 col-form-label form-control-label label-left label-group">Order Status</label>
                             		
@@ -422,11 +422,11 @@
                             	
                             	{{-- ------------------------------------------------------------------------------------- Order Status --}}
                             
-                            	<hr />
+                            	<hr class="separator-1" />
                             	
                             	{{-- Order header ------------------------------------------------------------------------------------- --}}
                             	
-                            	<div id="device-settings-feature-order-header" class="col-lg-12 device-settings-feature-title" scroll-to="590">
+                            	<div id="device-settings-feature-order-header" class="col-lg-12 device-settings-feature-title" scroll-to="670">
                             	
                             		<label class="col-lg-11 col-form-label form-control-label label-left label-group">Order Header</label>
                             		
@@ -439,7 +439,7 @@
                             	
                             	<div id="device-settings-feature-order-header-config" class="col-lg-12 device-settings-feature-config">
                             	
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Top Left</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-9">
@@ -452,7 +452,7 @@
                                          </div>
                                     	</div>
                                 	</div>
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Top Right</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-9">
@@ -465,7 +465,7 @@
                                          </div>
                                     	</div>
                                 	</div>
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Bottom Left</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-9">
@@ -478,7 +478,7 @@
                                          </div>
                                     	</div>
                                 	</div>
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Bottom Right</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-9">
@@ -496,11 +496,11 @@
                              
                             	{{-- ------------------------------------------------------------------------------------- Order header --}}
                             	
-                            	<hr />
+                            	<hr class="separator-1" />
                             	
                             	{{-- Anchor Dialog ------------------------------------------------------------------------------------ --}}
                             	
-                            	<div id="device-settings-feature-anchor-dialog" class="col-lg-12 device-settings-feature-title" scroll-to="680">
+                            	<div id="device-settings-feature-anchor-dialog" class="col-lg-12 device-settings-feature-title" scroll-to="760">
                             	
                             		<label class="col-lg-11 col-form-label form-control-label label-left label-group">Anchor Dialog</label>
                             		
@@ -513,7 +513,7 @@
                             	
                             	<div id="device-settings-feature-anchor-dialog-config" class="col-lg-12 device-settings-feature-config">
                             	
-                            		<div class="form-group row">
+                            		<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">New Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-6">
@@ -535,7 +535,7 @@
                                     	</div>
                                 	</div>
                                 	
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Prioritized Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-6">
@@ -557,7 +557,7 @@
                                     	</div>
                                 	</div>
                                 	
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Delayed Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-6">
@@ -579,7 +579,7 @@
                                     	</div>
                                 	</div>
                                 	
-                                	<div class="form-group row">
+                                	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Ready Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
                                     		<div class="col-lg-6">
@@ -605,7 +605,7 @@
                             	
                             	{{-- ------------------------------------------------------------------------------------ Anchor Dialog --}}
                             	
-                            	<hr />
+                            	<hr class="separator-1" />
                             
                         </form>
                     </div>
@@ -648,6 +648,7 @@
 
 #modalDeviceSettings #modalLongTitle { font-weight:300; }
 #modalDeviceSettings .modal-dialog { width:70%; font-size:16px; font-weight:300 !important; }
+#modalDeviceSettings .modal-header { border-bottom: 1px solid #9FA8DA; }
 #modalDeviceSettings .card-body { padding:30px 80px 30px 40px; max-height:calc(90vh - 26vh); overflow-y:scroll; }
 #modalDeviceSettings label { height:36px; font-size:16px; font-weight:300; color:#000; text-align:right; padding-top:6px; }
 #modalDeviceSettings select, input { font-size:16px; height:36px !important; border-radius:3px !important; }
@@ -676,8 +677,14 @@
 #modalDeviceSettings .popover .popover-title {  }
 #modalDeviceSettings .popover .popover-content { color:red; font-weight:200; font-size:15px; }
 
+{{--
+hr.separator-0 { border:0; clear:both; display:block; width:100%; background-color:#9FA8DA; height:1px; margin:40px 0px 20px 0px; }
+--}}
+hr.separator-1 { border:none; width:100%; height:20px; border-bottom:1px solid #C5CAE9; 
+                    box-shadow:0 10px 10px -10px #9FA8DA; margin:-20px auto 30px;  }
+.separator-bottom { border-bottom:0.01em solid #eee;  }
 
-hr { border:0; clear:both; display:block; width:100%; background-color:#ddd; height:1px; margin:40px 0px 20px 0px; }
+.separator-bottom:hover { box-shadow:inset 0 -10px 20px -7px #E8EAF6; }
 
 </style>
 
