@@ -443,7 +443,7 @@ $(function(){
 		link = document.getElementById(elementID);
 		//downloadLink.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
 		link.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURI(content);
-		link.download = reportId + ".xlsx";
+		link.download = reportId + ".xls";
 		link.target = '_blank';
 	}
     	
