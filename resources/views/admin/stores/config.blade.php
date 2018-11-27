@@ -146,7 +146,7 @@
             	if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'BACKUP_EXPE') {
             		$modal.find("#device-settings-expeditor").html('').selectpicker('refresh');
             		$modal.find("#device-settings-expeditor").prop('disabled', true);
-            		return;
+            		return
             	}
             
         		$.ajax({
@@ -182,7 +182,7 @@
             if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'PREPARATION') {
             		$modal.find("#device-settings-parent-id").html('').selectpicker('refresh');
             		$modal.find("#device-settings-parent-id").prop('disabled', true);
-                return;
+                return
             }
             
         		$.ajax({
@@ -436,7 +436,7 @@
     
     
         $modal.find("#device-settings-function").change(function(){
-    		loadExpeditors();
+    			loadExpeditors();
         		loadParentsByFunction();
         		lineDisplayDisable();
         });
