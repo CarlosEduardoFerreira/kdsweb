@@ -614,8 +614,8 @@
                 
         		</div>
     			<div class="modal-footer">
-    				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    				<button id="device-settings-save" type="button" class="btn btn-success">Save</button>
+    				<button type="button" id="device-settings-close" class="btn btn-secondary">Close</button>
+    				<button type="button" id="device-settings-save" class="btn btn-success">Save</button>
     			</div>
         	</div>
     </div>
