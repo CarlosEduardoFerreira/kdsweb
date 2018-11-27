@@ -700,9 +700,15 @@
 		// Load Devices Table
 		loadDevicesTable();
 
+		// Modal Close Button
+	    $modal.find('#device-settings-close').click(function(){
+	        $('.popover').popover('destroy');
+	    		$('#modalDeviceSettings').modal('hide');
+	    });
+
     });
 
-    
+
     function showTwilio() {
 		$('#mp-list').hide();
 		$('#mp-twilio').fadeIn();
