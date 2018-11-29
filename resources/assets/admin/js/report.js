@@ -363,11 +363,6 @@ $(function(){
             		} else {
             			
 					table.draw(data, tableSettings);
-
-					// Add click listener
-					$("#report-export-excel").click(function() {
-						exportData("report-export-excel", data);
-					});
             			
             			// Show Report
             			$('#report_div').fadeIn('slow');
@@ -415,37 +410,44 @@ $(function(){
              	// Refresh button show
              	$('#report-refresh-img').fadeIn('slow');
              	
+				// Export Report --------------------------------------------------------- //
+             	var reportTable = $('#report_div table');
+             		reportTable.prop('id','KDS-'+getFilenameDatetime());
+				
+             	var instance = new TableExport(reportTable, {
+				    formats: ['xlsx'],
+				    exportButtons: false
+				});
+				
+				if(response.length > 0) {
+					var exportData = instance.getExportData()['KDS-'+getFilenameDatetime()]['xlsx'];
+	
+					var XLSbutton = document.getElementById('report-export-excel');
+	
+					XLSbutton.addEventListener('click', function (e) {
+						instance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
+					});
+	            }
+				// --------------------------------------------------------- Export Report //
+             	
             }
     		
     		});
             
     	}
 	/******************************************************** report table **/
-
-
-	function exportData(elementID, data) {
-		var columns;
-		var content;
-		var link;
-
-		// build column headings
-		columns = '';
-		for (var i = 0; i < data.getNumberOfColumns(); i++) {
-			columns += data.getColumnLabel(i);
-			if (i < data.getNumberOfColumns() - 1) {
-				columns += ',';
-			}
-		}
-		columns += '\n';
-
-		content = columns + google.visualization.dataTableToCsv(data);
-
-		link = document.getElementById(elementID);
-		//downloadLink.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
-		link.href = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURI(content);
-		link.download = reportId + ".xls";
-		link.target = '_blank';
-	}
+    	
+    	
+    	function getFilenameDatetime() {
+    	    var today = new Date();
+    	    var y = today.getFullYear();
+    	    var m = today.getMonth() + 1;
+    	    var d = today.getDate();
+    	    var h = today.getHours();
+    	    var mi = today.getMinutes();
+    	    var s = today.getSeconds();
+    	    return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s;
+    	}
     	
     	
     	function convertTimeToRead(time) {
