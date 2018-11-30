@@ -199,6 +199,26 @@ mix.scripts([
 ], 'public/assets/admin/js/daterangepicker.js').version();
 
 
+// Export reports CSS
+mix.styles([
+    'resources/assets/admin/css/tableexport.css',
+], 'public/assets/admin/css/tableexport.css').version();
+
+//Export reports JS
+mix.scripts([
+	'resources/assets/admin/js/FileSaver.min.js',
+], 'public/assets/admin/js/FileSaver.min.js').version();
+mix.scripts([
+	'resources/assets/admin/js/Blob.min.js',
+], 'public/assets/admin/js/Blob.min.js').version();
+mix.scripts([
+	'resources/assets/admin/js/xlsx-core.min.js',
+], 'public/assets/admin/js/xlsx-core.min.js').version();
+mix.scripts([
+	'resources/assets/admin/js/tableexport.js',
+], 'public/assets/admin/js/tableexport.js').version();
+
+
 mix.styles([
     'node_modules/select2/dist/css/select2.css',
 ], 'public/assets/admin/css/users/edit.css').version();

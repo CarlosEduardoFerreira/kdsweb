@@ -197,6 +197,7 @@
     
     {{ Html::style(mix('assets/admin/css/daterangepicker.css')) }}
     {{ Html::style(mix('assets/admin/css/jquery-ui.min.css')) }}
+    {{ Html::style(mix('assets/admin/css/tableexport.css')) }}
     
     <style>
     
@@ -290,6 +291,10 @@
 	{{ Html::script(mix('assets/admin/js/moment.min.js')) }}
 	{{ Html::script(mix('assets/admin/js/daterangepicker.js')) }}
 	{{ Html::script(mix('assets/admin/js/jquery-ui.min.js')) }}
+	{{ Html::script(mix('assets/admin/js/FileSaver.min.js')) }}
+	{{ Html::script(mix('assets/admin/js/Blob.min.js')) }}
+	{{ Html::script(mix('assets/admin/js/xlsx-core.min.js')) }}
+	{{ Html::script(mix('assets/admin/js/tableexport.js')) }}
 	{{ Html::script(mix('assets/admin/js/report.js')) }}
 	
 	<script>
