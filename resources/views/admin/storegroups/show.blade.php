@@ -16,7 +16,7 @@
             
 			<tr>
                 <th>Reseller Name</th>
-                <td>{{ $storegroup->parent_id }}</td>
+                <td>{{ $reseller->business_name }}</td>
             </tr>
             <tr>
                 <th>Store Group Name</th>
