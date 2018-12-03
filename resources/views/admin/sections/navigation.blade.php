@@ -1,14 +1,19 @@
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
-        <div class="navbar nav_title" style="border: 0;">
-            <a href="{{ route('admin.dashboard') }}" class="site_title">
-                <span>{{ config('app.name') }}</span>
+    
+        <div style="text-align:center;margin-top:20px;margin-bottom:20px;">
+            <a href="{{ route('admin.dashboard') }}">
+                <!-- <span>{{ config('app.name') }}</span> -->
+                <img id="kds_logo" src="{{ URL::to('/kds_logo.png') }}"/>
             </a>
         </div>
-
-        <div class="clearfix"></div>
+        <style>
+            #kds_logo { width:80%; padding:20px; background:#fff; border-radius:10px; }
+            .nav-sm #kds_logo { width:60px; padding:7px; }
+        </style>
 
         <!-- menu profile quick info -->
+        <!--
         <div class="profile clearfix">
             <div class="profile_pic">
                 <img src="{{ auth()->user()->avatar }}" alt="..." class="img-circle profile_img">
@@ -17,6 +22,7 @@
                 <h2>{{ auth()->user()->username }}</h2>
             </div>
         </div>
+        -->
         <!-- /menu profile quick info -->
 
         <br/>
@@ -33,10 +39,22 @@
                             {{ __('views.backend.section.navigation.menu_0_1') }}
                         </a>
                     </li>
+                    
+                    <?php if(auth()->user()->hasRole('administrator')) { ?>
+                    <!-- 
+                    	<li>
+                        <a href="{{ route('admin.settings') }}">
+                            <i class="fa fa-wrench" aria-hidden="true"></i>
+                            Admin Settings
+                        </a>
+                    </li>
+                    -->
+                    <?php } ?>
+                    
                 </ul>
             </div>
             
-            <div class="menu_section" id="div-store-config" class="">
+            <div class="menu_section" id="div-store-config">
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
 
@@ -136,6 +154,13 @@
         <!-- /sidebar menu -->
     </div>
 </div>
+
+<style>
+    .main_menu_side .menu_section li a { font-size:16px; font-weight:200; }
+</style>
+
+
+
 
 
 
