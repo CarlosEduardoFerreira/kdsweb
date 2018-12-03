@@ -291,7 +291,9 @@ class StoreController extends Controller {
         $store->state   = $state->name;
         $store->country = $country->name;
         
-        return view('admin.stores.show', ['store' => $store]);
+        $storegroup = DB::table('users')->where(['id' => $store->parent_id])->first();
+        
+        return view('admin.stores.show', ['store' => $store, 'storegroup' => $storegroup]);
     }
 
 

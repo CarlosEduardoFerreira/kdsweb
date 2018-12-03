@@ -138,7 +138,9 @@ class StoreGroupController extends Controller
         $storegroup->state   = $state->name;
         $storegroup->country = $country->name;
         
-        return view('admin.storegroups.show', ['storegroup' => $storegroup]);
+        $reseller = DB::table('users')->where(['id' => $storegroup->parent_id])->first();
+        
+        return view('admin.storegroups.show', ['storegroup' => $storegroup, 'reseller' => $reseller]);
     }
 
     /**
