@@ -137,19 +137,10 @@ class StoreController extends Controller {
         // ---------------------------------------------------------------------------- //
         
         // Store Apps
-        $storeApps = DB::table('store_app');
-        $storeApps->insert([
-            'store_guid'  => $data['store_guid'],
-            'app_guid'    => $request->get('user_apps')
-            
-        ]);
+        $this->updateApp($store->store_guid, $request->get('user_apps'));
         
         // Store Environments
-        $storeEnvs = DB::table('store_environment');
-        $storeEnvs->insert([
-            'store_guid'  => $data['store_guid'],
-            'environment_guid'    => $request->get('user_envs')
-        ]);
+        $this->updateEnv($store->store_guid, $request->get('user_envs'));
 
         //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
         return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
@@ -247,21 +238,10 @@ class StoreController extends Controller {
         }
         
         // Store Apps
-        DB::table('store_app')->where(['store_guid' => $store->store_guid])->delete();
-        $storeApps = DB::table('store_app');
-        $storeApps->insert([
-            'store_guid'  => $store->store_guid,
-            'app_guid'    => $request->get('user_apps')
-            
-        ]);
+        $this->updateApp($store->store_guid, $request->get('user_apps'));
         
         // Store Environments
-        DB::table('store_environment')->where(['store_guid' => $store->store_guid])->delete();
-        $storeEnvs = DB::table('store_environment');
-        $storeEnvs->insert([
-            'store_guid'  => $store->store_guid,
-            'environment_guid'    => $request->get('user_envs')
-        ]);
+        $this->updateEnv($store->store_guid, $request->get('user_envs'));
         
         if ($store->id == Auth::user()->id) {
             return redirect()->intended(route('admin.dashboard'));
@@ -1067,6 +1047,36 @@ class StoreController extends Controller {
     function getStoreEnvironments() {
         $envs = DB::select("SELECT * FROM environments WHERE enable = 1");
         return isset($envs) ? $envs : [];
+    }
+    
+    
+    function updateApp($storeGuid, $appGuid) {
+        DB::table('store_app')->where(['store_guid' => $storeGuid])->delete();
+        
+        if(isset($appGuid)) {
+            $storeApps = DB::table('store_app');
+            
+            $storeApps->insert([
+                'store_guid'  => $storeGuid,
+                'app_guid'    => $appGuid
+                
+            ]);
+        }
+    }
+    
+    
+    function updateEnv($storeGuid, $envGuid) {
+        DB::table('store_environment')->where(['store_guid' => $storeGuid])->delete();
+        
+        if(isset($envGuid)) {
+            $storeApps = DB::table('store_environment');
+            
+            $storeApps->insert([
+                'store_guid'  => $storeGuid,
+                'environment_guid'    => $envGuid
+                
+            ]);
+        }
     }
     
     
