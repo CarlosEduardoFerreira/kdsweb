@@ -57,7 +57,7 @@ class StoreController extends Controller {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers($request, 3, $me->id);
+            $storegroups  = Controller::filterUsers($request, 3, $me->id, true);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -66,8 +66,14 @@ class StoreController extends Controller {
         $store->country = 231;   // United States
         $store->timezone = Vars::$timezoneDefault;
         
+        // Applications
+        $apps = $this->getSystemApps();
+        
+        // Environments
+        $envs = $this->getStoreEnvironments();
+        
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'me' => $me]);
+            'countries' => $countries, 'me' => $me, 'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => '']);
     }
     
     
@@ -129,44 +135,26 @@ class StoreController extends Controller {
 
         $settingsTable->insert($data);
         // ---------------------------------------------------------------------------- //
+        
+        // Store Apps
+        $storeApps = DB::table('store_app');
+        $storeApps->insert([
+            'store_guid'  => $data['store_guid'],
+            'app_guid'    => $request->get('user_apps')
+            
+        ]);
+        
+        // Store Environments
+        $storeEnvs = DB::table('store_environment');
+        $storeEnvs->insert([
+            'store_guid'  => $data['store_guid'],
+            'environment_guid'    => $request->get('user_envs')
+        ]);
 
         //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
         return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
     }
     
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param User $user
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function show(User $store)
-    {
-        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
-        if ($accessDenied) {
-            return $accessDenied;
-        }
-        
-        $state   = DB::table('states')->where(['id' => $store->state])->first();
-        $country = DB::table('countries')->where(['id' => $store->country])->first();
-        
-        $store->state   = $state->name;
-        $store->country = $country->name;
-        
-        return view('admin.stores.show', ['store' => $store]);
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -190,7 +178,7 @@ class StoreController extends Controller {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
+            $storegroups  = Controller::filterUsers(null, 3, $me->id, true);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -201,15 +189,109 @@ class StoreController extends Controller {
             $states     = DB::select("select * from states where country_id = $store->country order by name");
         }
         
-//         $cities = [];
-//         if (isset($store->state) && $store->state != "") {
-//             $cities     = DB::select("select * from cities where state_id = $store->state order by name");
-//         }
+        // Applications
+        $apps = $this->getSystemApps();
+        
+        // Environments
+        $envs = $this->getStoreEnvironments();
+        
+        // Store Applications
+        $store_apps = collect(DB::select("SELECT app_guid FROM store_app WHERE store_guid = '$store->store_guid'"))->first();
+        $store_apps = isset($store_apps) ? $store_apps->app_guid : "";
+        
+        // Store Environments
+        $store_envs = collect(DB::select("SELECT environment_guid FROM store_environment WHERE store_guid = '$store->store_guid'"))->first();
+        $store_envs = isset($store_envs) ? $store_envs->environment_guid : "";
 
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'states' => $states, 'me' => $me]);
+            'countries' => $countries, 'states' => $states, 'me' => $me,
+            'apps' => $apps, 'envs' => $envs, 'app_guid' => $store_apps, 'env_guid' => $store_envs]);
+    }
+    
+    
+    public function update(Request $request, User $store)
+    {
+        $store->parent_id       = $request->get('parent_id');
+        $store->business_name   = $request->get('business_name');
+        $store->dba             = $request->get('dba');
+        $store->last_name       = $request->get('last_name');
+        $store->name            = $request->get('name');
+        $store->email           = $request->get('email');
+        $store->phone_number    = $request->get('phone_number');
+        $store->address         = $request->get('address');
+        $store->city            = $request->get('city');
+        $store->state           = $request->get('state');
+        $store->country         = $request->get('country');
+        $store->zipcode         = $request->get('zipcode');
+        $store->timezone        = $request->get('timezone');
+        $store->username        = $request->get('username');
+        
+        if ($request->get('password') != "") {
+            $store->password = bcrypt($request->get('password'));
+        }
+        
+        $store->active      = $request->get('active', 0);
+        $store->confirmed   = $request->get('confirmed', 0);
+        
+        $store->save();
+        
+        //roles
+        if ($request->has('roles')) {
+            $store->roles()->detach();
+            
+            if ($request->get('roles')) {
+                $store->roles()->attach($request->get('roles'));
+            }
+        }
+        
+        // Store Apps
+        DB::table('store_app')->where(['store_guid' => $store->store_guid])->delete();
+        $storeApps = DB::table('store_app');
+        $storeApps->insert([
+            'store_guid'  => $store->store_guid,
+            'app_guid'    => $request->get('user_apps')
+            
+        ]);
+        
+        // Store Environments
+        DB::table('store_environment')->where(['store_guid' => $store->store_guid])->delete();
+        $storeEnvs = DB::table('store_environment');
+        $storeEnvs->insert([
+            'store_guid'  => $store->store_guid,
+            'environment_guid'    => $request->get('user_envs')
+        ]);
+        
+        if ($store->id == Auth::user()->id) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+        
+        // return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
+    }
+    
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param User $user
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function show(User $store)
+    {
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
+        $state   = DB::table('states')->where(['id' => $store->state])->first();
+        $country = DB::table('countries')->where(['id' => $store->country])->first();
+        
+        $store->state   = $state->name;
+        $store->country = $country->name;
+        
+        return view('admin.stores.show', ['store' => $store]);
     }
 
 
@@ -562,55 +644,7 @@ class StoreController extends Controller {
     }
     
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param User $user
-     * @return mixed
-     */
-    public function update(Request $request, User $store)
-    {
-        $store->parent_id       = $request->get('parent_id');
-        $store->business_name   = $request->get('business_name');
-        $store->dba             = $request->get('dba');
-        $store->last_name       = $request->get('last_name');
-        $store->name            = $request->get('name');
-        $store->email           = $request->get('email');
-        $store->phone_number    = $request->get('phone_number');
-        $store->address         = $request->get('address');
-        $store->city            = $request->get('city');
-        $store->state           = $request->get('state');
-        $store->country         = $request->get('country');
-        $store->zipcode         = $request->get('zipcode');
-        $store->timezone        = $request->get('timezone');
-        $store->username        = $request->get('username');
 
-        if ($request->get('password') != "") {
-            $store->password = bcrypt($request->get('password'));
-        }
-
-        $store->active      = $request->get('active', 0);
-        $store->confirmed   = $request->get('confirmed', 0);
-
-        $store->save();
-
-        //roles
-        if ($request->has('roles')) {
-            $store->roles()->detach();
-
-            if ($request->get('roles')) {
-                $store->roles()->attach($request->get('roles'));
-            }
-        }
-        
-        if ($store->id == Auth::user()->id) {
-            return redirect()->intended(route('admin.dashboard'));
-        }
-
-        // return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false])); // keep on the same page
-        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
-    }
     
     
     public function updateSettings(Request $request, User $store)
@@ -1017,6 +1051,20 @@ class StoreController extends Controller {
         
         return "";
         
+    }
+    
+    
+    // Get System Apps
+    function getSystemApps() {
+        $apps = DB::select("SELECT * FROM apps WHERE enable = 1");
+        return isset($apps) ? $apps : [];
+    }
+    
+    
+    // Get Store Environments
+    function getStoreEnvironments() {
+        $envs = DB::select("SELECT * FROM environments WHERE enable = 1");
+        return isset($envs) ? $envs : [];
     }
     
     

@@ -45,7 +45,6 @@ class Controller extends BaseController
                                    AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)");
         
         return isset($users[0]);
-        //return false;
     }
     
     
@@ -62,7 +61,7 @@ class Controller extends BaseController
      *  $filterRole = The role to show.
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null) {
+    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, $all = false) {
         
         $me = Auth::user();
         
@@ -84,6 +83,24 @@ class Controller extends BaseController
             $whereSearch = "AND ( UPPER(stores.business_name) LIKE UPPER('%$request->search%') OR UPPER(stores.email) LIKE UPPER('%$request->search%') )";
         }
         
+        // Applications
+        $selectsApps    = "";
+        $joinApps       = "";
+        if($filterRole == 4) { // 1 = admin, 2 = reseller, 3 = storegroup, 4 = store
+            $selectsApps    = " , apps.name as app_name ";
+            $joinApps       = "LEFT JOIN store_app AS store_app ON store_app.store_guid = stores.store_guid
+                                LEFT JOIN apps ON apps.guid = store_app.app_guid";
+        }
+        
+        // Evironments
+        $selectsEnvs    = "";
+        $joinEnvs       = "";
+        if($filterRole == 4) {
+            $selectsEnvs    = " , environments.name as env_name ";
+            $joinEnvs       = "LEFT JOIN store_environment AS store_env ON store_env.store_guid = stores.store_guid
+                                LEFT JOIN environments ON environments.guid = store_env.environment_guid";
+        }
+        
         $orderBy = "";
         if(isset($_GET['sort'])) {
             $direction =  isset($_GET['order']) ? $_GET['order'] : ( isset($_GET['direction']) ? $_GET['direction'] : "ASC" );
@@ -91,17 +108,29 @@ class Controller extends BaseController
         }
         
         $users =  DB::select("SELECT distinct
+
                                     stores.*,
-                                    users_roles.role_id 
+                                    users_roles.role_id
+                                    $selectsApps
+                                    $selectsEnvs
+
                                 FROM users AS stores 
+
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
+
                                 INNER JOIN users_roles ON users_roles.user_id = stores.id
-                                WHERE $whereRole $whereParentId $whereSearch
+
+                                $joinApps
+                                $joinEnvs
+
+                                WHERE $whereRole $whereParentId $whereSearch  
+
                                 $orderBy");
         
         if ($request != null) {
-            $users = $this->arrayPaginator($users, $request, 10);
+            $amount = $all ? 1000 : 10;
+            $users = $this->arrayPaginator($users, $request, $amount);
         }
         
         return $users;

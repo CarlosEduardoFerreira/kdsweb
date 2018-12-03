@@ -60,7 +60,7 @@ class StoreGroupController extends Controller
             $resellers[0] = $me;
             
         } else {
-            $resellers  = Controller::filterUsers($request, 2, $me->id);
+            $resellers  = Controller::filterUsers($request, 2, $me->id, true);
         }
         // ------------------------------------------------------- Resellers //
         
@@ -75,23 +75,6 @@ class StoreGroupController extends Controller
     
     public function insert(Request $request)
     {
-//         $validator = Validator::make($request->all(), [
-//             'business_name' => 'required|max:200',
-//             'name'          => 'required|max:200',
-//             'email'         => 'required|email|max:255',
-//             'phone_number'  => 'required|max:45',
-//             'address'       => 'required',
-//             'city'          => 'required|max:100',
-//             'state'         => 'required|max:100',
-//             'country'       => 'required|max:100',
-//             'zipcode'       => 'required|max:30'
-//         ]);
-        
-//         $validator->sometimes('password', 'min:6|confirmed', function ($input) {
-//             return $input->password;
-//         });
-            
-//         if ($validator->fails()) return redirect()->back()->withErrors($validator->errors());
         
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone(Vars::$timezoneDefault));
@@ -180,7 +163,7 @@ class StoreGroupController extends Controller
             $resellers[0] = $me;
             
         } else {
-            $resellers  = Controller::filterUsers(null, 2, $me->id, $request->filter);
+            $resellers  = Controller::filterUsers(null, 2, $me->id, true);
         }
         // ------------------------------------------------------- Resellers //
         
@@ -190,11 +173,6 @@ class StoreGroupController extends Controller
         if (isset($storegroup->country) && $storegroup->country != "") {
             $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
         }
-        
-//         $cities = [];
-//         if (isset($storegroup->state) && $storegroup->state != "") {
-//             $cities     = DB::select("select * from cities where state_id = $storegroup->state order by name");
-//         }
         
         return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup, 'parents' => $resellers,
             'countries' => $countries, 'states' => $states, 'me' => $me]);
@@ -257,4 +235,52 @@ class StoreGroupController extends Controller
     {
         //
     }
+    
+    
+    public function getAppsByStoreGroup(Request $request) {
+        
+        $apps = [];
+        
+        if(!isset($request->storeGroupId) or $request->storeGroupId == '') {
+            return $apps;
+        }
+        
+        $apps = DB::select("SELECT distinct
+                                    apps.name
+                                FROM apps 
+                                JOIN users AS stores ON stores.parent_id = $request->storeGroupId
+                                JOIN store_app AS store_app ON store_app.store_guid = stores.store_guid
+                                WHERE stores.active = 1 AND apps.guid = store_app.app_guid
+                                ORDER BY name");
+        
+        return response()->json($apps);
+    }
+    
+    
+    public function getEnvsByStoreGroup(Request $request) {
+        
+        $envs = [];
+        
+        if(!isset($request->storeGroupId) or $request->storeGroupId == '') {
+            return $envs;
+        }
+        
+        $envs = DB::select("SELECT distinct
+                                    environments.name
+                                FROM environments
+                                JOIN users AS stores ON stores.parent_id = $request->storeGroupId
+                                JOIN store_environment AS store_env ON store_env.store_guid = stores.store_guid
+                                WHERE stores.active = 1 AND environments.guid = store_env.environment_guid
+                                ORDER BY name");
+        
+        return response()->json($envs);
+    }
+    
+    
 }
+
+
+
+
+
+
