@@ -288,10 +288,10 @@ class StoreController extends Controller {
              $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
              
              $devices  = DB::table('devices')
-             ->where(['store_guid' => $store->store_guid])
-             ->where('is_deleted', '<>',  1)
-             ->orderBy('license','desc')
-             ->orderBy('id','asc')->paginate(50);
+                         ->where(['store_guid' => $store->store_guid])
+                         ->where('is_deleted', '<>',  1)
+                         ->orderBy('license','desc')
+                         ->orderBy('id','asc')->paginate(50);
         }
      
         if(!isset($settings)) {

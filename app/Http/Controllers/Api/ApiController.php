@@ -595,6 +595,7 @@ class ApiController extends Controller
         
         if ($request->active) {
             if (isset($device)) {
+                
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
                     //->where('store_guid', '=',  $request->store_guid) // should permit same serial for the same store?
@@ -608,6 +609,22 @@ class ApiController extends Controller
                         return array("There is another KDS Station with the same serial number active.");
                     }
                 }
+                
+                // -- License Amount validation --------------------------------------------------------- //
+                $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
+                                        WHERE store_guid = '$device->store_guid'
+                                        AND is_deleted != 1")[0]->inUse;
+                
+                $settings = DB::table('settings')->where(['store_guid' => $device->store_guid])->first();
+                $licenseTotal = 0;
+                if(isset($settings)) {
+                    $licenseTotal = $settings->licenses_quantity;
+                }
+                
+                if($licensesInUse >= $licenseTotal) {
+                    return array("There is no license available.");
+                }
+                // --------------------------------------------------------- License Amount validation -- //
             }
         }
         
