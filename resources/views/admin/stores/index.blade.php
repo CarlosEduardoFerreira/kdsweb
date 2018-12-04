@@ -22,7 +22,7 @@
                     	<th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
                     	<th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
                     	<th>App</th>
-                    	<th>@sortablelink('environment', 'Type',['page' => $stores->currentPage()])</th>
+                    	<th>@sortablelink('env_name', 'Type',['page' => $stores->currentPage()])</th>
                     	<th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
                     	<th>Actions</th>
                 </tr>
