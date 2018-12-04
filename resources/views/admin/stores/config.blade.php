@@ -643,9 +643,9 @@
         	            	            success: function (response) {
         	            	            		if (response != true && response != "true") {
         	            	            			theCkeck.prop("checked", !checking);
-        	            	            			$(".modal-title").text("Action not permitted");
-        	            	            			$(".modal-body").text(response);
-        	            	            			$('#modal-btn').click();
+        	            	            			$("#modal-error .modal-title").text("Action not permitted");
+        	            	            			$("#modal-error .modal-body").text(response);
+        	            	            			$('#modal-error').modal('show');
         	            	            		} else {
         	            	            			var numbers  = $('#license-info').text().split(": ")[1]; // Licenses: e.g. 1 / 3
         	            	            			var info  = numbers.split(" / "); // e.g. 1 / 3
