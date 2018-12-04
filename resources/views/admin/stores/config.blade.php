@@ -301,15 +301,20 @@
 						$modal.find('#device-settings-order-header-bottom-right').val(BottomRightDefault).selectpicker('refresh');
 						
 						// Anchor Dialog
-						var anchorTimeNew 			= $settingsLocal.anchor_time_new != null ? $settingsLocal.anchor_time_new : 0 ;
-						var anchorTimePrioritized 	= $settingsLocal.anchor_time_prioritized != null ? $settingsLocal.anchor_time_prioritized : 0 ;
-						var anchorTimeDelayed 	  	= $settingsLocal.anchor_time_delayed != null ? $settingsLocal.anchor_time_delayed : 0 ;
-						var anchorTimeReady			= $settingsLocal.anchor_time_ready != null ? $settingsLocal.anchor_time_ready : 0 ;
+						var anchorTimeValidNew = $settingsLocal.anchor_time_new != null && $settingsLocal.anchor_time_new != 0;
+						var anchorTimeValidPri = $settingsLocal.anchor_time_prioritized != null && $settingsLocal.anchor_time_prioritized != 0;
+						var anchorTimeValidDel = $settingsLocal.anchor_time_delayed != null && $settingsLocal.anchor_time_delayed != 0;
+						var anchorTimeValidRea = $settingsLocal.anchor_time_ready != null && $settingsLocal.anchor_time_ready != 0;
 						
-						$modal.find('#device-settings-anchor-seconds-new').val(anchorTimeNew);
-						$modal.find('#device-settings-anchor-seconds-prioritized').val(anchorTimePrioritized);
-						$modal.find('#device-settings-anchor-seconds-delayed').val(anchorTimeDelayed);
-						$modal.find('#device-settings-anchor-seconds-ready').val(anchorTimeReady);
+						var anchorTimeNew 			= anchorTimeValidNew ? $settingsLocal.anchor_time_new : 15 ;
+						var anchorTimePrioritized 	= anchorTimeValidPri ? $settingsLocal.anchor_time_prioritized : 15 ;
+						var anchorTimeDelayed 	  	= anchorTimeValidDel ? $settingsLocal.anchor_time_delayed : 15 ;
+						var anchorTimeReady			= anchorTimeValidRea ? $settingsLocal.anchor_time_ready : 15 ;
+						
+						$modal.find('#device-settings-anchor-seconds-new').val(anchorTimeNew).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-prioritized').val(anchorTimePrioritized).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-delayed').val(anchorTimeDelayed).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-ready').val(anchorTimeReady).selectpicker('refresh');
 
 						$modal.find('#device-settings-anchor-enable-new').prop('checked', $settingsLocal.anchor_enable_new);
 						$modal.find('#device-settings-anchor-enable-prioritized').prop('checked', $settingsLocal.anchor_enable_prioritized);

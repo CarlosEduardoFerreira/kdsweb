@@ -516,12 +516,15 @@
                             		<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">New Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
-                                    		<div class="col-lg-6">
+                                    		<div class="col-lg-5">
                                     		</div>
-                                        	<div class="col-lg-4" style="padding:0;">
-                                            	<div class="col-lg-5">
-                                                	<input type="number" min="0" id="device-settings-anchor-seconds-new" 
-                                                		name="device-settings-anchor-seconds-new" class="form-control anchor-input num-99999">
+                                        	<div class="col-lg-5" style="padding:0;">
+                                            	<div class="col-lg-6">
+                                            		<select id="device-settings-anchor-seconds-new" 
+                                            			name="device-settings-anchor-seconds-new" 
+                                                		class="form-control device-settings-anchor-seconds selectpicker">
+                                                    	
+                                                	</select>
                                             	</div>
                                             	<label class="col-lg-5 col-form-label form-control-label label-left">seconds</label>
                                          </div>
@@ -538,12 +541,15 @@
                                 	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Prioritized Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
-                                    		<div class="col-lg-6">
+                                    		<div class="col-lg-5">
                                     		</div>
-                                        	<div class="col-lg-4" style="padding:0;">
-                                            	<div class="col-lg-5">
-                                                	<input type="number" min="0" id="device-settings-anchor-seconds-prioritized" 
-                                                		name="device-settings-anchor-seconds-prioritized" class="form-control anchor-input num-99999">
+                                        	<div class="col-lg-5" style="padding:0;">
+                                            	<div class="col-lg-6">
+                                            		<select id="device-settings-anchor-seconds-prioritized" 
+                                            			name="device-settings-anchor-seconds-prioritized" 
+                                                		class="form-control device-settings-anchor-seconds selectpicker">
+                                                    	
+                                                	</select>
                                             	</div>
                                             	<label class="col-lg-5 col-form-label form-control-label label-left">seconds</label>
                                          </div>
@@ -560,12 +566,15 @@
                                 	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Delayed Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
-                                    		<div class="col-lg-6">
+                                    		<div class="col-lg-5">
                                     		</div>
-                                        	<div class="col-lg-4" style="padding:0;">
-                                            	<div class="col-lg-5">
-                                                	<input type="number" min="0" id="device-settings-anchor-seconds-delayed" 
-                                                		name="device-settings-anchor-seconds-delayed" class="form-control anchor-input num-99999">
+                                        	<div class="col-lg-5" style="padding:0;">
+                                            	<div class="col-lg-6">
+                                            		<select id="device-settings-anchor-seconds-delayed" 
+                                            			name="device-settings-anchor-seconds-delayed" 
+                                                		class="form-control  device-settings-anchor-seconds selectpicker">
+                                                    	
+                                                	</select>
                                             	</div>
                                             	<label class="col-lg-5 col-form-label form-control-label label-left">seconds</label>
                                          </div>
@@ -582,12 +591,15 @@
                                 	<div class="form-group row separator-bottom">
                                     	<label class="col-lg-3 col-form-label form-control-label">Ready Orders</label>
                                     	<div class="col-lg-9" style="padding:0;">
-                                    		<div class="col-lg-6">
+                                    		<div class="col-lg-5">
                                     		</div>
-                                        	<div class="col-lg-4" style="padding:0;">
-                                            	<div class="col-lg-5">
-                                                	<input type="number" min="0" id="device-settings-anchor-seconds-ready" 
-                                                		name="device-settings-anchor-seconds-ready" class="form-control anchor-input num-99999">
+                                        	<div class="col-lg-5" style="padding:0;">
+                                            	<div class="col-lg-6">
+                                            		<select id="device-settings-anchor-seconds-ready" 
+                                            			name="device-settings-anchor-seconds-ready" 
+                                                		class="form-control device-settings-anchor-seconds selectpicker">
+                                                    	
+                                                	</select>
                                             	</div>
                                             	<label class="col-lg-5 col-form-label form-control-label label-left">seconds</label>
                                          </div>
@@ -697,6 +709,8 @@
 #modalDeviceSettings .device-settings-arrow i:hover { background:#eef; }
 #modalDeviceSettings .device-settings-arrow i:active { background:#eff; }
 
+#modalDeviceSettings .device-settings-anchor-seconds .filter-option-inner-inner { text-align:center; }
+
 {{-- Modal Error --}}
 #modal-error .modal-title   { color:red; }
 #modal-error .modal-body    { text-align:center; font-size:16px; }
@@ -719,7 +733,10 @@ hr.separator-1 { border:none; width:100%; height:20px; border-bottom:1px solid #
 
 <script>
 
-function fillColumnTextAndPercent(columnId) {
+
+{{-- Line Display -------------------------------------------------------------------------------------------- --}}
+
+function lineDisplayFillTextAndPercent(columnId) {
 	var selectText = document.getElementById('device-settings-line-display-column-' + columnId + '-text');
 		selectText.innerHTML  = '<option value="ORDER_ID">Order ID</option>';
 		selectText.innerHTML += '<option value="ITEM_NAME">Name</option>';
@@ -744,10 +761,15 @@ function fillColumnTextAndPercent(columnId) {
 }
 
 for(var i=1; i<=4; i++) {
-	fillColumnTextAndPercent(i);
+	lineDisplayFillTextAndPercent(i);
 }
 
-function fillOrderHeaderSelect(id) {
+{{-- -------------------------------------------------------------------------------------------- Line Display --}}
+
+
+{{-- Order Header -------------------------------------------------------------------------------------------- --}}
+
+function orderHeaderFillSelect(id) {
 	var selectText = document.getElementById('device-settings-order-header-' + id);
 	
 	selectText.innerHTML  = '<option value="ORDER_ID">Order ID</option>';
@@ -760,10 +782,34 @@ function fillOrderHeaderSelect(id) {
 	selectText.innerHTML += '<option value="ORDER_TYPE">Order Type</option>';
 }
 
-fillOrderHeaderSelect('top-left');
-fillOrderHeaderSelect('top-right');
-fillOrderHeaderSelect('bottom-left');
-fillOrderHeaderSelect('bottom-right');
+orderHeaderFillSelect('top-left');
+orderHeaderFillSelect('top-right');
+orderHeaderFillSelect('bottom-left');
+orderHeaderFillSelect('bottom-right');
+
+{{-- -------------------------------------------------------------------------------------------- Order Header --}}
+
+
+{{-- Anchor Dialog ------------------------------------------------------------------------------------------- --}}
+
+function anchorDialogFillSeconds(id) {
+	var select = document.getElementById(id);
+		select.innerHTML  = '<option style="text-align:center;" value="Always">Always</option>';
+		select.innerHTML += '<option style="text-align:center;" value="05">05</option>';
+		select.innerHTML += '<option style="text-align:center;" value="10">10</option>';
+		select.innerHTML += '<option style="text-align:center;" value="15">15</option>';
+		select.innerHTML += '<option style="text-align:center;" value="20">20</option>';
+		select.innerHTML += '<option style="text-align:center;" value="25">25</option>';
+		select.innerHTML += '<option style="text-align:center;" value="30">30</option>';
+}
+
+anchorDialogFillSeconds('device-settings-anchor-seconds-new');
+anchorDialogFillSeconds('device-settings-anchor-seconds-prioritized');
+anchorDialogFillSeconds('device-settings-anchor-seconds-delayed');
+anchorDialogFillSeconds('device-settings-anchor-seconds-ready');
+
+{{-- ------------------------------------------------------------------------------------------- Anchor Dialog --}}
+
 
 </script>
 
