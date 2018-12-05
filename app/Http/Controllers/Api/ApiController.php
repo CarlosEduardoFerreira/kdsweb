@@ -613,7 +613,8 @@ class ApiController extends Controller
                 // -- License Amount validation --------------------------------------------------------- //
                 $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
                                         WHERE store_guid = '$device->store_guid'
-                                        AND is_deleted != 1")[0]->inUse;
+                                        AND is_deleted != 1
+                                        AND split_screen_parent_device_id = 0")[0]->inUse;
                 
                 $settings = DB::table('settings')->where(['store_guid' => $device->store_guid])->first();
                 $licenseTotal = 0;
