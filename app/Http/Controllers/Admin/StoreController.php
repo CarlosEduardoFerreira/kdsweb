@@ -568,10 +568,25 @@ class StoreController extends Controller {
             // -------------------------------------------------------------- Update Settings Line Display -- //
 
             // -- Update Device ----------------------------------------------------------------------------- //
+            $deviceId = $request->device['device-settings-id'];
+            $function = $request->device['device-settings-function'];
+            $functionWasChanged = $function != $devices->get()[0]->function;
+            
+            if($functionWasChanged) {
+                // Remove from Dependent Devices as Expeditors
+                $this->removeFromDependentDevicesAsExpeditor($storeGuid, $deviceId);
+                
+                // Remove from Dependent Devices as Parent
+                $this->removeFromDependentDevicesAsParent($storeGuid, $deviceId);
+                
+                // Remove from Dependent Devices as Transfer
+                $this->removeFromDependentDevicesAsTransfer($storeGuid, $deviceId);
+            }
+            
             $data = [
                 'name'                      => $request->device['device-settings-name'],
-                'id'                        => $request->device['device-settings-id'],
-                'function'                  => $request->device['device-settings-function'],
+                'id'                        => $deviceId,
+                'function'                  => $function,
                 'expeditor'                 => $request->device['device-settings-expeditor'],
                 'parent_id'                 => isset($request->device['device-settings-parent-id']) ? $request->device['device-settings-parent-id'] : 0,
                 'xml_order'                 => $request->device['device-settings-host'],
@@ -626,9 +641,6 @@ class StoreController extends Controller {
     }
     
 
-
-    
-    
     public function updateSettings(Request $request, User $store)
     {
         
@@ -956,72 +968,16 @@ class StoreController extends Controller {
                 'update_time' => time()
             ];
             
-            foreach($devices->get() as $device) {
+            foreach($devices->get() as $device) { // Iterate to update split screen also
                 
-                // ** Remove expeditors ******************************************* //
-                $expeditors = DB::select("SELECT * FROM devices 
-                    WHERE store_guid = '$storeGuid' 
-                    AND is_deleted = 0 
-                    AND ( expeditor = '$device->id' 
-                            OR expeditor LIKE '%,$device->id,%' 
-                            OR expeditor LIKE '%,$device->id' 
-                            OR expeditor LIKE '$device->id,%' 
-                        )");
+                // Remove from Dependent Devices as Expeditors 
+                $this->removeFromDependentDevicesAsExpeditor($storeGuid, $device->id);
                 
-                if(count($expeditors) > 0) {
-                    
-                    foreach($expeditors as $expeditor) {
-                        
-                        $expeditorIds = explode(',', $expeditor->expeditor);
-                        $expeditorIdsNew = "";
-                        
-                        foreach($expeditorIds as $expeditorId) {
-                            if($expeditorId == $device->id) {
-                                continue;
-                            }
-                            
-                            $expeditorIdsNew .= $expeditorId . ",";
-                        }
-                        
-                        if(substr($expeditorIdsNew, -1) == ',') {
-                            $expeditorIdsNew = rtrim($expeditorIdsNew,",");
-                        }
-                        
-                        $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$expeditor->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ***************************************** Remove expeditors ** //
+                // Remove from Dependent Devices as Parent
+                $this->removeFromDependentDevicesAsParent($storeGuid, $device->id);
                 
-                // ** Remove parent id ****************************************** //
-                $parents = DB::select("SELECT * FROM devices
-                    WHERE store_guid = '$storeGuid'
-                    AND is_deleted = 0
-                    AND ( parent_id = $device->id
-                        )");
-                
-                if(count($parents) > 0) {
-                    foreach($parents as $parent) {
-                        $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$parent->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ***************************************** Remove parent id ** //
-                
-                // ** Remove transfer ****************************************** //
-                $transfers = DB::select("SELECT * FROM devices
-                    WHERE store_guid = '$storeGuid'
-                    AND is_deleted = 0
-                    AND ( bump_transfer_device_id = $device->id
-                        )");
-                
-                if(count($transfers) > 0) {
-                    foreach($transfers as $transfer) {
-                        $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$transfer->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ****************************************** Remove transfer ** //
+                // Remove from Dependent Devices as Transfer
+                $this->removeFromDependentDevicesAsTransfer($storeGuid, $device->id);
                 
             }
             
@@ -1033,6 +989,74 @@ class StoreController extends Controller {
         
         return "";
         
+    }
+    
+    
+    function removeFromDependentDevicesAsExpeditor($storeGuid, $deviceId) {
+        $dependentsAsExpeditor = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( expeditor = '$deviceId'
+                            OR expeditor LIKE '%,$deviceId,%'
+                            OR expeditor LIKE '%,$deviceId'
+                            OR expeditor LIKE '$deviceId,%'
+                        )");
+        
+        if(count($dependentsAsExpeditor) > 0) {
+            
+            foreach($dependentsAsExpeditor as $dependent) {
+                
+                $expeditorIds = explode(',', $dependent->expeditor);
+                $expeditorIdsNew = "";
+                
+                foreach($expeditorIds as $expeditorId) {
+                    if($expeditorId == $deviceId) {
+                        continue;
+                    }
+                    
+                    $expeditorIdsNew .= $expeditorId . ",";
+                }
+                
+                if(substr($expeditorIdsNew, -1) == ',') {
+                    $expeditorIdsNew = rtrim($expeditorIdsNew,",");
+                }
+                
+                $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
+    }
+    
+    
+    function removeFromDependentDevicesAsParent($storeGuid, $deviceId) {
+        $dependentsAsParent = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( parent_id = $deviceId
+                        )");
+        
+        if(count($dependentsAsParent) > 0) {
+            foreach($dependentsAsParent as $dependent) {
+                $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
+    }
+    
+    
+    function removeFromDependentDevicesAsTransfer($storeGuid, $deviceId) {
+        $dependentsAsTransfer = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( bump_transfer_device_id = $deviceId
+                        )");
+        
+        if(count($dependentsAsTransfer) > 0) {
+            foreach($dependentsAsTransfer as $dependent) {
+                $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
     }
     
     
