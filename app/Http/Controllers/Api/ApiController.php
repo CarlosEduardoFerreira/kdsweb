@@ -27,7 +27,7 @@ class ApiController extends Controller
     public function index() {
         
         $request = file_get_contents("php://input");
-        $request = $this->stripslashes_deep(htmlspecialchars_decode($request));
+        $request = htmlspecialchars_decode($request);
         $request = json_decode($request, true);
         
         $response = array(array());
