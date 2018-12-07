@@ -17,6 +17,8 @@
                 
                 $licenses_quantity = isset($settings->licenses_quantity) ? $settings->licenses_quantity : "0";
             ?>
+            
+            <input type="hidden" id="store-guid" name="store-guid" value="{{$store->store_guid}}"/>
 
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="server_address" >
@@ -150,9 +152,7 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <input id="licenses_quantity" name="licenses_quantity" type="number" min="0" style="width:100px;display:inline;text-align:center;"
                     value="{{ $licenses_quantity }}" class="form-control" required>
-                    <span id="error-licenses-quantity" class="parsley-required" style="display:none;padding-left:10px;">Invalid number.</span>
                 </div>
-                
             </div>
         
             <div class="form-group" style="margin-top:30px;margin-bottom:100px;">

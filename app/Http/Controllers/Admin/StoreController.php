@@ -643,7 +643,6 @@ class StoreController extends Controller {
 
     public function updateSettings(Request $request, User $store)
     {
-        
         if(isset($store->store_guid) and $store->store_guid != '') {
             $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
         }
@@ -668,8 +667,7 @@ class StoreController extends Controller {
                     'licenses_quantity'        => $request->get('licenses_quantity'),
                     'update_time'              => time()
                 ];
-
-
+        
         if (empty($request->get('store_key'))) {
             $data['store_key'] = substr(Uuid::uuid4(), 0, 8);
         }
@@ -686,6 +684,34 @@ class StoreController extends Controller {
         }
         
         return redirect()->intended(route('admin.stores.config', [$store->id]));
+    }
+    
+    
+    function validateStoreSettings(Request $request) {
+        $error = array();
+        
+        $storeGuid = $request->get("storeGuid");
+        $licensesQuantity = $request->get("licensesQuantity");
+        
+        if($licensesQuantity == "" || $licensesQuantity < 0) {
+            $error["id"] = "licenses_quantity";
+            $error["title"] = "Licenses Quantity";
+            $error["msg"] = "Invalid number in the \"Licenses Quantity\" field.";
+            return response()->json($error);
+        }
+        
+        $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
+                                        WHERE store_guid = '$storeGuid'
+                                        AND is_deleted != 1
+                                        AND split_screen_parent_device_id = 0")[0]->inUse;
+
+        if($licensesInUse > $licensesQuantity) {
+            $error["id"] = "licenses_quantity";
+            $error["title"] = "Licenses Quantity";
+            $error["msg"] = "Licenses Quantity field cannot be less than licenses in use.";
+        }
+        
+        return response()->json($error);
     }
     
     

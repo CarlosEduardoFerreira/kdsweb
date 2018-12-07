@@ -1,5 +1,7 @@
 $(document).ready(function() {
 	
+	var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+	
 	$('[name="auto_done_order_hourly"]').change(function(){
 		setAMPM();
 	});
@@ -15,16 +17,13 @@ $(document).ready(function() {
 	});
 	
 	
-	// Start Calls --------------------------------------- //
 	setAMPM();
-	//---------------------------------------- Start Calls //
 	
 	
 	// Save / Submit
 	$('#btn-save-settings').click(function() {
-		if (validate()) {
-			$('#form-settings').submit();
-			sendNotificationToFirebase();
+		if (handleTime()) {
+			validateStoreSettings();
 		}
 	});
 
@@ -65,30 +64,26 @@ $(document).ready(function() {
 	}
 	
 	
-	// Licenses Quantity
-	$('#licenses_quantity').on('input',function(e){
-		validadeLicensesQuantity();
-	});
-	
-	
-	function validate() {
-		if(validadeLicensesQuantity()) {
-			return handleTime();
-		}
-	}
-	
-	
-	function validadeLicensesQuantity() {
-		$('#error-licenses-quantity').css('display','none');
-		
-		// License Quantity
-		var licensesQuantity = $('#licenses_quantity').val();
-		if(licensesQuantity == "" || licensesQuantity < 0) {
-			$('#error-licenses-quantity').css('display','inline');
-			return false;
-		}
-		
-		return true;
+	function validateStoreSettings() {
+		$.ajax({
+		 	headers: token,
+            url: 'validateStoreSettings',
+            type: 'POST',
+            data: {
+            		storeGuid: $('#store-guid').val(),
+            		licensesQuantity: $('#licenses_quantity').val()
+            	},
+            success: function (error) {
+            		if(error["id"] == undefined) {
+            			$('#form-settings').submit();
+            			sendNotificationToFirebase();
+            		} else {
+            			$("#modal-error .modal-title").text(error["title"]);
+            			$("#modal-error .modal-body").text(error["msg"]);
+            			$('#modal-error').modal('show');
+            		}
+            }
+        });
 	}
 	
 	
