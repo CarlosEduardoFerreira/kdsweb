@@ -663,7 +663,9 @@ class StoreController extends Controller {
                     'socket_port'              => $request->get('socket_port'),
                     'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
                     'auto_done_order_time'     => $auto_done_order_time,
-                    'smart_order'              => $request->get('smart_order'),
+                    'smart_order'              => $request->get('smart_order') == 'on' ? 1 : 0,
+                    'smart_order_hide_mode'    => $request->get('smart_order_hide_mode') == 'on' ? 1 : 0,
+                    'smart_order_with_start'   => $request->get('smart_order_with_start') == 'on' ? 1 : 0,
                     'licenses_quantity'        => $request->get('licenses_quantity'),
                     'update_time'              => time()
                 ];
