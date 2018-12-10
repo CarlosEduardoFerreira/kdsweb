@@ -119,6 +119,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('stores/{store}/config#marketplace', 'StoreController@config')->name('stores.config#marketplace');
     // Update Settings Action
     Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
+    // Validate Settings
+    Route::post('stores/{store}/validateStoreSettings', 'StoreController@validateStoreSettings')->name('stores.validateStoreSettings');
     // Update Twilio
     Route::put('stores/{store}/updateTwilio', 'StoreController@updateTwilio')->name('stores.updateTwilio');
     // Delete Action
