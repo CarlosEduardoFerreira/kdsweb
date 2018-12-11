@@ -137,10 +137,10 @@ class StoreController extends Controller {
         // ---------------------------------------------------------------------------- //
         
         // Store Apps
-        $this->updateApp($store->store_guid, $request->get('user_apps'));
+        $this->updateApp($data['store_guid'], $request->get('user_apps'));
         
         // Store Environments
-        $this->updateEnv($store->store_guid, $request->get('user_envs'));
+        $this->updateEnv($data['store_guid'], $request->get('user_envs'));
 
         //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
         return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
