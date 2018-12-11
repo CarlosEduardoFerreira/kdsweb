@@ -585,6 +585,18 @@ class ApiController extends Controller
             }
         }
         
+        if (count($return) == 0) {
+            if (!isset($request->user_apps)) {
+                $return["FIELD"] = "user_apps";
+                $return["ERROR"] = "The field \"App\" is required for register.";
+                
+            } else if (!isset($request->user_envs)) {
+                
+                $return["FIELD"] = "user_envs";
+                $return["ERROR"] = "The field \"Type\" is required for register.";
+            }
+        }
+        
         return array($return);
     }
     
