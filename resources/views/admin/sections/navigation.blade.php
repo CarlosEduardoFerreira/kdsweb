@@ -92,51 +92,37 @@
                     
                         if(auth()->user()->hasRole('store')) { ?>
                         
-                        <input type="hidden" id="selected-page" value="{{ $selected }}">
-                        
-                        <li id="li-store-config" class="">
-                            <a id="a-store-config" onclick="goToStoreConfig()">
-                                <i class="fa fa-cogs" aria-hidden="true"></i>
-                                Configuration
-                            </a>
+                            <input type="hidden" id="selected-page" value="{{ $selected }}">
                             
-                        </li>
-                        <li id="li-store-reports" class="">
-                        		<a id="a-store-reports" onclick="goToStoreReports()">
-                                <i class="fa fa-line-chart" aria-hidden="true"></i>
-                                Reports
-                            	</a>
-                         </li>
+                            <li id="li-store-config" class="">
+                                <a id="a-store-config" onclick="goToStoreConfig()">
+                                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                                    Configuration
+                                </a>
+                                
+                            </li>
+                            
+                            <li id="li-store-reports" class="">
+                            		<a id="a-store-reports" onclick="goToStoreReports()">
+                                    <i class="fa fa-line-chart" aria-hidden="true"></i>
+                                    Reports
+                                	</a>
+                             </li>
+                             
                     <?php } ?>
+                    
+                    	<li id="li-users" class="">
+                    		<a id="a-users" onclick="goToUsers()">
+                            <i class="fa fa-users" aria-hidden="true"></i>
+                            Users
+                        	</a>
+                     </li>
 
                 </ul>
             </div>
             
             <!-- do not remove this log -->
             <div id="log">&nbsp;</div>
-            
-            <script type="text/javascript">
-
-            		function checkPage() {
-					var selectedPage = document.getElementById("selected-page");
-					if (selectedPage != null) {
-        					if(selectedPage.value != '') {
-                    				document.getElementById("li-store-"+selectedPage.value).className += 'current-page';
-        					}
-					}
-            		}
-
-				checkPage();
-				
-            		function goToStoreConfig() {
-					window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'config']) }}";
-            		}
-
-            		function goToStoreReports() {
-    					window.location.href = "{{ route('admin.stores.report', [auth()->user()->id, 'selected' => 'reports']) }}";
-                	}
-
-            </script>
 
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_3') }}</h3>
@@ -155,9 +141,62 @@
     </div>
 </div>
 
-<style>
-    .main_menu_side .menu_section li a { font-size:16px; font-weight:200; }
-</style>
+
+@section('styles')
+    @parent
+    
+	<style>
+        .main_menu_side .menu_section li a { font-size:16px; font-weight:200; }
+        .side-menu li.hover, li.clicked { text-decoration:underline; }
+    </style>
+@endsection
+
+@section('scripts')
+    @parent
+    
+    <script type="text/javascript">
+
+		$(function(){
+			// Hover and Click Underline
+            	$('.side-menu').find('li').each(function(){
+        		$(this).hover(function(){
+        				$(this).addClass('current-page');
+        			},function(){
+        				$(this).removeClass('current-page');
+        			}
+        		);
+        		
+        		$(this).click(function(){
+        			$('.side-menu').find('li').removeClass('current-page');
+    				$(this).addClass('clicked');
+            });
+		});
+		
+    		function checkPage() {
+			var selectedPage = document.getElementById("selected-page");
+			if (selectedPage != null) {
+					if(selectedPage.value != '') {
+            				document.getElementById("li-store-"+selectedPage.value).className += 'current-page';
+					}
+			}
+    		}
+
+		checkPage();
+		
+    		function goToStoreConfig() {
+			window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'config']) }}";
+    		}
+
+    		function goToStoreReports() {
+				window.location.href = "{{ route('admin.stores.report', [auth()->user()->id, 'selected' => 'reports']) }}";
+        	}
+
+    		function goToUsers() {
+				window.location.href = "{{ route('admin.users', [auth()->user()->id]) }}";
+        	}
+
+    </script>
+@endsection
 
 
 
