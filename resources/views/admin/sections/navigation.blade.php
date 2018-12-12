@@ -147,7 +147,7 @@
     
 	<style>
         .main_menu_side .menu_section li a { font-size:16px; font-weight:200; }
-        .side-menu li.hover, li.clicked { text-decoration:underline; }
+        .side-menu li.hover, li.clicked { border-right: 5px solid #1ABB9C; rgba(255, 255, 255, 0.05); }
     </style>
 @endsection
 
@@ -157,19 +157,22 @@
     <script type="text/javascript">
 
 		$(function(){
-			// Hover and Click Underline
+			
+			// Hover and Click Menu li
             	$('.side-menu').find('li').each(function(){
-        		$(this).hover(function(){
-        				$(this).addClass('current-page');
-        			},function(){
-        				$(this).removeClass('current-page');
-        			}
-        		);
-        		
-        		$(this).click(function(){
-        			$('.side-menu').find('li').removeClass('current-page');
-    				$(this).addClass('clicked');
-            });
+            		$(this).hover(function(){
+            				$(this).addClass('hover');
+            			},function(){
+            				$(this).removeClass('hover');
+            			}
+            		);
+            		
+            		$(this).click(function(){
+            			$('.side-menu').find('li').removeClass('clicked');
+        				$(this).addClass('clicked');
+                	});
+            	});
+                
 		});
 		
     		function checkPage() {
