@@ -9,6 +9,6 @@
     <div class="m-b-md">
         Welcome to KitchenGo!<br/>
         <br/>
-        This page is available for KDS App.
+        This page is reserved for KDS API.
     </div>
 @endsection
