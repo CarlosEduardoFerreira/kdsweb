@@ -249,7 +249,8 @@
                         Licenses Quantity:
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="licenses_quantity" name="licenses_quantity" type="number" min="0" style="width:100px;display:inline;text-align:center;"
+                    		<input id="licenses_quantity_old" name="licenses_quantity_old" type="hidden" value="{{ $licenses_quantity }}">
+                        	<input id="licenses_quantity" name="licenses_quantity" type="number" min="0" style="width:100px;display:inline;text-align:center;"
                         value="{{ $licenses_quantity }}" class="form-control" required>
                     </div>
                 </div>

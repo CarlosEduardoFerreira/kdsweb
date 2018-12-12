@@ -38,7 +38,7 @@ class StoreGroupController extends Controller
         
         $storegroups = Controller::filterUsers($request, 3, $resellerId, $request->filter);
 
-        return view('admin.storegroups.index', ['storegroups' => $storegroups]);
+        return view('admin.storegroups.index', ['obj' => 'storegroup', 'storegroups' => $storegroups]);
     }
 
     /**
@@ -140,7 +140,7 @@ class StoreGroupController extends Controller
         
         $reseller = DB::table('users')->where(['id' => $storegroup->parent_id])->first();
         
-        return view('admin.storegroups.show', ['storegroup' => $storegroup, 'reseller' => $reseller]);
+        return view('admin.storegroups.show', ['obj' => 'storegroup', 'storegroup' => $storegroup, 'reseller' => $reseller]);
     }
 
     /**

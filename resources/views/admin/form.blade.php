@@ -58,8 +58,10 @@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="parent_id">
                         <?php if ($obj == 'store') { ?>
                         		Store Group:
+                        		<span class="required">*</span>
                         <?php } elseif ($obj == 'storegroup') { ?>
                         		Reseller:
+                        		<span class="required">*</span>
                         <?php } ?>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -79,41 +81,6 @@
                 			<input type="hidden" id="parent_id" name="parent_id" value="<?=$user->parent_id?>">
                 <?php } ?>
             </div>
-            
-            <?php if ($obj == 'store') { ?>
-                <div class="form-group" style="margin-bottom:20px;">
-                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">App:</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="user_apps" name="user_apps" class="selectpicker">
-                        		<option></option>
-                        		@foreach ($apps as $app)
-                            		<?php 
-                            		$selected = $app->guid == $app_guid ? "selected" : "";
-                            		?>
-                                	<option value="{{ $app->guid }}" <?=$selected?>>{{ $app->name }}</option>
-                            	@endforeach;
-                        </select>
-                    </div>
-                </div>
-            <?php } ?>
-            
-            <?php if ($obj == 'store') { ?>
-                <div class="form-group" style="margin-bottom:20px ;">
-                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_envs">Type:</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="user_envs" name="user_envs" class="selectpicker">
-                        		<option></option>
-							@foreach ($envs as $env)
-                            		<?php 
-                            		$selected = $env->guid == $env_guid ? "selected" : "";
-                            		?>
-                                	<option value="{{ $env->guid }}" <?=$selected?>>{{ $env->name }}</option>
-                            	@endforeach;
-                        </select>
-                    </div>
-                </div>
-            <?php } ?>
-            
 
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="business_name" >
@@ -282,6 +249,7 @@
             <div class="form-group">
             		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="timezone" >
                     Timezone:
+                    <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 		<select id="timezone" name="timezone" class="form-control" style="width:350px;" required>
@@ -296,6 +264,49 @@
                 </div>
 			</div>
 			<?php } ?>
+			
+			
+			            
+            <?php if ($obj == 'store') { ?>
+                <div class="form-group" style="margin-bottom:20px;">
+                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">
+                			App:
+                			<span class="required">*</span>
+                		</label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select id="user_apps" name="user_apps" class="selectpicker">
+                        		<option></option>
+                        		@foreach ($apps as $app)
+                            		<?php 
+                            		$selected = $app->guid == $app_guid ? "selected" : "";
+                            		?>
+                                	<option value="{{ $app->guid }}" <?=$selected?>>{{ $app->name }}</option>
+                            	@endforeach;
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            
+            <?php if ($obj == 'store') { ?>
+                <div class="form-group" style="margin-bottom:20px ;">
+                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_envs">
+                			Type:
+                			<span class="required">*</span>
+                		</label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select id="user_envs" name="user_envs" class="selectpicker">
+                        		<option></option>
+							@foreach ($envs as $env)
+                            		<?php 
+                            		$selected = $env->guid == $env_guid ? "selected" : "";
+                            		?>
+                                	<option value="{{ $env->guid }}" <?=$selected?>>{{ $env->name }}</option>
+                            	@endforeach;
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+			
 			
 			@if($user->exists)
                 <div class="form-group">

@@ -95,7 +95,8 @@
             			{{-- Error message --}}
             		</div>
         			<div class="modal-footer">
-        				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        				<button id="btn-error-close" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        				<button id="btn-error-ok" type="button" class="btn btn-primary" data-dismiss="modal" style="display:none;">Ok</button>
         			</div>
             	</div>
         </div>

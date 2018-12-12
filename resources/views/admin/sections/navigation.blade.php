@@ -59,7 +59,7 @@
                 <ul class="nav side-menu">
 
                     	<?php if(auth()->user()->hasRole('administrator')) { ?>
-                        <li>
+                        <li id="li-reseller" class="">
                             <a href="{{ route('admin.resellers', ['adminId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
                                 {{ __('views.backend.section.navigation.menu_1_1') }}
@@ -68,7 +68,7 @@
                     <?php } ?>
     
                     <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')) { ?>
-                        <li>
+                        <li id="li-storegroup" class="">
                             <a href="{{ route('admin.storegroups', ['resellerId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-sitemap" aria-hidden="true"></i>
                                 {{ __('views.backend.section.navigation.menu_1_2') }}
@@ -77,7 +77,7 @@
                     <?php } ?>
                     
                     <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')|| auth()->user()->hasRole('storegroup')) { ?>
-                        <li>
+                        <li id="li-store" class="">
                             <a href="{{ route('admin.stores', ['storegroupId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-cutlery" aria-hidden="true"></i>
                                 {{ __('views.backend.section.navigation.menu_1_3') }}
@@ -87,15 +87,11 @@
                     
                     <?php 
                         //$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-                        
-                        $selected = isset($selected) ? $selected : '';
-                    
+
                         if(auth()->user()->hasRole('store')) { ?>
-                        
-                            <input type="hidden" id="selected-page" value="{{ $selected }}">
-                            
+
                             <li id="li-store-config" class="">
-                                <a id="a-store-config" onclick="goToStoreConfig()">
+                                <a href="{{ route('admin.stores.config', [auth()->user()->id, 'link' => 'store-config']) }}">
                                     <i class="fa fa-cogs" aria-hidden="true"></i>
                                     Configuration
                                 </a>
@@ -103,22 +99,30 @@
                             </li>
                             
                             <li id="li-store-reports" class="">
-                            		<a id="a-store-reports" onclick="goToStoreReports()">
+                            		<a href="{{ route('admin.stores.report', [auth()->user()->id, 'link' => 'store-reports']) }}">
                                     <i class="fa fa-line-chart" aria-hidden="true"></i>
                                     Reports
                                 	</a>
                              </li>
                              
                     <?php } ?>
-                    
+                    <!-- 
                     	<li id="li-users" class="">
-                    		<a id="a-users" onclick="goToUsers()">
+                    		<a href="{{ route('admin.users', [auth()->user()->id]) }}">
                             <i class="fa fa-users" aria-hidden="true"></i>
                             Users
                         	</a>
                      </li>
-
+                      -->
                 </ul>
+                
+                {{-- Set CSS to actual menu li ------------------------------- --}}
+                <?php 
+                $link = isset($link) ? $link : (isset($obj) ? $obj : '');
+                ?>
+                <input type="hidden" id="menu-link" value="{{ $link }}">
+                {{-- ------------------------------- Set CSS to actual menu li --}}
+                
             </div>
             
             <!-- do not remove this log -->
@@ -147,7 +151,8 @@
     
 	<style>
         .main_menu_side .menu_section li a { font-size:16px; font-weight:200; }
-        .side-menu li.hover, li.clicked { border-right: 5px solid #1ABB9C; rgba(255, 255, 255, 0.05); }
+        .side-menu li.hover { border-right: 5px solid #1ABB9C; background: rgba(255, 255, 255, 0.02); }
+        .side-menu li.selected  { border-right: 5px solid #1ABB9C; background: rgba(255, 255, 255, 0.05); }
     </style>
 @endsection
 
@@ -166,37 +171,20 @@
             				$(this).removeClass('hover');
             			}
             		);
-            		
-            		$(this).click(function(){
-            			$('.side-menu').find('li').removeClass('clicked');
-        				$(this).addClass('clicked');
-                	});
             	});
+
+            	function setMenuCSS() {
+                	var selectedPage = $("#menu-link").val();
+                	if(selectedPage != '') {
+                		$("#li-"+selectedPage).addClass('selected');
+                	}
+            	}
+            
+            	setMenuCSS();
                 
-		});
+		}); // $(function(){
 		
-    		function checkPage() {
-			var selectedPage = document.getElementById("selected-page");
-			if (selectedPage != null) {
-					if(selectedPage.value != '') {
-            				document.getElementById("li-store-"+selectedPage.value).className += 'current-page';
-					}
-			}
-    		}
-
-		checkPage();
-		
-    		function goToStoreConfig() {
-			window.location.href = "{{ route('admin.stores.config', [auth()->user()->id, 'selected' => 'config']) }}";
-    		}
-
-    		function goToStoreReports() {
-				window.location.href = "{{ route('admin.stores.report', [auth()->user()->id, 'selected' => 'reports']) }}";
-        	}
-
-    		function goToUsers() {
-				window.location.href = "{{ route('admin.users', [auth()->user()->id]) }}";
-        	}
+    		
 
     </script>
 @endsection
