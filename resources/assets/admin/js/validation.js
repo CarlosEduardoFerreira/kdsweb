@@ -40,18 +40,27 @@ $('#btn-save-form').click(function(){
 	}
 	
 	if (submit) {
+		
 		var id = $('#user_id').val();
+		var obj = $('#user_obj').val();
 		var email = $('#email').val();
 		var username = $('#username').val();
 		var user_apps = $('#user_apps').val();
 		var user_envs = $('#user_envs').val();
+		
 		var URL_BASE = window.location.protocol + "//" + window.location.host;
+		
 		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+		
 		$.ajax({
 			type:'GET',
 		   	dataType: 'json',
 			url: URL_BASE + "/api/register/validation",
-	        data: { req: "REGISTER_VALIDATION", id: id, email: email, username: username,
+	        data: { req: "REGISTER_VALIDATION",
+	        		id: id,
+	        		obj: obj,
+	        		email: email,
+	        		username: username,
 	        		user_apps: user_apps,
 	        		user_envs: user_envs
 	        },

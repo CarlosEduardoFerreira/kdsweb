@@ -44,6 +44,7 @@
             <?php } ?>
             
             		<input type="hidden" id="user_id" value="<?=$user->id?>">
+            		<input type="hidden" id="user_obj" value="<?=$obj?>">
             
             <div class="form-group">
                 <?php if ($me->roles[0]->id == 2 && $obj == 'storegroup') { ?>
