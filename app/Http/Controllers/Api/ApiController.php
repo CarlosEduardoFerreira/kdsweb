@@ -584,12 +584,10 @@ class ApiController extends Controller
                 }
             }
         }
-        
-        $roleId = DB::table('users_roles')->where('user_id', '=', $request->id)->first()->role_id;
-        
-        if(count($return) == 0 && isset($roleId)) {
+
+        if(count($return) == 0 && isset($request->obj)) {
             
-            if ($roleId == 4) { // 4 = stores
+            if ($request->obj == 'store') {
                 
                 if (!isset($request->user_apps)) {
                     $return["FIELD"] = "user_apps";
