@@ -43,20 +43,32 @@ $('#btn-save-form').click(function(){
 		var id = $('#user_id').val();
 		var email = $('#email').val();
 		var username = $('#username').val();
+		var user_apps = $('#user_apps').val();
+		var user_envs = $('#user_envs').val();
 		var URL_BASE = window.location.protocol + "//" + window.location.host;
 		$.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 		$.ajax({
 			type:'GET',
 		   	dataType: 'json',
 			url: URL_BASE + "/api/register/validation",
-	        data: { req: "REGISTER_VALIDATION", id: id, email: email, username: username },
+	        data: { req: "REGISTER_VALIDATION", id: id, email: email, username: username,
+	        		user_apps: user_apps,
+	        		user_envs: user_envs
+	        },
 	        success: function (response) {
 	        		if (response[0]["ERROR"] === undefined) {
 	        			$('#main-form').submit();
 	        		} else {
-		        		var field = response[0]["FIELD"];
+	        			var field = response[0]["FIELD"];
 		        		var error = response[0]["ERROR"];
-		        		$('#'+field).parent().find(".parsley-errors-list").find(".parsley-required").text(error);
+	        			
+	        			if(field == 'user_apps' || field == 'user_envs') {
+	        				$("#modal-error .modal-title").text("Required field");
+	            			$("#modal-error .modal-body").text(error);
+	            			$('#modal-error').modal('show');
+	        			}
+		        		
+	        			$('#'+field).parent().find(".parsley-errors-list").find(".parsley-required").text(error);
 		        }
 	        }
 	    });
