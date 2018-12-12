@@ -585,16 +585,24 @@ class ApiController extends Controller
             }
         }
         
-        if (count($return) == 0) {
-            if (!isset($request->user_apps)) {
-                $return["FIELD"] = "user_apps";
-                $return["ERROR"] = "Please fill the \"App\" field.";
+        $roleId = DB::table('users_roles')->where('user_id', '=', $request->id)->first()->role_id;
+        
+        if(count($return) == 0 && isset($roleId)) {
+            
+            if ($roleId == 4) { // 4 = stores
                 
-            } else if (!isset($request->user_envs)) {
+                if (!isset($request->user_apps)) {
+                    $return["FIELD"] = "user_apps";
+                    $return["ERROR"] = "Please fill the \"App\" field.";
+                    
+                } else if (!isset($request->user_envs)) {
+                    
+                    $return["FIELD"] = "user_envs";
+                    $return["ERROR"] = "Please fill the \"Type\" field.";
+                }
                 
-                $return["FIELD"] = "user_envs";
-                $return["ERROR"] = "Please fill the \"Type\" field.";
             }
+            
         }
         
         return array($return);
