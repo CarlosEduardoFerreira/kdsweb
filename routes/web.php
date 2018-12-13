@@ -54,6 +54,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Dashboard
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
+    // Admin Settings
+    Route::get('settings', 'AdminSettingsController@index')->name('settings');
+    
     //      url will show                function on controller              how to call
     // Route::get('storegroups/0/form', 'StoreGroupController@create')->name('resellers.new');
     
@@ -89,6 +92,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('storegroups/{storegroup}', 'StoreGroupController@update')->name('storegroups.update');
     // Delete Action
     Route::delete('storegroups/{storegroup}', 'StoreGroupController@destroy')->name('storegroups.destroy');
+    // Get Apps By StoreGroup
+    Route::post('storegroups/getAppsByStoreGroup', 'StoreGroupController@getAppsByStoreGroup')->name('storegroups.getAppsByStoreGroup');
+    // Get Environments By StoreGroup
+    Route::post('storegroups/getEnvsByStoreGroup', 'StoreGroupController@getEnvsByStoreGroup')->name('storegroups.getEnvsByStoreGroup');
     // --------------------------------------------------------------------------- Store Groups //
 
     // Stores --------------------------------------------------------------------------------- //
@@ -112,6 +119,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('stores/{store}/config#marketplace', 'StoreController@config')->name('stores.config#marketplace');
     // Update Settings Action
     Route::put('stores/{store}/updateSettings', 'StoreController@updateSettings')->name('stores.updateSettings');
+    // Validate Settings
+    Route::post('stores/{store}/validateStoreSettings', 'StoreController@validateStoreSettings')->name('stores.validateStoreSettings');
     // Update Twilio
     Route::put('stores/{store}/updateTwilio', 'StoreController@updateTwilio')->name('stores.updateTwilio');
     // Delete Action

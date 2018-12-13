@@ -1,5 +1,7 @@
 $(document).ready(function() {
 	
+	var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+	
 	$('[name="auto_done_order_hourly"]').change(function(){
 		setAMPM();
 	});
@@ -15,16 +17,13 @@ $(document).ready(function() {
 	});
 	
 	
-	// Start Calls --------------------------------------- //
 	setAMPM();
-	//---------------------------------------- Start Calls //
 	
 	
 	// Save / Submit
 	$('#btn-save-settings').click(function() {
-		if (validate()) {
-			$('#form-settings').submit();
-			sendNotificationToFirebase();
+		if (handleTime()) {
+			validateStoreSettings();
 		}
 	});
 
@@ -65,30 +64,53 @@ $(document).ready(function() {
 	}
 	
 	
-	// Licenses Quantity
-	$('#licenses_quantity').on('input',function(e){
-		validadeLicensesQuantity();
-	});
-	
-	
-	function validate() {
-		if(validadeLicensesQuantity()) {
-			return handleTime();
-		}
+	function submitForm() {
+		$('#form-settings').submit();
+		sendNotificationToFirebase();
 	}
 	
 	
-	function validadeLicensesQuantity() {
-		$('#error-licenses-quantity').css('display','none');
+	function validateStoreSettings() {
 		
-		// License Quantity
-		var licensesQuantity = $('#licenses_quantity').val();
-		if(licensesQuantity == "" || licensesQuantity < 0) {
-			$('#error-licenses-quantity').css('display','inline');
-			return false;
-		}
+		$.ajax({
+		 	headers: token,
+            url: 'validateStoreSettings',
+            type: 'POST',
+            data: {
+            		storeGuid: $('#store-guid').val(),
+            		licensesQuantity: $('#licenses_quantity').val()
+            	},
+            success: function (error) {
+            	
+	            	var licenses_quantity_old = $('#licenses_quantity_old').val();
+	        		var licenses_quantity = $('#licenses_quantity').val();
+	        		
+	        		if(licenses_quantity_old < licenses_quantity) {
+	        			error["id"] 		= "licenses_quantity_old";
+	        			error["title"] 	= "License Quantity";
+	        			error["msg"] 	= "Increasing the license quantity will incur an additional cost. Are you sure you want to continue?";
+	        		}
+            	
+	            	if(error["id"] == undefined) {
+	            		submitForm();
+	        			
+	        		} else {
+
+	        			$("#modal-error .modal-title").text(error["title"]);
+	        			$("#modal-error .modal-body").text(error["msg"]);
+	        			
+	        			if(error["id"] == "licenses_quantity_old") {
+	        				$('#modal-error').find('#btn-error-close').text("No");
+	        				$('#modal-error').find('#btn-error-ok').text("Yes").show().click(function(){
+	        					submitForm();
+	        				});
+	        			}
+        				
+        				$('#modal-error').modal('show');
+	        		}
+            }
+        });
 		
-		return true;
 	}
 	
 	

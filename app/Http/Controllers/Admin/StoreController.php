@@ -35,7 +35,7 @@ class StoreController extends Controller {
         
         $stores = Controller::filterUsers($request, 4, $storegroupId);
         
-        return view('admin.stores.index', ['stores' => $stores]);
+        return view('admin.stores.index', ['obj' => 'store', 'stores' => $stores]);
     }
 
     /**
@@ -57,7 +57,7 @@ class StoreController extends Controller {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers($request, 3, $me->id);
+            $storegroups  = Controller::filterUsers($request, 3, $me->id, true);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -66,8 +66,16 @@ class StoreController extends Controller {
         $store->country = 231;   // United States
         $store->timezone = Vars::$timezoneDefault;
         
+        // Applications
+        $apps = $this->getSystemApps();
+        
+        // Environments
+        $envs = $this->getStoreEnvironments();
+        
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'me' => $me]);
+            'countries' => $countries, 'me' => $me, 
+            'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => ''
+        ]);
     }
     
     
@@ -129,44 +137,17 @@ class StoreController extends Controller {
 
         $settingsTable->insert($data);
         // ---------------------------------------------------------------------------- //
+        
+        // Store Apps
+        $this->updateApp($data['store_guid'], $request->get('user_apps'));
+        
+        // Store Environments
+        $this->updateEnv($data['store_guid'], $request->get('user_envs'));
 
         //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
         return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
     }
     
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param User $user
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function show(User $store)
-    {
-        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
-        if ($accessDenied) {
-            return $accessDenied;
-        }
-        
-        $state   = DB::table('states')->where(['id' => $store->state])->first();
-        $country = DB::table('countries')->where(['id' => $store->country])->first();
-        
-        $store->state   = $state->name;
-        $store->country = $country->name;
-        
-        return view('admin.stores.show', ['store' => $store]);
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -190,7 +171,7 @@ class StoreController extends Controller {
             $storegroups[0] = $me;
             
         } else {
-            $storegroups  = Controller::filterUsers(null, 3, $me->id, $request->filter);
+            $storegroups  = Controller::filterUsers(null, 3, $me->id, true);
         }
         // ------------------------------------------------------- StoreGroups //
         
@@ -201,15 +182,100 @@ class StoreController extends Controller {
             $states     = DB::select("select * from states where country_id = $store->country order by name");
         }
         
-//         $cities = [];
-//         if (isset($store->state) && $store->state != "") {
-//             $cities     = DB::select("select * from cities where state_id = $store->state order by name");
-//         }
+        // Applications
+        $apps = $this->getSystemApps();
+        
+        // Environments
+        $envs = $this->getStoreEnvironments();
+        
+        // Store Applications
+        $store_apps = collect(DB::select("SELECT app_guid FROM store_app WHERE store_guid = '$store->store_guid'"))->first();
+        $store_apps = isset($store_apps) ? $store_apps->app_guid : "";
+        
+        // Store Environments
+        $store_envs = collect(DB::select("SELECT environment_guid FROM store_environment WHERE store_guid = '$store->store_guid'"))->first();
+        $store_envs = isset($store_envs) ? $store_envs->environment_guid : "";
 
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'states' => $states, 'me' => $me]);
+            'countries' => $countries, 'states' => $states, 'me' => $me,
+            'apps' => $apps, 'envs' => $envs, 'app_guid' => $store_apps, 'env_guid' => $store_envs]);
+    }
+    
+    
+    public function update(Request $request, User $store)
+    {
+        $store->parent_id       = $request->get('parent_id');
+        $store->business_name   = $request->get('business_name');
+        $store->dba             = $request->get('dba');
+        $store->last_name       = $request->get('last_name');
+        $store->name            = $request->get('name');
+        $store->email           = $request->get('email');
+        $store->phone_number    = $request->get('phone_number');
+        $store->address         = $request->get('address');
+        $store->city            = $request->get('city');
+        $store->state           = $request->get('state');
+        $store->country         = $request->get('country');
+        $store->zipcode         = $request->get('zipcode');
+        $store->timezone        = $request->get('timezone');
+        $store->username        = $request->get('username');
+        
+        if ($request->get('password') != "") {
+            $store->password = bcrypt($request->get('password'));
+        }
+        
+        $store->active      = $request->get('active', 0);
+        $store->confirmed   = $request->get('confirmed', 0);
+        
+        $store->save();
+        
+        //roles
+        if ($request->has('roles')) {
+            $store->roles()->detach();
+            
+            if ($request->get('roles')) {
+                $store->roles()->attach($request->get('roles'));
+            }
+        }
+        
+        // Store Apps
+        $this->updateApp($store->store_guid, $request->get('user_apps'));
+        
+        // Store Environments
+        $this->updateEnv($store->store_guid, $request->get('user_envs'));
+        
+        if ($store->id == Auth::user()->id) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+        
+        // return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false])); // keep on the same page
+        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
+    }
+    
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param User $user
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function show(User $store)
+    {
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+        
+        $state   = DB::table('states')->where(['id' => $store->state])->first();
+        $country = DB::table('countries')->where(['id' => $store->country])->first();
+        
+        $store->state   = $state->name;
+        $store->country = $country->name;
+        
+        $storegroup = DB::table('users')->where(['id' => $store->parent_id])->first();
+        
+        return view('admin.stores.show', ['obj' => 'store', 'store' => $store, 'storegroup' => $storegroup]);
     }
 
 
@@ -224,10 +290,10 @@ class StoreController extends Controller {
              $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
              
              $devices  = DB::table('devices')
-             ->where(['store_guid' => $store->store_guid])
-             ->where('is_deleted', '<>',  1)
-             ->orderBy('license','desc')
-             ->orderBy('id','asc')->paginate(50);
+                         ->where(['store_guid' => $store->store_guid])
+                         ->where('is_deleted', '<>',  1)
+                         ->orderBy('license','desc')
+                         ->orderBy('id','asc')->paginate(50);
         }
      
         if(!isset($settings)) {
@@ -249,11 +315,12 @@ class StoreController extends Controller {
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.stores.config', [
+            'obj' => 'store',
+            'link' => $request->link,
             'store' => $store, 
             'devices'=> $devices, 
             'settings' => $settings, 
-            'licenseInfo' => $licenseInfo, 
-            'selected' => $request->selected, 
+            'licenseInfo' => $licenseInfo,
             'adminSettings' => $adminSettings
         ]);
     }
@@ -504,10 +571,25 @@ class StoreController extends Controller {
             // -------------------------------------------------------------- Update Settings Line Display -- //
 
             // -- Update Device ----------------------------------------------------------------------------- //
+            $deviceId = $request->device['device-settings-id'];
+            $function = $request->device['device-settings-function'];
+            $functionWasChanged = $function != $devices->get()[0]->function;
+            
+            if($functionWasChanged) {
+                // Remove from Dependent Devices as Expeditors
+                $this->removeFromDependentDevicesAsExpeditor($storeGuid, $deviceId);
+                
+                // Remove from Dependent Devices as Parent
+                $this->removeFromDependentDevicesAsParent($storeGuid, $deviceId);
+                
+                // Remove from Dependent Devices as Transfer
+                $this->removeFromDependentDevicesAsTransfer($storeGuid, $deviceId);
+            }
+            
             $data = [
                 'name'                      => $request->device['device-settings-name'],
-                'id'                        => $request->device['device-settings-id'],
-                'function'                  => $request->device['device-settings-function'],
+                'id'                        => $deviceId,
+                'function'                  => $function,
                 'expeditor'                 => $request->device['device-settings-expeditor'],
                 'parent_id'                 => isset($request->device['device-settings-parent-id']) ? $request->device['device-settings-parent-id'] : 0,
                 'xml_order'                 => $request->device['device-settings-host'],
@@ -562,60 +644,8 @@ class StoreController extends Controller {
     }
     
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param User $user
-     * @return mixed
-     */
-    public function update(Request $request, User $store)
-    {
-        $store->parent_id       = $request->get('parent_id');
-        $store->business_name   = $request->get('business_name');
-        $store->dba             = $request->get('dba');
-        $store->last_name       = $request->get('last_name');
-        $store->name            = $request->get('name');
-        $store->email           = $request->get('email');
-        $store->phone_number    = $request->get('phone_number');
-        $store->address         = $request->get('address');
-        $store->city            = $request->get('city');
-        $store->state           = $request->get('state');
-        $store->country         = $request->get('country');
-        $store->zipcode         = $request->get('zipcode');
-        $store->timezone        = $request->get('timezone');
-        $store->username        = $request->get('username');
-
-        if ($request->get('password') != "") {
-            $store->password = bcrypt($request->get('password'));
-        }
-
-        $store->active      = $request->get('active', 0);
-        $store->confirmed   = $request->get('confirmed', 0);
-
-        $store->save();
-
-        //roles
-        if ($request->has('roles')) {
-            $store->roles()->detach();
-
-            if ($request->get('roles')) {
-                $store->roles()->attach($request->get('roles'));
-            }
-        }
-        
-        if ($store->id == Auth::user()->id) {
-            return redirect()->intended(route('admin.dashboard'));
-        }
-
-        // return redirect()->intended(route('admin.stores.edit', [$store->id, 'filter' => false])); // keep on the same page
-        return redirect()->intended(route('admin.stores', [0, 'filter' => false])); // go to the list
-    }
-    
-    
     public function updateSettings(Request $request, User $store)
     {
-        
         if(isset($store->store_guid) and $store->store_guid != '') {
             $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
         }
@@ -636,12 +666,13 @@ class StoreController extends Controller {
                     'socket_port'              => $request->get('socket_port'),
                     'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
                     'auto_done_order_time'     => $auto_done_order_time,
-                    'smart_order'              => $request->get('smart_order'),
+                    'smart_order'              => $request->get('smart_order') == 'on' ? 1 : 0,
+                    'smart_order_hide_mode'    => $request->get('smart_order_hide_mode') == 'on' ? 1 : 0,
+                    'smart_order_with_start'   => $request->get('smart_order_with_start') == 'on' ? 1 : 0,
                     'licenses_quantity'        => $request->get('licenses_quantity'),
                     'update_time'              => time()
                 ];
-
-
+        
         if (empty($request->get('store_key'))) {
             $data['store_key'] = substr(Uuid::uuid4(), 0, 8);
         }
@@ -658,6 +689,34 @@ class StoreController extends Controller {
         }
         
         return redirect()->intended(route('admin.stores.config', [$store->id]));
+    }
+    
+    
+    function validateStoreSettings(Request $request) {
+        $error = array();
+        
+        $storeGuid = $request->get("storeGuid");
+        $licensesQuantity = $request->get("licensesQuantity");
+        
+        if($licensesQuantity == "" || $licensesQuantity < 0) {
+            $error["id"] = "licenses_quantity";
+            $error["title"] = "Licenses Quantity";
+            $error["msg"] = "Invalid number in the \"Licenses Quantity\" field.";
+            return response()->json($error);
+        }
+        
+        $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
+                                        WHERE store_guid = '$storeGuid'
+                                        AND is_deleted != 1
+                                        AND split_screen_parent_device_id = 0")[0]->inUse;
+
+        if($licensesInUse > $licensesQuantity) {
+            $error["id"] = "licenses_quantity";
+            $error["title"] = "Licenses Quantity";
+            $error["msg"] = "Licenses Quantity field cannot be less than licenses in use.";
+        }
+        
+        return response()->json($error);
     }
     
     
@@ -729,8 +788,12 @@ class StoreController extends Controller {
             $devices = [];
         }
         
-        return view('admin.stores.report', ['reports' => Vars::$reportIds, 'store' => $store, 
-            'devices' => $devices, 'selected' => $request->selected]);
+        return view('admin.stores.report', [
+            'obj' => 'store', 
+            'link' => $request->link,
+            'reports' => Vars::$reportIds, 
+            'store' => $store, 
+            'devices' => $devices]);
     }
     
     
@@ -940,72 +1003,16 @@ class StoreController extends Controller {
                 'update_time' => time()
             ];
             
-            foreach($devices->get() as $device) {
+            foreach($devices->get() as $device) { // Iterate to update split screen also
                 
-                // ** Remove expeditors ******************************************* //
-                $expeditors = DB::select("SELECT * FROM devices 
-                    WHERE store_guid = '$storeGuid' 
-                    AND is_deleted = 0 
-                    AND ( expeditor = '$device->id' 
-                            OR expeditor LIKE '%,$device->id,%' 
-                            OR expeditor LIKE '%,$device->id' 
-                            OR expeditor LIKE '$device->id,%' 
-                        )");
+                // Remove from Dependent Devices as Expeditors 
+                $this->removeFromDependentDevicesAsExpeditor($storeGuid, $device->id);
                 
-                if(count($expeditors) > 0) {
-                    
-                    foreach($expeditors as $expeditor) {
-                        
-                        $expeditorIds = explode(',', $expeditor->expeditor);
-                        $expeditorIdsNew = "";
-                        
-                        foreach($expeditorIds as $expeditorId) {
-                            if($expeditorId == $device->id) {
-                                continue;
-                            }
-                            
-                            $expeditorIdsNew .= $expeditorId . ",";
-                        }
-                        
-                        if(substr($expeditorIdsNew, -1) == ',') {
-                            $expeditorIdsNew = rtrim($expeditorIdsNew,",");
-                        }
-                        
-                        $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$expeditor->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ***************************************** Remove expeditors ** //
+                // Remove from Dependent Devices as Parent
+                $this->removeFromDependentDevicesAsParent($storeGuid, $device->id);
                 
-                // ** Remove parent id ****************************************** //
-                $parents = DB::select("SELECT * FROM devices
-                    WHERE store_guid = '$storeGuid'
-                    AND is_deleted = 0
-                    AND ( parent_id = $device->id
-                        )");
-                
-                if(count($parents) > 0) {
-                    foreach($parents as $parent) {
-                        $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$parent->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ***************************************** Remove parent id ** //
-                
-                // ** Remove transfer ****************************************** //
-                $transfers = DB::select("SELECT * FROM devices
-                    WHERE store_guid = '$storeGuid'
-                    AND is_deleted = 0
-                    AND ( bump_transfer_device_id = $device->id
-                        )");
-                
-                if(count($transfers) > 0) {
-                    foreach($transfers as $transfer) {
-                        $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$transfer->guid'";
-                        $result = DB::statement($sql);
-                    }
-                }
-                // ****************************************** Remove transfer ** //
+                // Remove from Dependent Devices as Transfer
+                $this->removeFromDependentDevicesAsTransfer($storeGuid, $device->id);
                 
             }
             
@@ -1017,6 +1024,118 @@ class StoreController extends Controller {
         
         return "";
         
+    }
+    
+    
+    function removeFromDependentDevicesAsExpeditor($storeGuid, $deviceId) {
+        $dependentsAsExpeditor = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( expeditor = '$deviceId'
+                            OR expeditor LIKE '%,$deviceId,%'
+                            OR expeditor LIKE '%,$deviceId'
+                            OR expeditor LIKE '$deviceId,%'
+                        )");
+        
+        if(count($dependentsAsExpeditor) > 0) {
+            
+            foreach($dependentsAsExpeditor as $dependent) {
+                
+                $expeditorIds = explode(',', $dependent->expeditor);
+                $expeditorIdsNew = "";
+                
+                foreach($expeditorIds as $expeditorId) {
+                    if($expeditorId == $deviceId) {
+                        continue;
+                    }
+                    
+                    $expeditorIdsNew .= $expeditorId . ",";
+                }
+                
+                if(substr($expeditorIdsNew, -1) == ',') {
+                    $expeditorIdsNew = rtrim($expeditorIdsNew,",");
+                }
+                
+                $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
+    }
+    
+    
+    function removeFromDependentDevicesAsParent($storeGuid, $deviceId) {
+        $dependentsAsParent = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( parent_id = $deviceId
+                        )");
+        
+        if(count($dependentsAsParent) > 0) {
+            foreach($dependentsAsParent as $dependent) {
+                $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
+    }
+    
+    
+    function removeFromDependentDevicesAsTransfer($storeGuid, $deviceId) {
+        $dependentsAsTransfer = DB::select("SELECT * FROM devices
+                    WHERE store_guid = '$storeGuid'
+                    AND is_deleted = 0
+                    AND ( bump_transfer_device_id = $deviceId
+                        )");
+        
+        if(count($dependentsAsTransfer) > 0) {
+            foreach($dependentsAsTransfer as $dependent) {
+                $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$dependent->guid'";
+                $result = DB::statement($sql);
+            }
+        }
+    }
+    
+    
+    // Get System Apps
+    function getSystemApps() {
+        $apps = DB::select("SELECT * FROM apps WHERE enable = 1");
+        return isset($apps) ? $apps : [];
+    }
+    
+    
+    // Get Store Environments
+    function getStoreEnvironments() {
+        $envs = DB::select("SELECT * FROM environments WHERE enable = 1");
+        return isset($envs) ? $envs : [];
+    }
+    
+    
+    function updateApp($storeGuid, $appGuid) {
+        DB::table('store_app')->where(['store_guid' => $storeGuid])->delete();
+        
+        if(isset($appGuid)) {
+            $storeApps = DB::table('store_app');
+            
+            $storeApps->insert([
+                'store_guid'  => $storeGuid,
+                'app_guid'    => $appGuid
+                
+            ]);
+        }
+    }
+    
+    
+    function updateEnv($storeGuid, $envGuid) {
+        DB::table('store_environment')->where(['store_guid' => $storeGuid])->delete();
+        
+        if(isset($envGuid)) {
+            $storeApps = DB::table('store_environment');
+            
+            $storeApps->insert([
+                'store_guid'  => $storeGuid,
+                'environment_guid'    => $envGuid
+                
+            ]);
+        }
     }
     
     

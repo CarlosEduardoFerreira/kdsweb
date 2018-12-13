@@ -21,7 +21,7 @@
 <?php } ?>
 
 @section('content')
-    <div class="row" style="min-height:750px;">
+    <div class="row" style="min-height:1100px;">
         <div class="col-md-12 col-sm-12 col-xs-12">
         		<?php if ($obj == 'store') { ?>
             		@if($user->exists)
@@ -44,38 +44,43 @@
             <?php } ?>
             
             		<input type="hidden" id="user_id" value="<?=$user->id?>">
+            		<input type="hidden" id="user_obj" value="<?=$obj?>">
             
-            <?php if ($me->roles[0]->id == 2 && $obj == 'storegroup') { ?>
-                    <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
-            			
-            <?php } else if ($me->roles[0]->id == 3 && $obj == 'store') { ?>
-                    <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
+            <div class="form-group">
+                <?php if ($me->roles[0]->id == 2 && $obj == 'storegroup') { ?>
+                        <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
+                			
+                <?php } else if ($me->roles[0]->id == 3 && $obj == 'store') { ?>
+                        <input type="hidden" id="parent_id" name="parent_id" value="<?=$me->id?>">
+                        
+                <?php } else if ($obj != 'reseller' && $me->id != $user->id) { ?>
                     
-            <?php } else if ($obj != 'reseller' && $me->id != $user->id) { ?>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="parent_id">
-                    <?php if ($obj == 'store') { ?>
-                    		Store Group:
-                    <?php } elseif ($obj == 'storegroup') { ?>
-                    		Reseller:
-                    <?php } ?>
-                    </label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="parent_id" name="parent_id" class="form-control select2" style="width: 100%" required>
-                        		<option></option>
-                            	@foreach ($parents as $parent)
-                            		<?php 
-                            		$selected = $user->parent_id == $parent->id ? "selected" : "";
-                            		?>
-                                	<option value="{{ $parent->id }}" <?=$selected?>>{{ $parent->business_name }}</option>
-                            	@endforeach;
-                        </select>
-                        <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
-                    </div>
-                </div>
-            <?php } else { ?>
-            			<input type="hidden" id="parent_id" name="parent_id" value="<?=$user->parent_id?>">
-            <?php } ?>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="parent_id">
+                        <?php if ($obj == 'store') { ?>
+                        		Store Group:
+                        		<span class="required">*</span>
+                        <?php } elseif ($obj == 'storegroup') { ?>
+                        		Reseller:
+                        		<span class="required">*</span>
+                        <?php } ?>
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select id="parent_id" name="parent_id" class="form-control select2" style="width: 100%" required>
+                            		<option></option>
+                                	@foreach ($parents as $parent)
+                                		<?php 
+                                		$selected = $user->parent_id == $parent->id ? "selected" : "";
+                                		?>
+                                    	<option value="{{ $parent->id }}" <?=$selected?>>{{ $parent->business_name }}</option>
+                                	@endforeach;
+                            </select>
+                            <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
+                        </div>
+                    
+                <?php } else { ?>
+                			<input type="hidden" id="parent_id" name="parent_id" value="<?=$user->parent_id?>">
+                <?php } ?>
+            </div>
 
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="business_name" >
@@ -244,6 +249,7 @@
             <div class="form-group">
             		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="timezone" >
                     Timezone:
+                    <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 		<select id="timezone" name="timezone" class="form-control" style="width:350px;" required>
@@ -258,6 +264,49 @@
                 </div>
 			</div>
 			<?php } ?>
+			
+			
+			            
+            <?php if ($obj == 'store') { ?>
+                <div class="form-group" style="margin-bottom:20px;">
+                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">
+                			App:
+                			<span class="required">*</span>
+                		</label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select id="user_apps" name="user_apps" class="selectpicker">
+                        		<option></option>
+                        		@foreach ($apps as $app)
+                            		<?php 
+                            		$selected = $app->guid == $app_guid ? "selected" : "";
+                            		?>
+                                	<option value="{{ $app->guid }}" <?=$selected?>>{{ $app->name }}</option>
+                            	@endforeach;
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            
+            <?php if ($obj == 'store') { ?>
+                <div class="form-group" style="margin-bottom:20px ;">
+                		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_envs">
+                			Type:
+                			<span class="required">*</span>
+                		</label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select id="user_envs" name="user_envs" class="selectpicker">
+                        		<option></option>
+							@foreach ($envs as $env)
+                            		<?php 
+                            		$selected = $env->guid == $env_guid ? "selected" : "";
+                            		?>
+                                	<option value="{{ $env->guid }}" <?=$selected?>>{{ $env->name }}</option>
+                            	@endforeach;
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+			
 			
 			@if($user->exists)
                 <div class="form-group">
@@ -322,11 +371,38 @@
             {{ Form::close() }}
         </div>
     </div>
+    
+    
+{{-- Modal Error ---------------------------------------------------------------------------------------------------- --}}
+<div class="modal fade" id="modal-error" tabindex="-1" role="dialog" aria-labelledby="modalError" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        	<div class="modal-content">
+        		<div class="modal-header">
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            			<span aria-hidden="true">&times;</span>
+            		</button>
+        			<h5 class="modal-title">Error</h5>
+        		</div>
+        		<div class="modal-body">
+        			{{-- Error message --}}
+        		</div>
+    			<div class="modal-footer">
+    				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    			</div>
+        	</div>
+    </div>
+</div>
+{{-- ---------------------------------------------------------------------------------------------------- Modal Error --}}
+    
+    
 @endsection
+
+
 
 @section('styles')
     @parent
     {{ Html::style(mix('assets/admin/css/users/edit.css')) }}
+    {{ Html::style(mix('assets/admin/css/bootstrap-select.css')) }}
     <style>
         .required { color:red; }
     </style>
@@ -337,4 +413,14 @@
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
     {{ Html::script(mix('assets/admin/js/location.js')) }}
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
+    {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
 @endsection
+
+
+
+
+
+
+
+
+

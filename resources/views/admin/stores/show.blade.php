@@ -16,7 +16,7 @@
 
              <tr>
                 <th>Store Group</th>
-                <td>{{ $store->parent_id }}</td>
+                <td>{{ $storegroup->business_name }}</td>
             </tr>
             <tr>
                 <th>Legal Business Name</th>

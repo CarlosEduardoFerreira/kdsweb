@@ -27,7 +27,7 @@ class ApiController extends Controller
     public function index() {
         
         $request = file_get_contents("php://input");
-        $request = $this->stripslashes_deep(htmlspecialchars_decode($request));
+        $request = htmlspecialchars_decode($request);
         $request = json_decode($request, true);
         
         $response = array(array());
@@ -118,11 +118,24 @@ class ApiController extends Controller
                     $response[0]["error"] = $this->error_exist_device_in_another_store;
                     
                 } else {
-                    $response[0]["store_guid"] = $result[0]->store_guid;
-                    $response[0]["store_name"] = $result[0]->business_name;
                     
-                    $sqlStoreKey = "SELECT store_key FROM settings WHERE store_guid = '" .$result[0]->store_guid. "'";
-                    $response[0]["store_key"] = DB::select($sqlStoreKey)[0]->store_key;
+                    // Check Device App Version
+                    $appVersionCode = isset($request["appVersionCode"]) ? $request["appVersionCode"] : 0;
+                    $devices = DB::select("SELECT * FROM devices WHERE store_guid = '" . $result[0]->store_guid . "' AND is_deleted = 0");
+                    foreach($devices as $device) {
+                        $deviceVersionCode = isset($device->app_version_code) ? $device->app_version_code : 0;
+                        if($appVersionCode < $deviceVersionCode) {
+                            $response[0]["error"] = "This KDS Station needs to be updated. Go to App Store to update the KDS app.";
+                        }
+                    }
+                    
+                    if(!isset($response[0]["error"])) {
+                        $response[0]["store_guid"] = $result[0]->store_guid;
+                        $response[0]["store_name"] = $result[0]->business_name;
+                        
+                        $sqlStoreKey = "SELECT store_key FROM settings WHERE store_guid = '" .$result[0]->store_guid. "'";
+                        $response[0]["store_key"] = DB::select($sqlStoreKey)[0]->store_key;
+                    }
                 }
                 
             } else {
@@ -554,13 +567,23 @@ class ApiController extends Controller
     
     public function registerValidation(Request $request) {
         $return = array();
+        
+        // -- Email ----------------------------------------------------------------------------------------------------- -- //
         $user = DB::table('users')->where('id', '<>', $request->id)->where('email', '=', $request->email)->first();
+        
         if (isset($user)) {
+            
             if (isset($user->email)) {
                 $return["FIELD"] = "email";
                 $return["ERROR"] = "This email is already in use.";
             }
+            
+        } else if(!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+            
+            $return["FIELD"] = "email";
+            $return["ERROR"] = "This email is not valid.";
         }
+        // -- ----------------------------------------------------------------------------------------------------- Email -- //
         
         if (count($return) == 0) {
             $user = DB::table('users')->where('id', '<>', $request->id)->where('username', '=', $request->username)->first();
@@ -570,6 +593,24 @@ class ApiController extends Controller
                     $return["ERROR"] = "This username is already in use.";
                 }
             }
+        }
+
+        if(count($return) == 0 && isset($request->obj)) {
+            
+            if ($request->obj == 'store') {
+                
+                if (!isset($request->user_apps)) {
+                    $return["FIELD"] = "user_apps";
+                    $return["ERROR"] = "Please fill the \"App\" field.";
+                    
+                } else if (!isset($request->user_envs)) {
+                    
+                    $return["FIELD"] = "user_envs";
+                    $return["ERROR"] = "Please fill the \"Type\" field.";
+                }
+                
+            }
+            
         }
         
         return array($return);
@@ -582,6 +623,7 @@ class ApiController extends Controller
         
         if ($request->active) {
             if (isset($device)) {
+                
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
                     //->where('store_guid', '=',  $request->store_guid) // should permit same serial for the same store?
@@ -595,6 +637,23 @@ class ApiController extends Controller
                         return array("There is another KDS Station with the same serial number active.");
                     }
                 }
+                
+                // -- License Amount validation --------------------------------------------------------- //
+                $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
+                                        WHERE store_guid = '$device->store_guid'
+                                        AND is_deleted != 1
+                                        AND split_screen_parent_device_id = 0")[0]->inUse;
+                
+                $settings = DB::table('settings')->where(['store_guid' => $device->store_guid])->first();
+                $licenseTotal = 0;
+                if(isset($settings)) {
+                    $licenseTotal = $settings->licenses_quantity;
+                }
+                
+                if($licensesInUse >= $licenseTotal) {
+                    return array("There is no license available.");
+                }
+                // --------------------------------------------------------- License Amount validation -- //
             }
         }
         

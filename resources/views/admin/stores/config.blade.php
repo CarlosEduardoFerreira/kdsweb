@@ -45,6 +45,22 @@
         .left   { text-align:left !important; }
         .center { text-align:center !important; }
         .right  { text-align:right !important; }
+        
+        /* Container */
+        #store-settings-container { width:100%; min-height:700px; }
+        
+        /* Store Settings Menu */
+        #store-settings-menu  { width:30%;  }
+        #store-settings-menu .store-settings-toggle { height:50px; }
+        #store-settings-menu .store-settings-toggle a { display:inline-block; width:85%; height:100%; 
+            text-align:right; padding-top:15px; font-size:16px; font-weight:200; }
+        #store-settings-menu .store-settings-toggle a.hover, #store-settings-menu .store-settings-toggle a.clicked { text-decoration:underline; }
+        #store-settings-menu .store-settings-toggle span { text-align:right; width:10%; font-size:12px; }
+        
+        /* Store Settings Panel */
+        #store-settings-panel { width:70%; padding-top:40px; min-height:350px; }
+        #store-settings-panel #store-settings-commit-buttons { width:85%; position:absolute; bottom:0; text-align:right; }
+        #store-settings-panel .smart_order_functions { height:30px; }
     
         .radio-bump { display:inline-table; width:100px; }
         .radio-bump-time { display:inline-table; width:120px; text-align:right; text-align:center; }
@@ -130,12 +146,72 @@
         return time;
     	}
 
-    // remove device
     $(document).ready(function(){
+
+		// -- Store Settings Menu Toglle --------------------------------------------------------------------------------- -- //
+		
+        	$(".collapse").on('show.bs.collapse', function(){
+
+            		// Close all panels
+        			$('.panel-collapse').each(function(){
+        				$(this).collapse('hide');
+        			});
+
+            		// Add arrow
+        			var toggleId = $(this).attr('toggle');
+    				$('#' + toggleId).find(".glyphicon").addClass("glyphicon-menu-right");
+    				
+    			}).on('hide.bs.collapse', function(){
+
+        			// Remove arrow
+    				var toggleId = $(this).attr('toggle');
+    				$('#' + toggleId).find(".glyphicon").removeClass("glyphicon-menu-right");
+    			}
+        	);
+
+        	// Hover and Click Underline
+        	$('.store-settings-toggle').find('a').each(function(){
+			$(this).hover(function(){
+					$(this).addClass('hover');
+				},function(){
+					$(this).removeClass('hover');
+				}
+			);
+			
+			$(this).click(function(){
+				$('.store-settings-toggle').find('a').removeClass('clicked');
+    				$(this).addClass('clicked');
+	         });
+        });
+
+        	// Trigger Click first element
+        	$('.store-settings-toggle').first().find('a').trigger('click');
+
+     	// -- --------------------------------------------------------------------------------- Store Settings Menu Toglle -- //
+     	
+     	
+     	// -- Store Settings --------------------------------------------------------------------------------------------- -- //
+     	
+     	// Smart Order
+     	function smartOrderFunctions() {
+         	if($('#smart_order').prop('checked')) {
+    				$('.smart_order_functions').css('opacity', 1);
+    				$('.smart_order_functions').find('.switch').fadeIn();
+         	} else {
+         		$('.smart_order_functions').css('opacity', 0.2);
+         		$('.smart_order_functions').find('.switch').fadeOut();
+         	}
+     	}
+     	smartOrderFunctions();
+     	$('#smart_order').click(function(){
+     		smartOrderFunctions();
+         });
+     	
+     	// -- Store Settings --------------------------------------------------------------------------------------------- -- //
+
 
         var $modal = $('#modalDeviceSettings');
 
-        
         function loadExpeditors($value = null) {
 
         		var deviceGuid 		= $modal.find('#device-settings-device-guid').val();
@@ -146,7 +222,7 @@
             	if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'BACKUP_EXPE') {
             		$modal.find("#device-settings-expeditor").html('').selectpicker('refresh');
             		$modal.find("#device-settings-expeditor").prop('disabled', true);
-            		return;
+            		return
             	}
             
         		$.ajax({
@@ -182,7 +258,7 @@
             if(deviceFunction == 'EXPEDITOR' || deviceFunction == 'PREPARATION') {
             		$modal.find("#device-settings-parent-id").html('').selectpicker('refresh');
             		$modal.find("#device-settings-parent-id").prop('disabled', true);
-                return;
+                return
             }
             
         		$.ajax({
@@ -301,15 +377,20 @@
 						$modal.find('#device-settings-order-header-bottom-right').val(BottomRightDefault).selectpicker('refresh');
 						
 						// Anchor Dialog
-						var anchorTimeNew 			= $settingsLocal.anchor_time_new != null ? $settingsLocal.anchor_time_new : 0 ;
-						var anchorTimePrioritized 	= $settingsLocal.anchor_time_prioritized != null ? $settingsLocal.anchor_time_prioritized : 0 ;
-						var anchorTimeDelayed 	  	= $settingsLocal.anchor_time_delayed != null ? $settingsLocal.anchor_time_delayed : 0 ;
-						var anchorTimeReady			= $settingsLocal.anchor_time_ready != null ? $settingsLocal.anchor_time_ready : 0 ;
+						var anchorTimeValidNew = $settingsLocal.anchor_time_new != null && $settingsLocal.anchor_time_new != 0;
+						var anchorTimeValidPri = $settingsLocal.anchor_time_prioritized != null && $settingsLocal.anchor_time_prioritized != 0;
+						var anchorTimeValidDel = $settingsLocal.anchor_time_delayed != null && $settingsLocal.anchor_time_delayed != 0;
+						var anchorTimeValidRea = $settingsLocal.anchor_time_ready != null && $settingsLocal.anchor_time_ready != 0;
 						
-						$modal.find('#device-settings-anchor-seconds-new').val(anchorTimeNew);
-						$modal.find('#device-settings-anchor-seconds-prioritized').val(anchorTimePrioritized);
-						$modal.find('#device-settings-anchor-seconds-delayed').val(anchorTimeDelayed);
-						$modal.find('#device-settings-anchor-seconds-ready').val(anchorTimeReady);
+						var anchorTimeNew 			= anchorTimeValidNew ? $settingsLocal.anchor_time_new : 15 ;
+						var anchorTimePrioritized 	= anchorTimeValidPri ? $settingsLocal.anchor_time_prioritized : 15 ;
+						var anchorTimeDelayed 	  	= anchorTimeValidDel ? $settingsLocal.anchor_time_delayed : 15 ;
+						var anchorTimeReady			= anchorTimeValidRea ? $settingsLocal.anchor_time_ready : 15 ;
+						
+						$modal.find('#device-settings-anchor-seconds-new').val(anchorTimeNew).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-prioritized').val(anchorTimePrioritized).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-delayed').val(anchorTimeDelayed).selectpicker('refresh');
+						$modal.find('#device-settings-anchor-seconds-ready').val(anchorTimeReady).selectpicker('refresh');
 
 						$modal.find('#device-settings-anchor-enable-new').prop('checked', $settingsLocal.anchor_enable_new);
 						$modal.find('#device-settings-anchor-enable-prioritized').prop('checked', $settingsLocal.anchor_enable_prioritized);
@@ -436,7 +517,7 @@
     
     
         $modal.find("#device-settings-function").change(function(){
-    		loadExpeditors();
+    			loadExpeditors();
         		loadParentsByFunction();
         		lineDisplayDisable();
         });
@@ -638,9 +719,9 @@
         	            	            success: function (response) {
         	            	            		if (response != true && response != "true") {
         	            	            			theCkeck.prop("checked", !checking);
-        	            	            			$(".modal-title").text("Action not permitted");
-        	            	            			$(".modal-body").text(response);
-        	            	            			$('#modal-btn').click();
+        	            	            			$("#modal-error .modal-title").text("Action not permitted");
+        	            	            			$("#modal-error .modal-body").text(response);
+        	            	            			$('#modal-error').modal('show');
         	            	            		} else {
         	            	            			var numbers  = $('#license-info').text().split(": ")[1]; // Licenses: e.g. 1 / 3
         	            	            			var info  = numbers.split(" / "); // e.g. 1 / 3
@@ -700,9 +781,15 @@
 		// Load Devices Table
 		loadDevicesTable();
 
+		// Modal Close Button
+	    $modal.find('#device-settings-close').click(function(){
+	        $('.popover').popover('destroy');
+	    		$('#modalDeviceSettings').modal('hide');
+	    });
+
     });
 
-    
+
     function showTwilio() {
 		$('#mp-list').hide();
 		$('#mp-twilio').fadeIn();

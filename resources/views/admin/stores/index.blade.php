@@ -3,7 +3,7 @@
 @section('title', "Stores")
 
 @section('content')
-    <div class="row" style="min-height:700px;">
+    <div class="row" style="min-height:800px;">
     
     		<div style="text-align:right;padding:10px;">
     			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new', ['filter' => false]) }}">New</a>
@@ -21,7 +21,8 @@
                 		<th>@sortablelink('business_name', 'Legal Business Name',['page' => $stores->currentPage()])</th>
                     	<th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $stores->currentPage()])</th>
                     	<th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $stores->currentPage()])</th>
-                    	<th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $stores->currentPage()])</th>
+                    	<th>App</th>
+                    	<th>@sortablelink('env_name', 'Type',['page' => $stores->currentPage()])</th>
                     	<th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $stores->currentPage()])</th>
                     	<th>Actions</th>
                 </tr>
@@ -32,7 +33,9 @@
             @foreach($stores as $store)
                 <tr>
                 		<td>{{ $store->business_name }}</td>
+                		
                     	<td>{{ $store->email }}</td>
+                    	
                     <td>
                         @if($store->active)
                             <span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
@@ -40,8 +43,17 @@
                             <span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
                         @endif
                     </td>
-                    <td>{{ $store->created_at }}</td>
+                    
+                    <td>
+                    		{{ $store->app_name }}
+                    </td>
+                    
+                    <td>
+                        {{ $store->env_name }}
+                    </td>
+                    
                     <td>{{ $store->updated_at }}</td>
+                    
                     <td width="200px" style="text-align:center;">
                     
                     		<style>
