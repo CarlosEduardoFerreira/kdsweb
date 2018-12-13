@@ -567,13 +567,23 @@ class ApiController extends Controller
     
     public function registerValidation(Request $request) {
         $return = array();
+        
+        // -- Email ----------------------------------------------------------------------------------------------------- -- //
         $user = DB::table('users')->where('id', '<>', $request->id)->where('email', '=', $request->email)->first();
+        
         if (isset($user)) {
+            
             if (isset($user->email)) {
                 $return["FIELD"] = "email";
                 $return["ERROR"] = "This email is already in use.";
             }
+            
+        } else if(!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+            
+            $return["FIELD"] = "email";
+            $return["ERROR"] = "This email is not valid.";
         }
+        // -- ----------------------------------------------------------------------------------------------------- Email -- //
         
         if (count($return) == 0) {
             $user = DB::table('users')->where('id', '<>', $request->id)->where('username', '=', $request->username)->first();
