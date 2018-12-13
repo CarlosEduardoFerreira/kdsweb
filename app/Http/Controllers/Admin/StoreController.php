@@ -35,7 +35,7 @@ class StoreController extends Controller {
         
         $stores = Controller::filterUsers($request, 4, $storegroupId);
         
-        return view('admin.stores.index', ['stores' => $stores]);
+        return view('admin.stores.index', ['obj' => 'store', 'stores' => $stores]);
     }
 
     /**
@@ -73,7 +73,9 @@ class StoreController extends Controller {
         $envs = $this->getStoreEnvironments();
         
         return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'me' => $me, 'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => '']);
+            'countries' => $countries, 'me' => $me, 
+            'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => ''
+        ]);
     }
     
     
@@ -273,7 +275,7 @@ class StoreController extends Controller {
         
         $storegroup = DB::table('users')->where(['id' => $store->parent_id])->first();
         
-        return view('admin.stores.show', ['store' => $store, 'storegroup' => $storegroup]);
+        return view('admin.stores.show', ['obj' => 'store', 'store' => $store, 'storegroup' => $storegroup]);
     }
 
 
@@ -313,11 +315,12 @@ class StoreController extends Controller {
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
         return view('admin.stores.config', [
+            'obj' => 'store',
+            'link' => $request->link,
             'store' => $store, 
             'devices'=> $devices, 
             'settings' => $settings, 
-            'licenseInfo' => $licenseInfo, 
-            'selected' => $request->selected, 
+            'licenseInfo' => $licenseInfo,
             'adminSettings' => $adminSettings
         ]);
     }
@@ -785,8 +788,12 @@ class StoreController extends Controller {
             $devices = [];
         }
         
-        return view('admin.stores.report', ['reports' => Vars::$reportIds, 'store' => $store, 
-            'devices' => $devices, 'selected' => $request->selected]);
+        return view('admin.stores.report', [
+            'obj' => 'store', 
+            'link' => $request->link,
+            'reports' => Vars::$reportIds, 
+            'store' => $store, 
+            'devices' => $devices]);
     }
     
     

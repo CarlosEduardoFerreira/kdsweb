@@ -64,7 +64,14 @@ $(document).ready(function() {
 	}
 	
 	
+	function submitForm() {
+		$('#form-settings').submit();
+		sendNotificationToFirebase();
+	}
+	
+	
 	function validateStoreSettings() {
+		
 		$.ajax({
 		 	headers: token,
             url: 'validateStoreSettings',
@@ -74,16 +81,36 @@ $(document).ready(function() {
             		licensesQuantity: $('#licenses_quantity').val()
             	},
             success: function (error) {
-            		if(error["id"] == undefined) {
-            			$('#form-settings').submit();
-            			sendNotificationToFirebase();
-            		} else {
-            			$("#modal-error .modal-title").text(error["title"]);
-            			$("#modal-error .modal-body").text(error["msg"]);
-            			$('#modal-error').modal('show');
-            		}
+            	
+	            	var licenses_quantity_old = $('#licenses_quantity_old').val();
+	        		var licenses_quantity = $('#licenses_quantity').val();
+	        		
+	        		if(licenses_quantity_old < licenses_quantity) {
+	        			error["id"] 		= "licenses_quantity_old";
+	        			error["title"] 	= "License Quantity";
+	        			error["msg"] 	= "Increasing the license quantity will incur an additional cost. Are you sure you want to continue?";
+	        		}
+            	
+	            	if(error["id"] == undefined) {
+	            		submitForm();
+	        			
+	        		} else {
+
+	        			$("#modal-error .modal-title").text(error["title"]);
+	        			$("#modal-error .modal-body").text(error["msg"]);
+	        			
+	        			if(error["id"] == "licenses_quantity_old") {
+	        				$('#modal-error').find('#btn-error-close').text("No");
+	        				$('#modal-error').find('#btn-error-ok').text("Yes").show().click(function(){
+	        					submitForm();
+	        				});
+	        			}
+        				
+        				$('#modal-error').modal('show');
+	        		}
             }
         });
+		
 	}
 	
 	

@@ -37,7 +37,7 @@ class ResellerController extends Controller
 
         $resellers = Controller::filterUsers($request, 2, $adminId, $request->filter);
 
-        return view('admin.resellers.index', ['resellers' => $resellers]);
+        return view('admin.resellers.index', ['obj' => 'reseller', 'resellers' => $resellers]);
     }
 
     /**
@@ -120,7 +120,7 @@ class ResellerController extends Controller
         $reseller->state   = $state->name;
         $reseller->country = $country->name;
         
-        return view('admin.resellers.show', ['reseller' => $reseller]);
+        return view('admin.resellers.show', ['obj' => 'reseller', 'reseller' => $reseller]);
     }
 
     /**
