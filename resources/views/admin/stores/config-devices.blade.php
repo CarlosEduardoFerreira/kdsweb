@@ -205,7 +205,7 @@
                                         	</div>
                                         	<div class="col-lg-3" style="padding:0;">
                                             	<select id="device-settings-line-display-column-1-percent" name="device-settings-line-display-column-1-percent"
-                                            		class="form-control selectpicker">
+                                            		class="form-control selectpicker device-settings-line-display-column-percent">
                                                 	
                                             	</select>
                                          </div>
@@ -226,7 +226,7 @@
                                         	</div>
                                         	<div class="col-lg-3" style="padding:0;">
                                             	<select id="device-settings-line-display-column-2-percent" name="device-settings-line-display-column-2-percent"
-                                            		class="form-control selectpicker">
+                                            		class="form-control selectpicker device-settings-line-display-column-percent">
                                                 	
                                             	</select>
                                          </div>
@@ -247,7 +247,7 @@
                                         	</div>
                                         	<div class="col-lg-3" style="padding:0;">
                                             	<select id="device-settings-line-display-column-3-percent" name="device-settings-line-display-column-3-percent"
-                                            		class="form-control selectpicker">
+                                            		class="form-control selectpicker device-settings-line-display-column-percent">
                                                 	
                                             	</select>
                                          </div>
@@ -268,7 +268,7 @@
                                         	</div>
                                         	<div class="col-lg-3" style="padding:0;">
                                             	<select id="device-settings-line-display-column-4-percent" name="device-settings-line-display-column-4-percent"
-                                            		class="form-control selectpicker">
+                                            		class="form-control selectpicker device-settings-line-display-column-percent">
                                                 	
                                             	</select>
                                          </div>
@@ -693,8 +693,9 @@
 #modal-error .modal-body    { text-align:center; font-size:16px; }
 
 {{-- Popover Error --}}
-#modalDeviceSettings .popover .popover-title {  }
-#modalDeviceSettings .popover .popover-content { color:red; font-weight:200; font-size:15px; }
+#modalDeviceSettings .popover { min-width:130px; left:80% }
+#modalDeviceSettings .popover .popover-title { text-align:left;  }
+#modalDeviceSettings .popover .popover-content { text-align:left; color:red; font-weight:200; font-size:15px; }
 
 {{--
 hr.separator-0 { border:0; clear:both; display:block; width:100%; background-color:#9FA8DA; height:1px; margin:40px 0px 20px 0px; }

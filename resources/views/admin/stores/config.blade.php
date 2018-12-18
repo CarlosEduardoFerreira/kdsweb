@@ -207,9 +207,11 @@
      		smartOrderFunctions();
          });
      	
-     	// -- Store Settings --------------------------------------------------------------------------------------------- -- //
+     	// -- --------------------------------------------------------------------------------------------- Store Settings -- //
 
 
+     	// -- Device Settings -------------------------------------------------------------------------------------------- -- //
+     	
         var $modal = $('#modalDeviceSettings');
 
         function loadExpeditors($value = null) {
@@ -359,6 +361,7 @@
 								.val($settingsLineDisplay[$i].column_name)
 								.selectpicker('refresh');
 							$modal.find("#device-settings-line-display-column-" + ($i+1) + "-percent")
+								.prop('old_value',$settingsLineDisplay[$i].column_percent)
 								.val($settingsLineDisplay[$i].column_percent)
 								.selectpicker('refresh');
 						}
@@ -534,6 +537,39 @@
             
         $('#device-settings-printer-network-ip').mask('099.099.099.099');
 
+        
+		// Line Display
+		$('.device-settings-line-display-column-percent').each(function(){
+			var oldValue = 0;
+			
+			$(this).change(function(){
+
+				var $obj = $(this);
+				
+				$('.popover').popover('destroy');
+
+				oldValue = parseInt($obj.prop('old_value'));
+				
+				var percentTotal = 0;
+				$('.device-settings-line-display-column-percent').not($obj).each(function(){
+					percentTotal += $(this).val() != '' ? parseInt($(this).val()) : 0;
+				});
+
+				if((percentTotal + parseInt($obj.val())) > 100) {
+					$obj.val(oldValue);
+					$obj.popover({
+						title: "Error",
+						content: "The sum of all columns cannot be more than 100%."
+		            	});
+					$obj.popover('show');
+					setTimeout(function(){
+						$('.popover').popover('destroy');
+					},3000);
+				}
+			});
+		});
+
+		
         // Save Device Settings
         $modal.find('#device-settings-save').click(function(){
         		
@@ -792,6 +828,10 @@
 
     });
 
+ 	// -- -------------------------------------------------------------------------------------------- Device Settings -- //
+
+ 	
+ 	// -- Twilio Settings -------------------------------------------------------------------------------------------- -- //
 
     function showTwilio() {
 		$('#mp-list').hide();
@@ -845,6 +885,8 @@
         	});
         	
     });
+
+ 	// -- -------------------------------------------------------------------------------------------- Twilio Settings -- //
     
     </script>
     
