@@ -28,7 +28,7 @@ $(function(){
 		$('#showModalChooseReport').text($(this).text());
 		
 		// build the report
-		drawTable();
+		startReport();
 	});
 	/************************************************ filter choose report **/
 	
@@ -42,7 +42,7 @@ $(function(){
 		perPage = parseInt(selected);
 		
 		// build the report
-		drawTable();
+		startReport();
     	});
 	/***************************************************** per page filter **/
 	
@@ -124,14 +124,14 @@ $(function(){
 			}
 		})
 		
-		drawTable();
+		startReport();
 	});
 	/****************************************************** filter devices **/
 	
 	
 	/** Refresh Button ******************************************************/
 	$('#report-refresh-img').click(function(){
-		drawTable();
+		startReport();
 	});
 	/****************************************************** Refresh Button **/
 	
@@ -154,7 +154,7 @@ $(function(){
 	    startDatetime = start;
 	    endDatetime   = end;
 	    
-	    drawTable();
+	    startReport();
 	    
 //	    alert("datetime filter: " + startDatetime.format('YYYY-MM-DD HH:mm') + ' to ' + endDatetime.format('YYYY-MM-DD HH:mm'));
 	  });
@@ -167,10 +167,11 @@ $(function(){
         	google.charts.setOnLoadCallback(drawTable);
     	}
     	
+    	
     	startReport();
     	
+    	
     	function drawTable() {
-    		//alert('reportId: ' + reportId + " devicesIds:" + devicesIds);
     		
     		// Refresh button hide
     		$('#report-refresh-img').hide();
@@ -299,7 +300,7 @@ $(function(){
             					}
             					
             				}
-            					
+            				
             				column_value = getValue(i_col, column_type, column_value, true);
             				
             				device.push(column_value);
@@ -317,6 +318,10 @@ $(function(){
             					if(device[0] == "" && i_col == 0) {
             						css_tr_color = " background:#fefefe;";
             					}
+            				}
+            				
+            				if(i_col == 0) {
+            					data.setProperty(i_row, i_col, 'class', "exceltext");
             				}
             				
             				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
@@ -409,27 +414,7 @@ $(function(){
              	
              	// Refresh button show
              	$('#report-refresh-img').fadeIn('slow');
-             	
-				// Export Report --------------------------------------------------------- //
-             	var reportTable = $('#report_div table');
-             		reportTable.prop('id','KDS-'+getFilenameDatetime());
-				
-             	var instance = new TableExport(reportTable, {
-				    formats: ['xlsx'],
-				    exportButtons: false
-				});
-				
-				if(response.length > 0) {
-					var exportData = instance.getExportData()['KDS-'+getFilenameDatetime()]['xlsx'];
-	
-					var XLSbutton = document.getElementById('report-export-excel');
-	
-					XLSbutton.addEventListener('click', function (e) {
-						instance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
-					});
-	            }
-				// --------------------------------------------------------- Export Report //
-             	
+
             }
     		
     		});
@@ -438,6 +423,35 @@ $(function(){
 	/******************************************************** report table **/
     	
     	
+    	
+    	// Export Report --------------------------------------------------------- //
+	$('#report-export-excel').click(function() {
+		
+		var id = 'KDS_'+getFilenameDatetime();
+		
+		var reportTable = $('#report_div table');
+		 	reportTable.prop('id', id);
+		 	
+		//alert(reportTable)
+			
+	 	var instance = new TableExport(reportTable, {
+		    formats: ['xlsx'],
+		    exportButtons: false,
+		    bootstrap: true
+		});
+		
+//		instance.types.date.assert = function(v){return false;};
+			
+		var exportData = instance.getExportData()[id]['xlsx'];
+		
+		//alert("exportData.data: " + exportData.data)
+		
+		instance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
+	});
+	// --------------------------------------------------------- Export Report //
+    	
+    	
+	
     	function getFilenameDatetime() {
     	    var today = new Date();
     	    var y = today.getFullYear();
@@ -446,7 +460,7 @@ $(function(){
     	    var h = today.getHours();
     	    var mi = today.getMinutes();
     	    var s = today.getSeconds();
-    	    return y + "-" + m + "-" + d + "-" + h + "-" + mi + "-" + s;
+    	    return y + "_" + m + "_" + d + "_" + h + "_" + mi + "_" + s;
     	}
     	
     	

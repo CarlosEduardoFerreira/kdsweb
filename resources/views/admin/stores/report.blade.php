@@ -250,9 +250,9 @@
         .per-page-dropdown a  { font-weight:200; font-size:14px; }
 
     /* report table */
-        .google-visualization-table { width:100% !important; margin:0 !important; }
+        .google-visualization-table { width:100% !important; margin:0 !important; mso-number-format:"\@";/*force text*/ }
         .google-visualization-table-div-page { height:40px; background:#86b8dd !important; color:#fff !important;  
-            vertical-align:middle !important; margin:0px auto !important; }
+            vertical-align:middle !important; margin:0px auto !important; mso-number-format:"\@";/*force text*/ }
         
     /* report headers */
         .tblHeaderClass th { color:#fff !important; text-align:center !important; background:#86b8dd !important; }
@@ -278,6 +278,10 @@
         
     /* report date range */
         #daterange { width:280px; float:right; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        
+        .exceltext{
+          mso-number-format:"\@";/*force text*/
+        }
         
     </style>
 @endsection
