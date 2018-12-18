@@ -364,6 +364,9 @@ $(function(){
             		} else {
             			
 					table.draw(data, tableSettings);
+					
+					var reportHeight = response.length < perPage ? response.length : perPage;
+					$('#report_div').css({ "height" : String((reportHeight * 40) + 80) + "px", "overflow-y" : "hidden" });
             			
             			// Show Report
             			$('#report_div').fadeIn('slow');
@@ -421,6 +424,8 @@ $(function(){
     	
     	
     	// Export Report --------------------------------------------------------- //
+    	var xlsxExportData;
+    	
 	$('#report-export-excel').click(function() {
 		
 		var id = 'KDS_'+getFilenameDatetime();
@@ -433,12 +438,22 @@ $(function(){
 	 	var instance = new TableExport(reportTable, {
 		    formats: ['xlsx'],
 		    exportButtons: false,
-		    bootstrap: true
+		    bootstrap: true,
+		    exportDataType: 'all'
 		});
-			
-		var exportData = instance.getExportData()[id]['xlsx'];
+	 	
+	 	if(instance.getExportData()[id] !== undefined) {
+	 		xlsxExportData = instance.getExportData()[id]['xlsx'];
+	 	}
 		
-		instance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
+	 	if(xlsxExportData !== undefined) {
+	 		instance.export2file(
+ 				xlsxExportData.data, 
+ 				xlsxExportData.mimeType, 
+ 				xlsxExportData.filename, 
+ 				xlsxExportData.fileExtension
+ 			);
+	 	}
 	});
 	// --------------------------------------------------------- Export Report //
     	
