@@ -71,7 +71,7 @@
     		</div>
     		
     		<!-- Total -->
-    		<div id="report-total" style="margin:0px 0px 0px 0px;display:none;">
+    		<div id="report-total" style="margin:0px 0px 200px 0px;display:none;">
     			<table style="width:100%;font-weight:200;">
     				<tr height="40px" id="report-total-tr">
 					<!-- Total is handled on reports.js -->
