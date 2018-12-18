@@ -655,12 +655,15 @@
                 	            }
 
             	            		// Settings
-                    	        var settingsHTML = "<a class=\"btn btn-xs btn-warning btn-icons device-settings\" href=\"#\" " +
+            	            		var settingsHTML = "";
+            	            		if(devices[i].app_version > 1.2) {
+                    	        		settingsHTML = "<a class=\"btn btn-xs btn-warning btn-icons device-settings\" href=\"#\" " +
                     	        							"store_guid=\"" + devices[i].store_guid + "\" " +
                     	        							"guid=\"" + devices[i].guid + "\" screen_id=\"" + devices[i].screen_id + "\" " +
                                         				"data-toggle=\"modal\" data-target=\"#modalDeviceSettings\" data-title=\"Device Settings\">" +
                                                 		"<i class=\"fa fa-cogs fa-lg\"></i>" +
                                                 "</a>";
+            	            		}
 
                              // Remove
                     	        var removeHTML = "";
