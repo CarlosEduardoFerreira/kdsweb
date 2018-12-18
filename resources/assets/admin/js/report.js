@@ -320,10 +320,6 @@ $(function(){
             					}
             				}
             				
-            				if(i_col == 0) {
-            					data.setProperty(i_row, i_col, 'class', "exceltext");
-            				}
-            				
             				data.setProperty(i_row, i_col, 'style', "width:" + headers[i_col][4] + "%; " +
             						"text-align:" + headers[i_col][5] + " !important; " +
             						"padding-left:10px;" + css_tr_color);
@@ -432,19 +428,15 @@ $(function(){
 		var reportTable = $('#report_div table');
 		 	reportTable.prop('id', id);
 		 	
-		//alert(reportTable)
+		TableExport.prototype.typeConfig.date.assert = function(value){return false;};
 			
 	 	var instance = new TableExport(reportTable, {
 		    formats: ['xlsx'],
 		    exportButtons: false,
 		    bootstrap: true
 		});
-		
-//		instance.types.date.assert = function(v){return false;};
 			
 		var exportData = instance.getExportData()[id]['xlsx'];
-		
-		//alert("exportData.data: " + exportData.data)
 		
 		instance.export2file(exportData.data, exportData.mimeType, exportData.filename, exportData.fileExtension);
 	});
