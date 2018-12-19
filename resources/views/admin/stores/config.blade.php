@@ -559,7 +559,7 @@
 					$obj.val(oldValue);
 					$obj.popover({
 						title: "Error",
-						content: "The sum of all columns cannot be more than 100%."
+						content: "The sum of all columns cannot be greater than 100%."
 		            	});
 					$obj.popover('show');
 					setTimeout(function(){
