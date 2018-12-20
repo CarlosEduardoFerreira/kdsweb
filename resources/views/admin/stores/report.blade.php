@@ -285,6 +285,7 @@
 
 @section('scripts')
     @parent
+    
     {{ Html::script(mix('assets/admin/js/jquery-3.3.1.min.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-3.3.7.min.js')) }}
     {{ Html::script(mix('assets/admin/js/google.charts.js')) }}

@@ -143,11 +143,11 @@ mix.scripts([
 
 // JQuery Data Table 1.10.19
 mix.styles([
-    'resources/assets/admin/css/jquery.dataTable.min.css',
-], 'public/assets/admin/css/jquery.dataTable.min.css').version();
+    'resources/assets/admin/css/jquery.dataTables.min.css',
+], 'public/assets/admin/css/jquery.dataTables.min.css').version();
 mix.scripts([
-    'resources/assets/admin/js/jquery.dataTable.min.js',
-], 'public/assets/admin/js/jquery.dataTable.min.js').version();
+    'resources/assets/admin/js/jquery.dataTables.min.js',
+], 'public/assets/admin/js/jquery.dataTables.min.js').version();
 
 // JQuery Mask 1.14.15
 mix.scripts([
