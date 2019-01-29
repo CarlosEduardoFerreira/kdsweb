@@ -32,6 +32,7 @@ class ApiController extends Controller
     private $request = "";
     private $response = "";
     private $method = "";
+    private $requestError;
     
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
     
@@ -47,7 +48,7 @@ class ApiController extends Controller
         
         $this->getRequest();
         
-        $this->loadMethod();
+        return $this->loadMethod();
     }
     
     
@@ -72,7 +73,7 @@ class ApiController extends Controller
             ];
         }
         
-        $this->loadMethod();
+        return $this->loadMethod();
     }
     
     
@@ -80,13 +81,11 @@ class ApiController extends Controller
         $this->request = file_get_contents("php://input");
         $this->request = htmlspecialchars_decode($this->request);
         $this->request = json_decode($this->request, true);
-        
-        $this->response = array(array());
-        
+
         // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
         if (!isset($this->request[0]["tok"]) || $this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
-            $this->response[0]["error"]  = "Your application has no permission to do this!";
-            return response()->json($this->response);
+            $this->requestError  = "Your application has no permission to do this!";
+            
         } else {
             $this->request = $this->request[1];
         }
@@ -100,6 +99,13 @@ class ApiController extends Controller
     
 
     public function loadMethod() {
+        
+        $this->response = array(array());
+        
+        if(!empty($this->requestError)) {
+            $this->response[0]["error"]  = $this->requestError;
+            return response()->json($this->response);
+        }
         
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
