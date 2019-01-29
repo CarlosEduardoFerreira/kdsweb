@@ -34,6 +34,8 @@ class ApiController extends Controller
     
     public function __construct() {
         $this->connection = env('DB_DATABASE', 'mysql');
+        
+        $this->premium["sync_tables"] = [];
     }
     
     
