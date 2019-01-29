@@ -33,14 +33,14 @@ class ApiController extends Controller
     
     
     public function __construct() {
-        $this->connection = env('DB_DATABASE', 'mysql');
+        $this->connection = env('DB_CONNECTION', 'mysql');
         
         $this->premium["sync_tables"] = [];
     }
     
     
     public function indexPremium() {
-        $this->connection = env('DB_DATABASE_PREMIUM', 'forge');
+        $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
         
         $this->premium["sync_tables"] = [
             "condiments",
@@ -225,11 +225,11 @@ class ApiController extends Controller
         $entity = $request["entity"];
         $data   = $request["data"];
         
-        $isPremiumDB = $this->connection == env('DB_DATABASE_PREMIUM', 'forge');
+        $isPremiumDB = $this->connection == env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
         $isPremiumSyncTable = in_array($entity, $this->premium["sync_tables"]);
         
         if($isPremiumDB && $isPremiumSyncTable) {
-            Config::set('database.default', Input::get(env('DB_DATABASE_PREMIUM', 'forge')));
+            Config::set('database.default', Input::get(env('DB_CONNECTION_PREMIUM', 'mysqlPremium')));
         }
         
         $objGuidArray = array();
@@ -314,7 +314,7 @@ class ApiController extends Controller
         }
         
         if($isPremiumDB && $isPremiumSyncTable) {
-            Config::set('database.default', Input::get(env('DB_DATABASE', 'forge')));
+            Config::set('database.default', Input::get(env('DB_CONNECTION', 'mysql')));
         }
 
         return $response;
