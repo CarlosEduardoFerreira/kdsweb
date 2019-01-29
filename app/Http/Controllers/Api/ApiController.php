@@ -25,11 +25,16 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-    private $connection = env('DB_DATABASE', 'mysql');
+    private $connection = "";
     
     private $premium = array();
     
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+    
+    
+    public function __construct() {
+        $this->connection = env('DB_DATABASE', 'mysql');
+    }
     
     
     public function indexPremium() {
