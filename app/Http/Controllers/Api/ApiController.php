@@ -27,20 +27,13 @@ class ApiController extends Controller
     
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
     
-    public function __construct() {
-        if(Session::has('selected_database')) {
-            Config::set('database.default',Session::get('selected_database'));
-        } else {
-            $db = Input::get('mysql');
-            Config::set('database.default', $db);
-        }
-    }
     
     public function indexPremium() {
         $db = Input::get('mysqlPremium');
         Config::set('database.default', $db);
-        Session::put('selected_database',$db);
         $this->index();
+        $db = Input::get('mysql');
+        Config::set('database.default', $db);
     }
     
     
