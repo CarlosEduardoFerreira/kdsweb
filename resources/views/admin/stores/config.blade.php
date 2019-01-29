@@ -683,7 +683,7 @@
                     	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
                     	            expeditor: devices[i].expeditor,
                     	            last_update: timeConverter(devices[i].update_time),
-                    	            app_version: devices[i].app_version,
+                    	            app_version: devices[i].app_version . " (" . devices[i].app_version_code . ")",
                     	            license: licenseHTML,
                     	            settings: settingsHTML,
                                 remove: removeHTML

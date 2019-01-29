@@ -25,15 +25,28 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     
+    private $connection = env('DB_DATABASE', 'mysql');
+    
+    private $premium = array();
+    
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
     
     
     public function indexPremium() {
-        $db = Input::get('mysqlPremium');
-        Config::set('database.default', $db);
-        $this->index();
-        $db = Input::get('mysql');
-        Config::set('database.default', $db);
+        $this->connection = env('DB_DATABASE_PREMIUM', 'forge');
+        
+        $this->premium["sync_tables"] = [
+            "condiments",
+            "customers",
+            "destinations",
+            "item_bumps",
+            "items",
+            "items_recipe",
+            "notification_answers",
+            "notification_questions",
+            "orders",
+            "sms_order_sent"
+        ];
     }
     
     
@@ -205,6 +218,13 @@ class ApiController extends Controller
         $entity = $request["entity"];
         $data   = $request["data"];
         
+        $isPremiumDB = $this->connection == env('DB_DATABASE_PREMIUM', 'forge');
+        $isPremiumSyncTable = in_array($entity, $this->premium["sync_tables"]);
+        
+        if($isPremiumDB && $isPremiumSyncTable) {
+            Config::set('database.default', Input::get(env('DB_DATABASE_PREMIUM', 'forge')));
+        }
+        
         $objGuidArray = array();
         
         $response[0]["error"] = null;
@@ -284,6 +304,10 @@ class ApiController extends Controller
         // On KDS 1.1 version and below "appVersion" parameter is not handled
         if($appVersion < 1.2 && !isset($response[0]["error"])) { 
             $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
+        }
+        
+        if($isPremiumDB && $isPremiumSyncTable) {
+            Config::set('database.default', Input::get(env('DB_DATABASE', 'forge')));
         }
 
         return $response;
