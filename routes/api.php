@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api'], function () {
     
     Route::post('/apiKDS','ApiController@index');
+    Route::post('/apiKDS/Premium','ApiController@indexPremium');
     
     // Ajax register validation
     Route::get('register/validation', 'ApiController@registerValidation')->name('register.validation');
