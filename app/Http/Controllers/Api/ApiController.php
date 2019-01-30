@@ -76,12 +76,14 @@ class ApiController extends Controller
             
             if($isPremiumSyncTable) {
                 $this->dbConfig = env('DB_CONFIG_PREMIUM', 'mysqlPremium');
+                DB::connection($this->dbConfig);
             }
             
             $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
             
             if($isPremiumSyncTable) {
                 $this->dbConfig = env('DB_CONFIG', 'mysql');
+                DB::connection($this->dbConfig);
             }
             
             return response()->json($this->response);
@@ -279,7 +281,7 @@ class ApiController extends Controller
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
             
-            $result     = DB::connection($this->dbConfig)::select($sqlCheck);
+            $result     = DB::select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
             }
@@ -331,7 +333,7 @@ class ApiController extends Controller
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL OR upload_time < 2)";
             }
 
-            $result = DB::connection($this->dbConfig)::statement($sql);
+            $result = DB::statement($sql);
             
             if ($result) {
                 array_push($objGuidArray, $guid);
@@ -344,7 +346,7 @@ class ApiController extends Controller
         
         // On KDS 1.1 version and below "appVersion" parameter is not handled
         if($appVersion < 1.2 && !isset($response[0]["error"])) { 
-            $response = DB::connection($this->dbConfig)::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
+            $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
         }
 
         return $response;
