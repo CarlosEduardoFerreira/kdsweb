@@ -25,8 +25,6 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-    private $connection = "";
-    
     private $premium = array();
     
     private $request = "";
@@ -38,15 +36,17 @@ class ApiController extends Controller
     
     
     public function __construct() {
-        $this->connection = env('DB_CONNECTION', 'mysql');
         
         $this->premium["sync_tables"] = [];
+        
     }
     
     
     public function index() {
         
         $this->getRequest();
+        
+        Config::set('database.connections.mysql.database', env('DB_DATABASE', 'mysql'));
         
         return $this->loadMethod();
     }
@@ -56,24 +56,33 @@ class ApiController extends Controller
         
         $this->getRequest();
         
-        if ($this->method == "SYNC") {
-            $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
-            
-            $this->premium["sync_tables"] = [
-                "condiments",
-                "customers",
-                "destinations",
-                "item_bumps",
-                "items",
-                "items_recipe",
-                "notification_answers",
-                "notification_questions",
-                "orders",
-                "sms_order_sent"
-            ];
-        }
+        $this->premium["sync_tables"] = [
+            "condiments",
+            "customers",
+            "destinations",
+            "item_bumps",
+            "items",
+            "items_recipe",
+            "notification_answers",
+            "notification_questions",
+            "orders"
+        ];
         
-        return $this->loadMethod();
+        $isPremiumSyncTable = in_array($this->request["entity"], $this->premium["sync_tables"]);
+        
+        if ($isPremiumSyncTable && $this->method == "SYNC") {
+            
+            Config::set('database.connections.mysql.database', env('DB_DATABASE_PREMIUM', 'mysql'));
+            
+            $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
+            
+            Config::set('database.connections.mysql.database', env('DB_DATABASE', 'mysql'));
+            
+            return response()->json($this->response);
+            
+        } else {
+            return $this->loadMethod();
+        }
     }
     
     
@@ -114,7 +123,7 @@ class ApiController extends Controller
                 
             } else if ($this->method == "SYNC") {
                 $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
-                
+
             } else if ($this->method == "GET_SETTINGS") {
                 $this->response = $this->getSettings($this->request, $this->response);
                 
@@ -253,13 +262,6 @@ class ApiController extends Controller
         $entity = $request["entity"];
         $data   = $request["data"];
         
-        $isPremiumDB = $this->connection == env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
-        $isPremiumSyncTable = in_array($entity, $this->premium["sync_tables"]);
-        
-        if($isPremiumDB && $isPremiumSyncTable) {
-            Config::set('database.default', Input::get(env('DB_CONNECTION_PREMIUM', 'mysqlPremium')));
-        }
-        
         $objGuidArray = array();
         
         $response[0]["error"] = null;
@@ -339,10 +341,6 @@ class ApiController extends Controller
         // On KDS 1.1 version and below "appVersion" parameter is not handled
         if($appVersion < 1.2 && !isset($response[0]["error"])) { 
             $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
-        }
-        
-        if($isPremiumDB && $isPremiumSyncTable) {
-            Config::set('database.default', Input::get(env('DB_CONNECTION', 'mysql')));
         }
 
         return $response;
