@@ -68,15 +68,19 @@ class ApiController extends Controller
             "orders"
         ];
         
-        $isPremiumSyncTable = in_array($this->request["entity"], $this->premium["sync_tables"]);
-        
-        if ($isPremiumSyncTable && $this->method == "SYNC") {
+        if ($this->method == "SYNC") {
             
-            Config::set('database.connections.mysql.database', env('DB_DATABASE_PREMIUM', 'mysql'));
+            $isPremiumSyncTable = in_array($this->request["entity"], $this->premium["sync_tables"]);
+            
+            if($isPremiumSyncTable) {
+                Config::set('database.connections.mysql.database', env('DB_DATABASE_PREMIUM', 'mysql'));
+            }
             
             $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
             
-            Config::set('database.connections.mysql.database', env('DB_DATABASE', 'mysql'));
+            if($isPremiumSyncTable) {
+                Config::set('database.connections.mysql.database', env('DB_DATABASE', 'mysql'));
+            }
             
             return response()->json($this->response);
             
