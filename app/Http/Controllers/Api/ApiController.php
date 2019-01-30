@@ -28,7 +28,7 @@ class ApiController extends Controller
     private $premium = array();
     
     private $request = "";
-    private $response = "";
+    private $response = array(array());
     private $method = "";
     private $requestError;
     
@@ -112,8 +112,6 @@ class ApiController extends Controller
     
 
     public function loadMethod() {
-        
-        $this->response = array(array());
         
         if(!empty($this->requestError)) {
             $this->response[0]["error"]  = $this->requestError;
