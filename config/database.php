@@ -39,8 +39,8 @@ return [
             'prefix' => '',
         ],
 
-        'mysql' => [
-            'driver' => env('DB_CONNECTION', 'mysql'),
+        env('DB_CONNECTION', 'mysql') => [
+            'driver' => env('DB_DRIVE', 'mysql'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'forge'),
@@ -54,8 +54,8 @@ return [
             'engine' => null,
         ],
         
-        'mysqlPremium' => [
-            'driver' => env('DB_CONNECTION_PREMIUM', 'mysql'),
+        env('DB_CONNECTION_PREMIUM', 'mysqlPremium') => [
+            'driver' => env('DB_DRIVE_PREMIUM', 'mysql'),
             'host' => env('DB_HOST_PREMIUM', '127.0.0.1'),
             'port' => env('DB_PORT_PREMIUM', '3306'),
             'database' => env('DB_DATABASE_PREMIUM', 'forge'),
