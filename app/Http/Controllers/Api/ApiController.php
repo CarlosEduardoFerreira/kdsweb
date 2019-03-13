@@ -10,8 +10,11 @@ use App\Http\Controllers\Controller;
 // use App\Http\Controllers\Api\ApiSettingsController;
 // use App\Http\Controllers\Api\ApiDeviceController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
 
 class ApiController extends Controller
@@ -22,68 +25,134 @@ class ApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     
+    private $premium = array();
+    
+    private $request = "";
+    private $response = array(array());
+    private $method = "";
+    private $requestError;
+    
+    private $DB;
+    private $connection = "mysql";
+    
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
+    
+    
+    public function __construct() {
+        $this->DB = DB::class;
+        $this->premium["sync_tables"] = [];
+        
+    }
+    
     
     public function index() {
         
-        $request = file_get_contents("php://input");
-        $request = htmlspecialchars_decode($request);
-        $request = json_decode($request, true);
+        $this->getRequest();
         
-        $response = array(array());
+        $this->connection = env('DB_CONNECTION', 'mysql');
         
-        // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
-        if (!isset($request[0]["tok"]) || $request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
-            $response[0]["error"]  = "Your application has no permission to do this!";
-            return response()->json($response);
+        return $this->loadMethod();
+    }
+    
+    
+    public function indexPremium() {
+        
+        $this->getRequest();
+        
+        $this->premium["sync_tables"] = [
+            "condiments",
+            "customers",
+            "destinations",
+            "item_bumps",
+            "items",
+            "items_recipe",
+            "notification_answers",
+            "notification_questions",
+            "orders"
+        ];
+        
+        if ($this->method == "SYNC") {
+
+            if(in_array($this->request["entity"], $this->premium["sync_tables"])) {
+                $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
+            }
+
+            $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
+            
+            return response()->json($this->response);
+            
         } else {
-            $request = $request[1];
+            return $this->loadMethod();
+        }
+    }
+    
+    
+    public function getRequest() {
+        $this->request = file_get_contents("php://input");
+        $this->request = htmlspecialchars_decode($this->request);
+        $this->request = json_decode($this->request, true);
+
+        // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
+        if (!isset($this->request[0]["tok"]) || $this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
+            $this->requestError  = "Your application has no permission to do this!";
+            
+        } else {
+            $this->request = $this->request[1];
         }
         // -------------------------------------------------------------------------- TOKEN - THIS CANNOT BE CHANGED!!! //
         
         /** // Request
          *  req = Resquest/Function
          */
-        $req = $request["req"];
+        $this->method = $this->request["req"];
+    }
+    
+
+    public function loadMethod() {
+        
+        if(!empty($this->requestError)) {
+            $this->response[0]["error"]  = $this->requestError;
+            return response()->json($this->response);
+        }
         
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
             
-            if ($req == "LOGIN") {
-                $response = $this->login($request, $response);
+            if ($this->method == "LOGIN") {
+                $this->response = $this->login($this->request, $this->response);
                 
-            } else if ($req == "SYNC") {
-                $response = $this->insertOrUpdateEntityWeb($request, $response);
-                
-            } else if ($req == "GET_SETTINGS") {
-                $response = $this->getSettings($request, $response);
-                
-            } else if ($req == "GET_DEVICES") {
-                $response = $this->getDevices($request, $response);
-                
-            } else if ($req == "DEVICES_ACTIVE") {
-                $response = $this->activeLicense($request, $response);
-                
-            } else if ($req == "DEVICE_ONLINE") {
-                $response = $this->setDeviceOnline($request, $response);
-                
-            } else if ($req == 'REGISTER_VALIDATION') {
-                $response = $this->registerValidation($request);
-                
-            } else if ($req == 'SMS_ORDER') {
-                $response = $this->smsOrder($request, $response);
+            } else if ($this->method == "SYNC") {
+                $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
 
-            } else if ($req == "GET_ENTITY") {
-                $response = $this->getEntities($request, $response);
-
-            } else if ($req == "GET_SERVER_TIME") {
-                $response = $this->getServerTime($request, $response);
+            } else if ($this->method == "GET_SETTINGS") {
+                $this->response = $this->getSettings($this->request, $this->response);
                 
-            } else if ($req == "DEVICE_REPLACE") {
-                $response = $this->deviceReplace($request, $response);
+            } else if ($this->method == "GET_DEVICES") {
+                $this->response = $this->getDevices($this->request, $this->response);
+                
+            } else if ($this->method == "DEVICES_ACTIVE") {
+                $this->response = $this->activeLicense($this->request, $this->response);
+                
+            } else if ($this->method == "DEVICE_ONLINE") {
+                $this->response = $this->setDeviceOnline($this->request, $this->response);
+                
+            } else if ($this->method == 'REGISTER_VALIDATION') {
+                $this->response = $this->registerValidation($this->request);
+                
+            } else if ($this->method == 'SMS_ORDER') {
+                $this->response = $this->smsOrder($this->request, $this->response);
+
+            } else if ($this->method == "GET_ENTITY") {
+                $this->response = $this->getEntities($this->request, $this->response);
+
+            } else if ($this->method == "GET_SERVER_TIME") {
+                $this->response = $this->getServerTime($this->request, $this->response);
+                
+            } else if ($this->method == "DEVICE_REPLACE") {
+                $this->response = $this->deviceReplace($this->request, $this->response);
                 
             }
 
-            return response()->json($response);
+            return response()->json($this->response);
         }
         
     }
@@ -205,7 +274,7 @@ class ApiController extends Controller
             
             $sqlCheck   = "SELECT 1 FROM $entity WHERE guid = $guid";
             
-            $result     = DB::select($sqlCheck);
+            $result     = $this->DB::connection($this->connection)->select($sqlCheck);
             if (count($result) == 0) {
                 $func = "INS"; // Insert
             }
@@ -257,7 +326,7 @@ class ApiController extends Controller
                 $sql .= " WHERE guid = $guid AND (update_time < $updt OR update_time IS NULL OR upload_time < 2)";
             }
 
-            $result = DB::statement($sql);
+            $result = $this->DB::connection($this->connection)->statement($sql);
             
             if ($result) {
                 array_push($objGuidArray, $guid);
@@ -270,7 +339,7 @@ class ApiController extends Controller
         
         // On KDS 1.1 version and below "appVersion" parameter is not handled
         if($appVersion < 1.2 && !isset($response[0]["error"])) { 
-            $response = DB::select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
+            $response = $this->DB::connection($this->connection)->select("SELECT * FROM $entity WHERE guid IN (" . implode(",", $objGuidArray) .")");
         }
 
         return $response;
