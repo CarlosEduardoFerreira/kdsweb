@@ -158,52 +158,75 @@ $(document).ready(function() {
 		return false
 	}
 
-	function addStoreNameOnSms(input) {
-        input.val(input.val() + "[STORE_NAME]")
-	}
 
-    function addCustomerNameOnSms(input) {
-        input.val(input.val() + "[CUSTOMER_NAME]")
+    function insertText(inputId, text) {
+        var input = document.getElementById(inputId);
+
+        //IE support
+        if (document.selection) {
+            input.focus();
+            sel = document.selection.createRange();
+            sel.text = text;
+        }
+
+        //MOZILLA and others
+        else if (input.selectionStart || input.selectionStart == '0') {
+            var startPos = input.selectionStart;
+            var endPos = input.selectionEnd;
+            input.value = input.value.substring(0, startPos)
+                + text
+                + input.value.substring(endPos, input.value.length);
+        } else {
+            input.value += text;
+        }
     }
 
-    function addOrderIdOnSms(input) {
-        input.val(input.val() + "[ORDER_ID]")
+    function addStoreNameOnSms(inputId) {
+        insertText(inputId, "[STORE_NAME]");
+    }
+
+    function addCustomerNameOnSms(inputId) {
+        insertText(inputId, "[CUSTOMER_NAME]");
+    }
+
+    function addOrderIdOnSms(inputId) {
+        insertText(inputId, "[ORDER_ID]");
     }
 
     $('#btn-start-add-store-name-key').click(function() {
-		addStoreNameOnSms($("#sms_start_custom"));
+        addStoreNameOnSms("sms_start_custom");
     });
 
     $('#btn-start-add-customer-name-key').click(function() {
-        addCustomerNameOnSms($("#sms_start_custom"));
+        addCustomerNameOnSms("sms_start_custom");
     });
 
     $('#btn-start-add-order-id-key').click(function() {
-        addOrderIdOnSms($("#sms_start_custom"));
+        addOrderIdOnSms("sms_start_custom");
     });
 
     $('#btn-ready-add-store-name-key').click(function() {
-        addStoreNameOnSms($("#sms_ready_custom"));
+        addStoreNameOnSms("sms_ready_custom");
     });
 
     $('#btn-ready-add-customer-name-key').click(function() {
-        addCustomerNameOnSms($("#sms_ready_custom"));
+        addCustomerNameOnSms("sms_ready_custom");
     });
 
     $('#btn-ready-add-order-id-key').click(function() {
-        addOrderIdOnSms($("#sms_ready_custom"));
+        addOrderIdOnSms("sms_ready_custom");
     });
 
     $('#btn-done-add-store-name-key').click(function() {
-        addStoreNameOnSms($("#sms_done_custom"));
+        addStoreNameOnSms("sms_done_custom");
     });
 
     $('#btn-done-add-customer-name-key').click(function() {
-        addCustomerNameOnSms($("#sms_done_custom"));
+        addCustomerNameOnSms("sms_done_custom");
     });
 
     $('#btn-done-add-order-id-key').click(function() {
-        addOrderIdOnSms($("#sms_done_custom"));
+        addOrderIdOnSms("sms_done_custom");
     });
 
 
