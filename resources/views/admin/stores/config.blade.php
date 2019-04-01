@@ -236,10 +236,14 @@
 	            		deviceGuid: deviceGuid
 	            	},
 	            success: function (expeditors) {
+                    expeditors = expeditors.sort(function(a, b){
+                        return a.id - b.id;
+                    });
+
 // 		            alert(expeditors.length)
 		            $modal.find("#device-settings-expeditor").html('');
 	            		for(var i=0; i<expeditors.length; i++) {
-	            			$modal.find("#device-settings-expeditor").append('<option value="' + expeditors[i].id + '">' + expeditors[i].name + '</option>')
+	            			$modal.find("#device-settings-expeditor").append('<option value="' + expeditors[i].id + '">' + expeditors[i].id + '</option>')
 	            		}
 	            		$modal.find("#device-settings-expeditor").selectpicker('refresh');
 	            		if($value != null && $value != '') {
