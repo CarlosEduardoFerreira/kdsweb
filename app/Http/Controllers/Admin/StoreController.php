@@ -490,6 +490,12 @@ class StoreController extends Controller {
         if(!empty($response)) {
             return $response;
         }
+
+        if($request->device["device-settings-id"] == 0) {
+            $response["errorId"]  = "device-settings-id";
+            $response["errorMsg"] = "The Station ID is invalid.";
+            return response()->json($response);
+        }
         
         // Host (Read XML Order)
         $response = $this->validationDeviceFieldInUse($request, "device-settings-host", "Host", true, $storeGuid, $deviceGuid, "xml_order");
@@ -624,7 +630,7 @@ class StoreController extends Controller {
             
         } else if($inUse) {
             
-            $field   = $request->device[$fieldId];
+            $field = $request->device[$fieldId];
             
             $sameDeviceId = DB::select("SELECT * FROM devices
                                     WHERE store_guid = '$storeGuid'
