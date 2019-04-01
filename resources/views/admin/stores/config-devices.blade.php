@@ -39,7 +39,7 @@
                                 		
                                 		<label class="col-lg-3 col-form-label form-control-label">ID</label>
                                     	<div class="col-lg-3">
-                                     	<input type="number" min="0" id="device-settings-id" name="device-settings-id" 
+                                     	<input type="number" min="1" id="device-settings-id" name="device-settings-id"
                                      		class="form-control num-99999" style="width:100px;text-align:center;"
                                      		data-placement="bottom">
                                     	</div>
