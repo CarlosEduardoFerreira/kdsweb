@@ -240,10 +240,9 @@
                         return a.id - b.id;
                     });
 
-// 		            alert(expeditors.length)
 		            $modal.find("#device-settings-expeditor").html('');
 	            		for(var i=0; i<expeditors.length; i++) {
-	            			$modal.find("#device-settings-expeditor").append('<option value="' + expeditors[i].id + '">' + expeditors[i].id + '</option>')
+	            			$modal.find("#device-settings-expeditor").append('<option value="' + expeditors[i].id + '">' + expeditors[i].id + ' - ' + expeditors[i].name + '</option>')
 	            		}
 	            		$modal.find("#device-settings-expeditor").selectpicker('refresh');
 	            		if($value != null && $value != '') {
@@ -277,9 +276,13 @@
                 		deviceFunction : deviceFunction
                 	},
                 success: function (parents) {
+						parents = parents.sort(function(a, b){
+							return a.id - b.id;
+						});
+
                 		$modal.find("#device-settings-parent-id").html('');
                 		for(var i=0; i<parents.length; i++) {
-                			$modal.find("#device-settings-parent-id").append('<option value="' + parents[i].id + '">' + parents[i].name + '</option>')
+                			$modal.find("#device-settings-parent-id").append('<option value="' + parents[i].id + '">' + parents[i].id + ' - ' + parents[i].name + '</option>')
                 		}
         				$modal.find("#device-settings-parent-id").selectpicker('refresh');
                 }
@@ -300,10 +303,14 @@
 	            		deviceGuid: deviceGuid
 	            	},
 	            success: function (transfers) {
+                    transfers = transfers.sort(function(a, b){
+                        return a.id - b.id;
+                    });
+
 		            var transfersSelect = $modal.find("#device-settings-line-display-transfer-device-id").html('');
 		            transfersSelect.append('<option value="0">Disabled</option>')
 	            		for(var i=0; i<transfers.length; i++) {
-	            			transfersSelect.append('<option value="' + transfers[i].id + '">' + transfers[i].name + '</option>')
+	            			transfersSelect.append('<option value="' + transfers[i].id + '">' + transfers[i].id + ' - ' + transfers[i].name + '</option>')
 	            		}
 	            		transfersSelect.val($value).selectpicker('refresh');
 	            }
