@@ -15,8 +15,8 @@
             		<th width="18%">@sortablelink('business_name', 'Store Group Name',['page' => $storegroups->currentPage()])</th>
                 	<th width="20%">@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $storegroups->currentPage()])</th>
                 	<th width="7%">@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $storegroups->currentPage()])</th>
-                	<th width="12%">Apps</th>
-                	<th width="15%">Store Types</th>
+					<th width="12%">@sortablelink('apps', 'Apps',['page' => $storegroups->currentPage()])</th>
+					<th width="15%">@sortablelink('envs', 'Store Types',['page' => $storegroups->currentPage()])</th>
                 	<th width="15%">@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $storegroups->currentPage()])</th>
                 	<th width="18%">Actions</th>
             </tr>
@@ -35,13 +35,8 @@
                         @endif
                     	</td>
                     
-					<td class="td-apps"  style="text-align:center;">
-                    		{{-- It will be filled up by Ajax request --}}
-                    	</td>
-                    
-                    	<td class="td-envs"  style="text-align:center;">
-                        	{{-- It will be filled up by Ajax request --}}
-                    	</td>
+						<td class="td-apps"  style="text-align:center;"> {{ $storegroup->apps }} </td>
+                    	<td class="td-envs"  style="text-align:center;"> {{ $storegroup->envs }} </td>
 
                     	<td style="text-align:center;">
                     		{{ $storegroup->updated_at }}
@@ -85,61 +80,6 @@
         </div>
         
     </div>
-@endsection
-
-@section('scripts')
-	@parent
-	
-	<script>
-	
-        $(function(){
-    
-        		var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-    
-        		// Get Apps By StoreGroup
-        		function getAppsByStoreGroup($storeGroupId, $tdApps) {
-            		$.ajax({
-        		 	headers: token,
-                    	url: 'getAppsByStoreGroup',
-                    	type: 'POST',
-                    	data: {
-                    		storeGroupId: $storeGroupId
-                    	},
-                    	success: function (apps) {
-                    		for(var i=0; i<apps.length; i++) {
-                        		$slash = i > 0 ? " / " : "";
-        	            			$tdApps.append($slash + apps[i].name);
-            	            	}
-                    	}
-                });
-        		}
-        		
-        		// Get Environments By StoreGroup
-        		function getEnvsByStoreGroup($storeGroupId, $tdEnvs) {
-            		$.ajax({
-        		 	headers: token,
-                    	url: 'getEnvsByStoreGroup',
-                    	type: 'POST',
-                    	data: {
-                    		storeGroupId: $storeGroupId
-                    	},
-                    	success: function (envs) {
-                    		for(var i=0; i<envs.length; i++) {
-                        		$slash = i > 0 ? " / " : "";
-        	            			$tdEnvs.append($slash + envs[i].name);
-            	            	}
-                    	}
-                });
-        		}
-    		
-        		$('.tr-storegroup').each(function() {
-        			getAppsByStoreGroup($(this).attr('sg_id'), $(this).find('.td-apps'));
-        			getEnvsByStoreGroup($(this).attr('sg_id'), $(this).find('.td-envs'));
-            	});
-        		
-        });
-        
-    </script>
 @endsection
 
 
