@@ -61,7 +61,7 @@ class Controller extends BaseController
      *  $filterRole = The role to show.
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, $all = false) {
+    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, $all = false, $ignorePaginator = false) {
         
         $me = Auth::user();
         
@@ -128,7 +128,7 @@ class Controller extends BaseController
 
                                 $orderBy");
         
-        if ($request != null) {
+        if ($request != null && !$ignorePaginator) {
             $amount = $all ? 1000 : 10;
             $users = $this->arrayPaginator($users, $request, $amount);
         }

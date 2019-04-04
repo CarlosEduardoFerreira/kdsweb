@@ -35,8 +35,61 @@ class StoreGroupController extends Controller
         if ($accessDenied) {
             return $accessDenied;
         }
-        
-        $storegroups = Controller::filterUsers($request, 3, $resellerId, $request->filter);
+
+        $sort = null;
+        $order = null;
+
+        if(isset($_GET['sort']) && ($_GET['sort'] == "apps" || $_GET['sort'] == "envs")) {
+            $sort = $_GET['sort'];
+            unset($_GET['sort']);
+
+            $order = $_GET['order'];
+            unset($_GET['order']);
+        }
+
+        $storegroups = Controller::filterUsers($request, 3, $resellerId,
+                                        $request->filter, $ignorePaginator = isset($sort) && isset($order));
+
+        $storeGroupIds = [];
+        foreach ($storegroups as &$storegroup) {
+            array_push($storeGroupIds, $storegroup->id);
+        }
+
+        $apps = $this->getAppsByStoreGroup($storeGroupIds);
+        $envs = $this->getEnvsByStoreGroup($storeGroupIds);
+
+        foreach ($storegroups as &$storegroup) {
+
+            $storegroup->apps = "";
+            foreach ($apps as &$app) {
+                if ($app->storeGroupId == $storegroup->id) {
+                    if (!empty($storegroup->apps)) {
+                        $storegroup->apps .= " / ";
+                    }
+
+                    $storegroup->apps .= $app->name;
+                }
+            }
+
+            $storegroup->envs = "";
+            foreach ($envs as &$env) {
+                if ($env->storeGroupId == $storegroup->id) {
+                    if (!empty($storegroup->envs)) {
+                        $storegroup->envs .= " / ";
+                    }
+
+                    $storegroup->envs .= $env->name;
+                }
+            }
+        }
+
+        if (isset($sort) && isset($order)) {
+            usort($storegroups, function($a, $b) use ($order, $sort) {
+                return $order == "asc" ? strcmp($a->{$sort} , $b->{$sort}) : strcmp($b->{$sort} , $a->{$sort});
+            });
+
+            $storegroups = $this->arrayPaginator($storegroups, $request, 10);
+        }
 
         return view('admin.storegroups.index', ['obj' => 'storegroup', 'storegroups' => $storegroups]);
     }
@@ -239,43 +292,43 @@ class StoreGroupController extends Controller
     }
     
     
-    public function getAppsByStoreGroup(Request $request) {
+    public function getAppsByStoreGroup(array $storeGroupIds) {
         
         $apps = [];
         
-        if(!isset($request->storeGroupId) or $request->storeGroupId == '') {
+        if(empty($storeGroupIds)) {
             return $apps;
         }
         
         $apps = DB::select("SELECT distinct
-                                    apps.name
+                                    apps.name, stores.parent_id as storeGroupId
                                 FROM apps 
-                                JOIN users AS stores ON stores.parent_id = $request->storeGroupId
+                                JOIN users AS stores ON stores.parent_id IN (".implode(',',$storeGroupIds).")
                                 JOIN store_app AS store_app ON store_app.store_guid = stores.store_guid
                                 WHERE stores.active = 1 AND apps.guid = store_app.app_guid
                                 ORDER BY name");
         
-        return response()->json($apps);
+        return $apps;
     }
     
     
-    public function getEnvsByStoreGroup(Request $request) {
+    public function getEnvsByStoreGroup(array $storeGroupIds) {
         
         $envs = [];
-        
-        if(!isset($request->storeGroupId) or $request->storeGroupId == '') {
+
+        if(empty($storeGroupIds)) {
             return $envs;
         }
         
         $envs = DB::select("SELECT distinct
-                                    environments.name
+                                    environments.name, stores.parent_id as storeGroupId
                                 FROM environments
-                                JOIN users AS stores ON stores.parent_id = $request->storeGroupId
+                                JOIN users AS stores ON stores.parent_id IN (".implode(',',$storeGroupIds).")
                                 JOIN store_environment AS store_env ON store_env.store_guid = stores.store_guid
                                 WHERE stores.active = 1 AND environments.guid = store_env.environment_guid
                                 ORDER BY name");
         
-        return response()->json($envs);
+        return $envs;
     }
     
     
