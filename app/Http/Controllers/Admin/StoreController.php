@@ -292,8 +292,9 @@ class StoreController extends Controller {
              $devices  = DB::table('devices')
                          ->where(['store_guid' => $store->store_guid])
                          ->where('is_deleted', '<>',  1)
-                         ->orderBy('license','desc')
-                         ->orderBy('id','asc')->paginate(50);
+                         ->orderBy('id','asc')
+                         ->orderBy('create_time','asc')
+                         ->paginate(50);
         }
      
         if(!isset($settings)) {
@@ -305,9 +306,23 @@ class StoreController extends Controller {
         }
         
         $activeLicenses = 0;
+        $sortedDevices = [];
         foreach ($devices as &$device) {
             $activeLicenses += $device->split_screen_parent_device_id == 0 ? $device->license : 0;
+
+            if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
+                array_push($sortedDevices, $device);
+            }
+
+            foreach ($devices as &$device2) {
+                if ($device->split_screen_child_device_id == $device2->id) {
+                    array_push($sortedDevices, $device2);
+                }
+            }
         }
+
+        $devices = $sortedDevices;
+
         $licenseInfo = "Licenses: $activeLicenses / $settings->licenses_quantity";
         
         $adminSettings = DB::table('admin_settings')->first();
@@ -335,10 +350,23 @@ class StoreController extends Controller {
             $devices = DB::select("SELECT * FROM devices 
                 WHERE store_guid =  '$request->storeGuid' 
                 AND is_deleted = 0
-                order by license desc , id asc");
+                order by id asc , create_time asc");
         }
-        
-        return response()->json($devices);
+
+        $sortedDevices = [];
+        foreach ($devices as &$device) {
+            if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
+                array_push($sortedDevices, $device);
+            }
+
+            foreach ($devices as &$device2) {
+                if ($device->split_screen_child_device_id == $device2->id) {
+                    array_push($sortedDevices, $device2);
+                }
+            }
+        }
+
+        return response()->json($sortedDevices);
     }
     
     
