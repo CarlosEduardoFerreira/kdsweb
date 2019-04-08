@@ -723,6 +723,7 @@ function lineDisplayFillTextAndPercent(columnId) {
 		selectText.innerHTML += '<option value="CONDIMENTS">Condiments</option>';
 		selectText.innerHTML += '<option value="TABLE_NAME">Table Name</option>';
 		selectText.innerHTML += '<option value="USER_INFO">User Info</option>';
+    	selectText.innerHTML += '<option value="ARRIVAL_TIME">Arrival Time</option>';
 
 	var selectPercent = document.getElementById('device-settings-line-display-column-' + columnId + '-percent');
 		selectPercent.innerHTML  = '<option value="5">05%</option>';
@@ -758,6 +759,7 @@ function orderHeaderFillSelect(id) {
 	selectText.innerHTML += '<option value="TABLE_NAME">Table Name</option>';
 	selectText.innerHTML += '<option value="USER_INFO">User Info</option>';
 	selectText.innerHTML += '<option value="ORDER_TYPE">Order Type</option>';
+    selectText.innerHTML += '<option value="ARRIVAL_TIME">Arrival Time</option>';
 }
 
 orderHeaderFillSelect('top-left');
