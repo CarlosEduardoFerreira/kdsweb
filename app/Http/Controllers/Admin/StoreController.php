@@ -1000,64 +1000,162 @@ class StoreController extends Controller {
         
         $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
-        $deviceGuid = $request->post('deviceGuid');
-        
+
         $devices = DB::table('devices')
             ->where('store_guid', '=', $storeGuid)
             ->where('is_deleted', '=', 0)
             ->where('serial', '=', $deviceSerial);
         
         if(count($devices) > 0) {
-            
-            // Remove Settings Local
-            $settingsLocal = DB::table('settings_local')
-                ->where('store_guid', '=', $storeGuid)
-                ->where('is_deleted', '=', 0)
-                ->where('device_guid', '=', $deviceGuid);
-            
-            if(count($settingsLocal) > 0) {
-                $settingsLocal->update(['is_deleted' => 1]);
-            }
-            
-            // Remove Settings Line Display
-            $settingsLineDisplay = DB::table('settings_line_display')
-            ->where('store_guid', '=', $storeGuid)
-            ->where('is_deleted', '=', 0)
-            ->where('device_guid', '=', $deviceGuid);
-            
-            if(count($settingsLineDisplay) > 0) {
-                $settingsLineDisplay->update(['is_deleted' => 1]);
-            }
-            
-            // Remove Device
-            $data = [
-                'is_deleted' => 1,
-                'license' => 0,
-                'login' => 0,
-                'update_time' => time()
-            ];
-            
-            foreach($devices->get() as $device) { // Iterate to update split screen also
-                
-                // Remove from Dependent Devices as Expeditors 
-                $this->removeFromDependentDevicesAsExpeditor($storeGuid, $device->id);
-                
-                // Remove from Dependent Devices as Parent
-                $this->removeFromDependentDevicesAsParent($storeGuid, $device->id);
-                
-                // Remove from Dependent Devices as Transfer
-                $this->removeFromDependentDevicesAsTransfer($storeGuid, $device->id);
-                
-            }
-            
-            $devices->update($data);
+            $this->removeDevices($storeGuid, $devices);
             
         } else {
             return "KDS Station not found.";
         }
         
         return "";
-        
+    }
+
+    public function disableStoreLicenses(Request $request) {
+
+        if($request->post('storeGuid') === null) {
+            return "storeGuid not provided.";
+        }
+
+        $storeGuid = $request->post('storeGuid');
+
+        $stores = DB::table('users')
+            ->where('store_guid', '=', $storeGuid);
+
+        if(count($stores) > 0) {
+            $data = [
+                'updated_at' => date('Y-m-d H:i:s', time()),
+                'licenses_quantity' => 0
+            ];
+
+            $stores->update($data);
+
+            $settings = DB::table('settings')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0);
+
+            if (count($settings) > 0) {
+                $settings->update([
+                    'update_time' => time(),
+                    'licenses_quantity' => 0
+                ]);
+            }
+
+            $devices = DB::table('devices')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0);
+
+            if(count($devices) > 0) {
+                $data = [
+                    'license' => 0,
+                    'login' => 0,
+                    'update_time' => time()
+                ];
+
+                $devices->update($data);
+            }
+
+        } else {
+            return "Store not found.";
+        }
+
+        return "";
+    }
+
+    public function removeStore(Request $request) {
+
+        if($request->post('storeToRemoveGuid') === null) {
+            return "storeToRemoveGuid not provided.";
+        }
+
+        $storeToRemoveGuid = $request->post('storeToRemoveGuid');
+
+        $stores = DB::table('users')
+            ->where('store_guid', '=', $storeToRemoveGuid);
+
+        if(count($stores) > 0) {
+            $data = [
+                'deleted_at' => date('Y-m-d H:i:s', time()),
+                'licenses_quantity' => 0
+            ];
+
+            $stores->update($data);
+
+            $settings = DB::table('settings')
+                ->where('store_guid', '=', $storeToRemoveGuid)
+                ->where('is_deleted', '=', 0);
+
+            if (count($settings) > 0) {
+                $settings->update([
+                    'update_time' => time(),
+                    'licenses_quantity' => 0
+                ]);
+            }
+
+            $devices = DB::table('devices')
+                ->where('store_guid', '=', $storeToRemoveGuid)
+                ->where('is_deleted', '=', 0);
+
+            if(count($devices) > 0) {
+                $this->removeDevices($storeToRemoveGuid, $devices);
+            }
+
+        } else {
+            return "Store not found.";
+        }
+
+        return "";
+    }
+
+
+    function removeDevices($storeGuid, $devices) {
+        // Remove Device
+        $data = [
+            'is_deleted' => 1,
+            'license' => 0,
+            'login' => 0,
+            'update_time' => time()
+        ];
+
+        foreach($devices->get() as $device) {
+
+            // Remove Settings Local
+            $settingsLocal = DB::table('settings_local')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0)
+                ->where('device_guid', '=', $device->guid);
+
+            if(count($settingsLocal) > 0) {
+                $settingsLocal->update(['is_deleted' => 1]);
+            }
+
+            // Remove Settings Line Display
+            $settingsLineDisplay = DB::table('settings_line_display')
+                ->where('store_guid', '=', $storeGuid)
+                ->where('is_deleted', '=', 0)
+                ->where('device_guid', '=', $device->guid);
+
+            if(count($settingsLineDisplay) > 0) {
+                $settingsLineDisplay->update(['is_deleted' => 1]);
+            }
+
+            // Remove from Dependent Devices as Expeditors
+            $this->removeFromDependentDevicesAsExpeditor($storeGuid, $device->id);
+
+            // Remove from Dependent Devices as Parent
+            $this->removeFromDependentDevicesAsParent($storeGuid, $device->id);
+
+            // Remove from Dependent Devices as Transfer
+            $this->removeFromDependentDevicesAsTransfer($storeGuid, $device->id);
+
+        }
+
+        $devices->update($data);
     }
     
     

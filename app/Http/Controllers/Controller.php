@@ -115,7 +115,7 @@ class Controller extends BaseController
                                     $selectsEnvs
 
                                 FROM users AS stores 
-
+                                
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
 
@@ -124,7 +124,7 @@ class Controller extends BaseController
                                 $joinApps
                                 $joinEnvs
 
-                                WHERE $whereRole $whereParentId $whereSearch  
+                                WHERE (stores.deleted_at IS NULL OR stores.deleted_at = '') AND $whereRole $whereParentId $whereSearch
 
                                 $orderBy");
         

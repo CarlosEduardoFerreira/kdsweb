@@ -142,6 +142,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::post('stores/{store}/updateDevice', 'StoreController@updateDevice')->name('stores.updateDevice');
     // Remove Device
     Route::post('stores/{store}/removeDevice', 'StoreController@removeDevice')->name('stores.removeDevice');
+
+    Route::post('stores/removeStore', 'StoreController@removeStore')->name('stores.removeStore');
+    Route::post('stores/disableStoreLicenses', 'StoreController@disableStoreLicenses')->name('stores.disableStoreLicenses');
     // --------------------------------------------------------------------------------- Stores //
 
     // Users (Users is every system user. Even Admin, Resellers, Storegroups and Stores)
