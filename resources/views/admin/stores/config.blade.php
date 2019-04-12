@@ -733,7 +733,7 @@
                     	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
                     	            expeditor: devices[i].expeditor,
                     	            last_update: timeConverter(devices[i].update_time),
-                    	            app_version: devices[i].app_version + " (" + devices[i].app_version_code + ")",
+                    	            app_version: devices[i].function == "CUSTOMER_DISPLAY" ? "" : devices[i].app_version + " (" + devices[i].app_version_code + ")",
                     	            license: licenseHTML,
                     	            settings: settingsHTML,
                                 remove: removeHTML
@@ -797,12 +797,14 @@
        	         			deviceToRemoveSerial = $(this).attr('device_serial');
        	         			deviceToRemoveGuid = $(this).attr('device_guid');
        	         			var deviceName = $(this).attr('device_name');
-       	         			$('#modalRemoveDevice #are-you-sure').html('Are you sure you want to remove the KDS Station ' + 
+       	         			$('#modalRemoveDevice #are-you-sure').html('<br>Are you sure you want to remove the KDS Station ' + 
        	         					'\"<span style="color:red;">' + deviceName +  '\</span>"?')
        	         		});
 
             	        		$('#remove-device-confirm').click(function(){
             	        			if(deviceToRemoveSerial != "" && deviceToRemoveGuid != "") {
+            	        				$('#modalRemoveDevice .hide-loading').hide();
+            	        				$('#modalRemoveDevice #loading').show();
             	        				 $.ajax({
             	        					 	headers: token,
             	        			            url: 'removeDevice',
@@ -816,7 +818,8 @@
             	        							if(response !== "") {
             	        								alert(response);
             	        							} else {
-            	        								location.reload();
+            	        								sendNotificationToFirebase(true);
+												setTimeout(function(){ location.reload(); }, 3000);
             	        							}
             	        			            }
             	        				 });
