@@ -17,7 +17,7 @@
             		</button>
         			<h3 class="modal-title" id="modalLongTitle">KDS Station Settings</h3>
         		</div>
-        		<div id="are-you-sure" class="modal-body">
+        		<div class="modal-body">
         		
         			<div class="card card-outline-secondary">
                     
@@ -635,27 +635,30 @@
 
 
 {{-- Modal Remove Device -------------------------------------------------------------------------------------------- --}}
-<div class="modal fade" id="modalRemoveDevice" tabindex="-1" role="dialog" aria-labelledby="modalRemoveDevice" aria-hidden="true">
+<div class="modal fade" id="modalRemoveDevice" tabindex="-1" role="dialog" aria-labelledby="modalRemoveDevice" 
+		aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
         	<div class="modal-content">
-        		<div class="modal-header">
-        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        		<div class="modal-header" style="height:50px;">
+        			<button type="button" class="close hide-loading" data-dismiss="modal" aria-label="Close">
             			<span aria-hidden="true">&times;</span>
             		</button>
         			<h5 class="modal-title" id="modalLongTitle">Remove KDS Station</h5>
         		</div>
-        		<div id="are-you-sure" class="modal-body">
-        			Are you sure you want to remove this KDS Station?
+        		<div id="are-you-sure" class="modal-body hide-loading" style="height:100px;font-size:14px;text-align:center;">
+        			
         		</div>
-    			<div class="modal-footer">
-    				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    				<button id="remove-device-confirm" type="button" class="btn btn-danger" data-dismiss="modal">Remove</button>
+        		<div id="loading" class="modal-body" style="display:none;height:100px;font-size:14px;text-align:center;">
+        			Loading... <img src="/images/loading.gif" style="width:100px;">
+        		</div>
+    			<div class="modal-footer" style="height:70px;">
+    				<button type="button" class="btn btn-secondary hide-loading" data-dismiss="modal">Close</button>
+    				<button id="remove-device-confirm" type="button" class="btn btn-danger hide-loading">Remove</button>
     			</div>
         	</div>
     </div>
 </div>
 {{-- -------------------------------------------------------------------------------------------- Modal Remove Device --}}
-
 
 <style>
 

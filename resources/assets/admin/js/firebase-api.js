@@ -24,7 +24,7 @@ function sendNotificationToFirebase() {
         type: 'POST',
         data: JSON.stringify(payload),
         success: function (response) {
-            // Do nothing for now.
+        		// Do nothing for now.
         }
     });
 }
