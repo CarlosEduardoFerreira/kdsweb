@@ -65,8 +65,11 @@ $(document).ready(function() {
 	
 	
 	function submitForm() {
-		$('#form-settings').submit();
+		$('#btn-save-settings').hide();
+		
 		sendNotificationToFirebase();
+		
+		setTimeout(function(){ $('#form-settings').submit(); }, 1000);
 	}
 	
 	
