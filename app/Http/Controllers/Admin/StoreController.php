@@ -1016,57 +1016,6 @@ class StoreController extends Controller {
         return "";
     }
 
-    public function disableStoreLicenses(Request $request) {
-
-        if($request->post('storeGuid') === null) {
-            return "storeGuid not provided.";
-        }
-
-        $storeGuid = $request->post('storeGuid');
-
-        $stores = DB::table('users')
-            ->where('store_guid', '=', $storeGuid);
-
-        if(count($stores) > 0) {
-            $data = [
-                'updated_at' => date('Y-m-d H:i:s', time()),
-                'licenses_quantity' => 0
-            ];
-
-            $stores->update($data);
-
-            $settings = DB::table('settings')
-                ->where('store_guid', '=', $storeGuid)
-                ->where('is_deleted', '=', 0);
-
-            if (count($settings) > 0) {
-                $settings->update([
-                    'update_time' => time(),
-                    'licenses_quantity' => 0
-                ]);
-            }
-
-            $devices = DB::table('devices')
-                ->where('store_guid', '=', $storeGuid)
-                ->where('is_deleted', '=', 0);
-
-            if(count($devices) > 0) {
-                $data = [
-                    'license' => 0,
-                    'login' => 0,
-                    'update_time' => time()
-                ];
-
-                $devices->update($data);
-            }
-
-        } else {
-            return "Store not found.";
-        }
-
-        return "";
-    }
-
     public function removeStore(Request $request) {
 
         if($request->post('storeToRemoveGuid') === null) {

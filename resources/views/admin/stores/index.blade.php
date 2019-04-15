@@ -80,13 +80,6 @@
 							<i class="fa fa-line-chart"></i>
 						</a>
 
-						<a class="btn btn-xs btn-warning settings-icons disable-store-licenses" href="#" store_name="{{$store->business_name}}"
-						   store_guid="{{$store->store_guid}}"
-						   data-toggle="modal" data-target="#modalDisableLicenses" data-title="Disable all licenses"
-						   data-placement="top">
-							<i class="fa fa-window-close"></i>
-						</a>
-
 						<a class="btn btn-xs btn-danger settings-icons remove-store" href="#" store_name="{{$store->business_name}}"
 						   	store_guid="{{$store->store_guid}}"
 							data-toggle="modal" data-target="#modalRemoveStore" data-title="Remove Store"
@@ -107,27 +100,6 @@
         </div>
     </div>
 
-	{{-- Modal Disable Licenes -------------------------------------------------------------------------------------------- --}}
-	<div class="modal fade" id="modalDisableLicenses" tabindex="-1" role="dialog" aria-labelledby="modalDisableLicenses" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h5 class="modal-title" id="modalLongTitle">Disable all licenses</h5>
-				</div>
-				<div id="are-you-sure" class="modal-body">
-					Are you sure you want to disable all licenses?
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button id="remove-device-confirm" type="button" class="btn btn-danger" data-dismiss="modal">Disable All</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	{{-- -------------------------------------------------------------------------------------------- Modal Disable Licenes --}}
 
 	{{-- Modal Store Device -------------------------------------------------------------------------------------------- --}}
 	<div class="modal fade" id="modalRemoveStore" tabindex="-1" role="dialog" aria-labelledby="modalRemoveStore" aria-hidden="true">
@@ -250,36 +222,6 @@
                         success: function (response) {
                             if(response !== "") {
                             	console.log(response);
-                                alert(response);
-
-                            } else {
-                                sendNotificationToFirebase();
-                                location.reload();
-                            }
-                        }
-                    });
-                }
-            });
-
-            $('.disable-store-licenses').click(function(){
-                storeGuid = $(this).attr('store_guid');
-                var storeName = $(this).attr('store_name');
-                $('#modalDisableLicenses #are-you-sure').html('Are you sure you want to disable all licenses of the Store ' +
-                    '\"<span style="color:red;">' + storeName +  '\</span>"?')
-            });
-
-            $('#remove-device-confirm').click(function(){
-                if(storeGuid != "") {
-                    $.ajax({
-                        headers: token,
-                        url: 'disableStoreLicenses',
-                        type: 'POST',
-                        data: {
-                            storeGuid: storeGuid
-                        },
-                        success: function (response) {
-                            if(response !== "") {
-                                console.log(response);
                                 alert(response);
 
                             } else {
