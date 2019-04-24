@@ -733,7 +733,8 @@
                     	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
                     	            expeditor: devices[i].expeditor,
                     	            last_update: timeConverter(devices[i].update_time),
-                    	            app_version: devices[i].function == "CUSTOMER_DISPLAY" ? "" : devices[i].app_version + " (" + devices[i].app_version_code + ")",
+                    	            app_version: devices[i].function == "CUSTOMER_DISPLAY" ? devices[i].db_version + ""
+                    	            	: devices[i].app_version + " (" + devices[i].app_version_code + ")" + " - " + devices[i].db_version,
                     	            license: licenseHTML,
                     	            settings: settingsHTML,
                                 remove: removeHTML
