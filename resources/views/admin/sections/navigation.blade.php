@@ -41,14 +41,12 @@
                     </li>
                     
                     <?php if(auth()->user()->hasRole('administrator')) { ?>
-                    <!-- 
                     	<li>
                         <a href="{{ route('admin.settings') }}">
                             <i class="fa fa-wrench" aria-hidden="true"></i>
-                            Admin Settings
+                            Settings
                         </a>
                     </li>
-                    -->
                     <?php } ?>
                     
                 </ul>

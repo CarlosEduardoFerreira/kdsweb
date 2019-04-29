@@ -15,14 +15,8 @@ use DateTime;
 use DateTimeZone;
 
 
-class StoreGroupController extends Controller
-{
-    
-    function __construct() {
-        parent::__construct();
-    }
-    
-    
+class StoreGroupController extends Controller {
+
     /**
      * Display a listing of the resource.
      *

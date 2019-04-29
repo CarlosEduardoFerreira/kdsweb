@@ -17,10 +17,6 @@ use PhpParser\Builder\Use_;
 
 class StoreController extends Controller {
     
-    function __construct() {
-        parent::__construct();
-    }
-    
     /**
      * Display a listing of the resource.
      *
@@ -67,7 +63,7 @@ class StoreController extends Controller {
         $store->timezone = Vars::$timezoneDefault;
         
         // Applications
-        $apps = $this->getSystemApps();
+        $apps = Controller::getSystemApps();
         
         // Environments
         $envs = $this->getStoreEnvironments();
@@ -155,8 +151,7 @@ class StoreController extends Controller {
      * @param User $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, User $store)
-    {
+    public function edit(Request $request, User $store) {
         $accessDenied = Controller::canIsee(Auth::user(), $store->id);
         if ($accessDenied) {
             return $accessDenied;
@@ -183,7 +178,7 @@ class StoreController extends Controller {
         }
         
         // Applications
-        $apps = $this->getSystemApps();
+        $apps = Controller::getSystemApps();
         
         // Environments
         $envs = $this->getStoreEnvironments();
@@ -1173,13 +1168,6 @@ class StoreController extends Controller {
                 $result = DB::statement($sql);
             }
         }
-    }
-    
-    
-    // Get System Apps
-    function getSystemApps() {
-        $apps = DB::select("SELECT * FROM apps WHERE enable = 1");
-        return isset($apps) ? $apps : [];
     }
     
     
