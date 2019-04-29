@@ -18,11 +18,6 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
-    
-    function __construct() {
-        
-    }
-    
     function canIsee(User $me, int $objectId) {
         
         $validObj   = $objectId != 0 && $me->id != $objectId;
@@ -58,7 +53,7 @@ class Controller extends BaseController
      *  
      * @author carlosferreira
      *  updated 05/13/2018
-     *  $filterRole = The role to show.
+     *  $filterRole = The role to show. // 1 = admin, 2 = reseller, 3 = storegroup, 4 = store
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
     public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, $all = false, $ignorePaginator = false) {
@@ -79,7 +74,7 @@ class Controller extends BaseController
         }
         
         $whereSearch = "";
-        if($filterRole == 4 && $request->search != null) {
+        if($filterRole == 4 && !empty($request->search)) {
             $whereSearch = "AND ( UPPER(stores.business_name) LIKE UPPER('%$request->search%') OR UPPER(stores.email) LIKE UPPER('%$request->search%') )";
         }
         
@@ -224,6 +219,31 @@ class Controller extends BaseController
         
         return new LengthAwarePaginator(array_slice($array, $offset, $perPage, true), count($array), $perPage, $page,
             ['path' => $request->url(), 'query' => $request->query()]);
+    }
+    
+    
+    // Get System Apps
+    public function getSystemApps() {
+        $apps = DB::select("SELECT * FROM apps WHERE enable = 1 order by name");
+        return isset($apps) ? $apps : [];
+    }
+    
+    
+    // Get Payment Type
+    public function getPlanPaymentTypes() {
+        $types = DB::select("SELECT * FROM payment_types WHERE status = 1 order by name");
+        return isset($types) ? $types : [];
+    }
+    
+    
+    public function readableDatetime(int $datetime) {
+        
+        $timezone = isset(Auth::user()->timezone) ? Auth::user()->timezone : Vars::$timezoneDefault;
+        
+        $updateLast = new \DateTime();
+        $updateLast = $updateLast->setTimezone(new \DateTimeZone($timezone));
+        
+        return $updateLast->setTimestamp($datetime)->format('D, d M Y H:i:s');
     }
     
 }

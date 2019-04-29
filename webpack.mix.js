@@ -154,12 +154,20 @@ mix.scripts([
     'resources/assets/admin/js/jquery.mask.js',
 ], 'public/assets/admin/js/jquery.mask.js').version();
 
-
 // Firebase API
 mix.scripts([
     'resources/assets/admin/js/firebase-api.js',
 ], 'public/assets/admin/js/firebase-api.js').version();
 
+// Modal Delete
+mix.scripts([
+    'resources/assets/admin/js/ModalDelete.js',
+], 'public/assets/admin/js/ModalDelete.js').version();
+
+// Checkbox Switch
+mix.styles([
+    'resources/assets/admin/css/checkbox.switch.css',
+], 'public/assets/admin/css/checkbox.switch.css').version();
 
 mix.scripts([
     'node_modules/select2/dist/js/select2.full.js',

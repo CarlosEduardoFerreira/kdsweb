@@ -55,7 +55,32 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
     // Admin Settings
-    Route::get('settings', 'AdminSettingsController@index')->name('settings');
+    Route::get('settings', 'SettingsController@index')->name('settings');
+    
+    // Plans
+    Route::get('settings/plans', 'PlanController@index')->name('settings.plans');
+    Route::get('settings/plans/0/form', 'PlanController@create')->name('settings.plans.new');
+    Route::get('settings/plans/{plan}/form', 'PlanController@edit')->name('settings.plans.edit');
+    Route::put('settings/plans/0/insert', 'PlanController@insert')->name('settings.plans.insert');
+    Route::put('settings/plans/{plan}/update', 'PlanController@update')->name('settings.plans.update');
+    Route::post('settings/plans/deletePlan', 'PlanController@delete')->name('settings.plans.deletePlan');
+    
+    // Plans X Objects
+    Route::get('settings/plans/getItemsPlans', 'PlanController@getItemsPlans')->name('settings.plans.getItemsPlans');
+    Route::get('settings/plans/getItemsObjects', 'PlanController@getItemsObjects')->name('settings.plans.getItemsObjects');
+    Route::get('settings/plans/getItemsSelected', 'PlanController@getItemsSelected')->name('settings.plans.getItemsSelected');
+    Route::put('settings/plans/updateObjects', 'PlanController@updateObjects')->name('settings.plans.updateObjects');
+    
+    // Plans X Resellers
+    Route::get('settings/plansXresellers', 'PlanXResellerController@index')->name('settings.plansXresellers');
+    
+    // Plans X Store Groups
+    Route::get('settings/plansXstoregroups', 'PlanXStoreGroupController@index')->name('settings.plansXstoregroups');
+    
+    // Plans X Stores
+    Route::get('settings/plansXstores', 'PlanXStoreController@index')->name('settings.plansXstores');
+    
+    
     
     //      url will show                function on controller              how to call
     // Route::get('storegroups/0/form', 'StoreGroupController@create')->name('resellers.new');
