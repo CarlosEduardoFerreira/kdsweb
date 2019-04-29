@@ -4,13 +4,27 @@
 
 @section('content')
 
+<?php 
+    $adm = $me->hasRole('administrator'); 
+    $res = $me->hasRole('reseller');
+    $stg = $me->hasRole('storegroup');
+?>
 
 <div id="tabs" style="margin-top:50px;">
     <ul  class="nav nav-pills">
-        <li class="active"><a class="tab-a" data-url="{{ route('admin.settings.plans') }}" href="#1a" data-toggle="tab">Plans</a></li>
-        <li><a class="tab-a" data-url="{{ route('admin.settings.plansXresellers') }}" href="#1a" data-toggle="tab">Plans x Resellers</a></li>
-        <li><a class="tab-a" data-url="{{ route('admin.settings.plansXstoregroups') }}" href="#1a" data-toggle="tab">Plans x Store Groups</a></li>
-        <li><a class="tab-a" data-url="{{ route('admin.settings.plansXstores') }}" href="#1a" data-toggle="tab">Plans x Stores</a></li>
+        	<li class="active"><a class="tab-a" data-url="{{ route('admin.settings.plans') }}" href="#1a" data-toggle="tab">Plans</a></li>
+        
+        	<?php if($adm) { ?>
+        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXresellers') }}" href="#1a" data-toggle="tab">Plans x Resellers</a></li>
+        	<?php } ?>
+        
+        	<?php if($adm || $res) { ?>
+        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXstoregroups') }}" href="#1a" data-toggle="tab">Plans x Store Groups</a></li>
+        	<?php } ?>
+        
+        	<?php if($adm || $res || $stg) { ?>
+        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXstores') }}" href="#1a" data-toggle="tab">Plans x Stores</a></li>
+		<?php } ?>
     </ul>
 </div>
 
@@ -81,7 +95,7 @@
         			});
         		}
         }
-        		
+
         	AdminSettings.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'));
 
     		$('.tab-a').click(function(){
