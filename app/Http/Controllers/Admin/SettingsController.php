@@ -17,11 +17,7 @@ class SettingsController extends Controller {
 
         $me = Auth::user();
         
-        if($me->roles[0]->name != 'administrator') {
-            return redirect()->guest(route('admin.dashboard'));
-        }
-        
-        return view('admin.settings');
+        return view('admin.settings', ['me' => $me]);
     }
 
     

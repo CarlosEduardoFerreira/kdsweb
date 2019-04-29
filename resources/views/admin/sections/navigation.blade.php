@@ -1,3 +1,10 @@
+
+<?php 
+    $adm = auth()->user()->hasRole('administrator'); 
+    $res = auth()->user()->hasRole('reseller');
+    $stg = auth()->user()->hasRole('storegroup');
+?>
+
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
     
@@ -40,7 +47,7 @@
                         </a>
                     </li>
                     
-                    <?php if(auth()->user()->hasRole('administrator')) { ?>
+                    <?php if($adm || $res || $stg) { ?>
                     	<li>
                         <a href="{{ route('admin.settings') }}">
                             <i class="fa fa-wrench" aria-hidden="true"></i>
@@ -56,7 +63,7 @@
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
 
-                    	<?php if(auth()->user()->hasRole('administrator')) { ?>
+                    	<?php if($adm) { ?>
                         <li id="li-reseller" class="">
                             <a href="{{ route('admin.resellers', ['adminId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-briefcase" aria-hidden="true"></i>
@@ -65,7 +72,7 @@
                         </li>
                     <?php } ?>
     
-                    <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')) { ?>
+                    <?php if($adm || $res) { ?>
                         <li id="li-storegroup" class="">
                             <a href="{{ route('admin.storegroups', ['resellerId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-sitemap" aria-hidden="true"></i>
@@ -74,7 +81,7 @@
                         </li>
                     <?php } ?>
                     
-                    <?php if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('reseller')|| auth()->user()->hasRole('storegroup')) { ?>
+                    <?php if($adm || $res || $stg) { ?>
                         <li id="li-store" class="">
                             <a href="{{ route('admin.stores', ['storegroupId' => '0', 'filter' => false]) }}">
                                 <i class="fa fa-cutlery" aria-hidden="true"></i>

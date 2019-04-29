@@ -23,10 +23,6 @@ class PlanController extends Controller {
     public function index() {
 
         $me = Auth::user();
-        
-        if($me->roles[0]->name != 'administrator') {
-            return redirect()->guest(route('admin.dashboard'));
-        }
 
         $plans = Plan::where('delete_time', '=', 0)->orderBy('name')->get();
         

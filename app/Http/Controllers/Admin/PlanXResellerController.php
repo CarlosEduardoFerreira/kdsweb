@@ -18,10 +18,6 @@ class PlanXResellerController extends Controller {
 
         $me = Auth::user();
         
-        if($me->roles[0]->name != 'administrator') {
-            return redirect()->guest(route('admin.dashboard'));
-        }
-        
         $plans = Plan::where('delete_time', '=', 0)->orderBy('name')->get();
         
         $resellers = Controller::filterUsers(null, 2, $me->id);
