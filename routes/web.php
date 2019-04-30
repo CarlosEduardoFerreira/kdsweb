@@ -70,6 +70,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('settings/plans/getItemsObjects', 'PlanController@getItemsObjects')->name('settings.plans.getItemsObjects');
     Route::get('settings/plans/getItemsSelected', 'PlanController@getItemsSelected')->name('settings.plans.getItemsSelected');
     Route::put('settings/plans/updateObjects', 'PlanController@updateObjects')->name('settings.plans.updateObjects');
+    Route::get('settings/plans/validPlanXObject', 'PlanController@validPlanXObject')->name('settings.plans.validPlanXObject');
     
     // Plans X Resellers
     Route::get('settings/plansXresellers', 'PlanXResellerController@index')->name('settings.plansXresellers');

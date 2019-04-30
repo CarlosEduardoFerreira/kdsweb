@@ -89,8 +89,11 @@
         					$container.append($content);
         				},
         				error : function (xhr, ajaxOptions, thrownError) {
-        					alert("error: " + xhr.status + " - " + xhr.responseText)
-//         					location.href = "{{ route('admin.dashboard') }}";
+            				if(xhr.status == 401) { // {"error":"Unauthenticated."}
+            					location.href = "{{ route('admin.dashboard') }}";
+            				} else {
+        						alert("error: " + xhr.status + " - " + xhr.responseText);
+            				}
         				}
         			});
         		}

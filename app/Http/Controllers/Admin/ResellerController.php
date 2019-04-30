@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
+use App\Models\Settings\Plan;
+use App\Models\Settings\PlanXObject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -80,7 +82,16 @@ class ResellerController extends Controller {
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 2]);
         
-        // return redirect()->intended(route('admin.resellers.edit', [$id, 'filter' => false])); // keep on the same page
+        // Link default plans
+        $plans = Plan::where([['delete_time', '=', 0], ['default', '=', 1], ['owner_id', '=', 0]])->get();
+        foreach($plans as $plan) {
+            $data = [
+                'plan_guid' => $plan->guid,
+                'user_id'   => $id
+            ];
+            $plan = PlanXObject::create($data);
+        }
+        
         return redirect()->intended(route('admin.resellers', [0, 'filter' => false])); // go to the list
     }
 

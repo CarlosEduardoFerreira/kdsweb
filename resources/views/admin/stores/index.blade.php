@@ -54,7 +54,7 @@
                     
                     <td>{{ $store->updated_at }}</td>
                     
-                    <td width="200px" style="text-align:center;">
+                    <td width="220px" style="text-align:center;">
                     
 						<style>
 						  .settings-icons { width:30px; }

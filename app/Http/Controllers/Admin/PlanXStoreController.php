@@ -18,7 +18,7 @@ class PlanXStoreController extends Controller {
 
         $me = Auth::user();
         
-        $plans = Plan::where('delete_time', '=', 0)->orderBy('name')->get();
+        $plans = $this->getPlans();
         
         $stores = Controller::filterUsers(null, 4, $me->id);
         

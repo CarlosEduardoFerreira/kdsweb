@@ -253,22 +253,25 @@
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                 		<select id="timezone" name="timezone" class="form-control" style="width:350px;" required>
-                		<?php $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL); ?>
-                		@foreach($timezones as $timezone)
-                			<?php 
+                		<?php 
+                		$timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL); 
+                		
+                		foreach($timezones as $timezone) { 
                 			$selected = $user->timezone == $timezone ? "selected" : "";
                     		?>
-                    		<option value="{{$timezone}}" <?=$selected ?>> {{ $timezone }}</option>
-                		@endforeach
+                    		<option value="<?=$timezone?>" <?=$selected ?>><?=$timezone?></option>
+                		<?php } ?>
                 		</select>
                 </div>
 			</div>
 			<?php } ?>
 			
 			
-			            
-            <?php if ($obj == 'store') { ?>
-                <div class="form-group" style="margin-bottom:20px;">
+            	<?php if ($obj == 'store') { ?>
+            
+            		<hr class="separator-1" />
+            
+                <div class="form-group" style="margin-top:30px;margin-bottom:20px;">
                 		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">
                 			App:
                 			<span class="required">*</span>
@@ -276,18 +279,16 @@
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <select id="user_apps" name="user_apps" class="selectpicker">
                         		<option></option>
-                        		@foreach ($apps as $app)
-                            		<?php 
+                        		<?php
+                        		foreach ($apps as $app) {
                             		$selected = $app->guid == $app_guid ? "selected" : "";
                             		?>
-                                	<option value="{{ $app->guid }}" <?=$selected?>>{{ $app->name }}</option>
-                            	@endforeach;
+                                	<option value="<?=$app->guid?>" <?=$selected?>><?=$app->name?></option>
+                            	<?php } ?>
                         </select>
                     </div>
                 </div>
-            <?php } ?>
             
-            <?php if ($obj == 'store') { ?>
                 <div class="form-group" style="margin-bottom:20px ;">
                 		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_envs">
                 			Type:
@@ -296,20 +297,22 @@
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <select id="user_envs" name="user_envs" class="selectpicker">
                         		<option></option>
-							@foreach ($envs as $env)
-                            		<?php 
+                        		<?php 
+                        		foreach ($envs as $env) {
                             		$selected = $env->guid == $env_guid ? "selected" : "";
                             		?>
-                                	<option value="{{ $env->guid }}" <?=$selected?>>{{ $env->name }}</option>
-                            	@endforeach;
+                                	<option value="<?=$env->guid?>" <?=$selected?>><?=$env->name?></option>
+                            	<?php } ?>
                         </select>
                     </div>
                 </div>
+                
+                <hr class="separator-1"/>
+                
             <?php } ?>
 			
-			
 			@if($user->exists)
-                <div class="form-group">
+                <div class="form-group" >
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="active" >
                         {{ __('views.admin.users.edit.active') }}
                     </label>
@@ -362,12 +365,12 @@
                 </div>
             </div>
 
-                <div class="form-group" style="text-align:right;padding-top:20px;">
-                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                        <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
-                        <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
-                    </div>
+            <div class="form-group" style="text-align:right;padding-top:50px;padding-bottom:100px;">
+                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                    <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
+                    <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
                 </div>
+            </div>
             {{ Form::close() }}
         </div>
     </div>
@@ -405,6 +408,8 @@
     {{ Html::style(mix('assets/admin/css/bootstrap-select.css')) }}
     <style>
         .required { color:red; }
+        hr.separator-1 { border:none; width:100%; height:20px; border-bottom:1px solid #C5CAE9; 
+                    box-shadow:0 10px 10px -10px #9FA8DA;  }
     </style>
 @endsection
 

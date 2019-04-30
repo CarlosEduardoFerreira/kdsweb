@@ -134,18 +134,56 @@
             connectWith: ".column-selected .items",
             cancel: ".no-drag",
             start: function(e, info) {
-//                 info.item.siblings(".selected").appendTo(info.item);
                 info.item.css({ 'background':'#fff', 'cursor':'move', 'box-shadow':'0 10px 6px 0px #ccc' });
             },
             stop: function(e, info) {
-                $('.no-items').remove();
-                info.item.after(info.item.find(".item"));
-                info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
-                saveObject();
-                $("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
-                checkNoItems();
+                var dragGuid = info.item.attr('data-guid');
+                $this = this;
+                validPlanXObject(dragGuid, function(response) {
+                    if(!response['valid']) {
+        					$($this).sortable('cancel');
+        					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
+        					alert(response['error']);
+        					return;
+                    } else {
+                    		$('.no-items').remove();
+                        info.item.after(info.item.find(".item"));
+                        info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
+                        saveObject();
+                        $("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
+                        checkNoItems();
+                    }
+                });
             }
         });
+	}
+
+
+	function validPlanXObject(dragGuid, callback) {
+		var clickedGuid = $('#clicked-guid').val();
+		var clickedType = $('#clicked-type').val();
+
+		$.ajax({
+        		headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+        		url: "{{ route('admin.settings.plans.validPlanXObject') }}",
+        		type: "GET",
+        		data : {
+        			objName: "{{$objName}}",
+        			guid: clickedGuid,
+        			type: clickedType,
+        			dragGuid: dragGuid
+        		},
+        		success: function(response) {
+        			callback(response);
+        		},
+        		error : function (xhr, ajaxOptions, thrownError) {
+        			if(xhr.status == 401) { // {"error":"Unauthenticated."}
+    					location.href = "{{ route('admin.dashboard') }}";
+    				} else {
+						alert("error: " + xhr.status + " - " + xhr.responseText);
+    				}
+        		}
+        	});
 	}
 
 
