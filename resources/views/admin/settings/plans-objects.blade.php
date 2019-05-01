@@ -115,7 +115,6 @@
 	$("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
 
     $(document).mouseup(function(e) {
-//         alert(isSelected)
         if(isSelected) {
             if (!$(".item").is(e.target) && $(".item").has(e.target).length === 0 && // if do not click on item
                     !$(".tab-a").is(e.target) && $(".tab-a").has(e.target).length === 0) { // if do not click on tabs
@@ -134,26 +133,33 @@
             connectWith: ".column-selected .items",
             cancel: ".no-drag",
             start: function(e, info) {
-                info.item.css({ 'background':'#fff', 'cursor':'move', 'box-shadow':'0 10px 6px 0px #ccc' });
+                	info.item.css({ 'background':'#fff', 'cursor':'move', 'box-shadow':'0 10px 6px 0px #ccc' });
             },
             stop: function(e, info) {
-                var dragGuid = info.item.attr('data-guid');
+            		var dragGuid = info.item.attr('data-guid');
                 $this = this;
-                validPlanXObject(dragGuid, function(response) {
-                    if(!response['valid']) {
-        					$($this).sortable('cancel');
-        					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
-        					alert(response['error']);
-        					return;
-                    } else {
-                    		$('.no-items').remove();
-                        info.item.after(info.item.find(".item"));
-                        info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
-                        saveObject();
-                        $("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
-                        checkNoItems();
-                    }
-                });
+                
+                	if(!isSelected) {
+                		$($this).sortable('cancel');
+    					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
+                		
+                	} else {
+                    validPlanXObject(dragGuid, function(response) {
+                        if(!response['valid']) {
+            					$($this).sortable('cancel');
+            					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
+            					alert(response['error']);
+            					return;
+                        } else {
+                        		$('.no-items').remove();
+                            info.item.after(info.item.find(".item"));
+                            info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
+                            saveObject();
+                            $("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
+                            checkNoItems();
+                        }
+                    });
+                	}
             }
         });
 	}
