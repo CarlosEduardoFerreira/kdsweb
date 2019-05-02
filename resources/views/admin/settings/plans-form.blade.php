@@ -1,4 +1,10 @@
 
+<?php 
+$adm = $me->hasRole('administrator');
+$res = $me->hasRole('reseller');
+$stg = $me->hasRole('storegroup');
+?>
+
 <div id="plans-form-content" class="row">
     <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:30px;">
 
@@ -85,6 +91,26 @@
                      	<input type="checkbox" id="status" name="status" @if($plan->status) checked="checked" @endif value="1">
                      	<span class="slider round" ></span>
                     	</label>
+                </div>
+            </div>
+        @endif
+        
+        @if($adm || $res)
+            <div class="form-group" style="padding-top:4px;">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12" for="default" >
+                    Default:
+                </label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+    				<label class="switch">
+                     	<input type="checkbox" id="default" name="default" @if($plan->default) checked="checked" @endif value="1">
+                     	<span class="slider round" ></span>
+                    	</label>
+                    	<?php 
+                        	$child = $me->hasRole('administrator') ? "Reseller" : ($me->hasRole('reseller') ? "Store Group" : "Store");
+                    	?>
+                    	<div style="float:right;margin-top:9px;margin-right:50px;font-weight:200;font-size:12px;font-style:italic;color:#999;">
+                    		For new <?=$child?>s created.
+    				</div>
                 </div>
             </div>
         @endif

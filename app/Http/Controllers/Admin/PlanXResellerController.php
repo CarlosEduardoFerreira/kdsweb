@@ -18,7 +18,7 @@ class PlanXResellerController extends Controller {
 
         $me = Auth::user();
         
-        $plans = Plan::where('delete_time', '=', 0)->orderBy('name')->get();
+        $plans = $this->getPlans();
         
         $resellers = Controller::filterUsers(null, 2, $me->id);
         

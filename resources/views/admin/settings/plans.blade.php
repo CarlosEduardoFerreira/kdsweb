@@ -11,22 +11,32 @@
         </tr>
     	</thead>
     	<tbody>
-    		@foreach($plans as $plan)
-        	<tr data-route="{{ route('admin.settings.plans.edit', ['guid' => $plan->guid]) }}">
-            	<td><div class="color-box">&nbsp;</div>{{$plan->name}}</td>
-            	<td>{{$plan->cost}}</td>
-            	<td>{{$plan->payment_type}}</td>
-            	<td>{{$plan->app}}</td>
-            	<td>{{$plan->update_time}}</td>
-            	<td>
-            		@if($plan->status)
-                    	<span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
-                	@else
-                    	<span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
-                	@endif
-            	</td>
-        	</tr>
-        	@endforeach
+    		<?php 
+    		
+    		$id = $me->hasRole('administrator') ? 0 : $me->id;
+
+    		foreach($plans as $plan) {
+    		    $owner = $plan->owner_id == $id;
+    		    
+    		    $class  = $owner ? "class=\"owner\"" : "";
+    		    $cursor = $owner ? "style=\"cursor:pointer;\"" : "";
+    		    $icon   = $owner ? "<i class=\"edit fa fa-edit\"></i>" : "<i class=\"edit fa fa-edit\" style=\"opacity:0;\"></i>";
+    		?>
+            	<tr <?=$class?> data-route="{{ route('admin.settings.plans.edit', ['guid' => $plan->guid]) }}" <?=$cursor?>>
+                	<td><?=$icon?>{{$plan->name}}</td>
+                	<td>{{$plan->cost}}</td>
+                	<td>{{$plan->payment_type}}</td>
+                	<td>{{$plan->app}}</td>
+                	<td>{{$plan->update_time}}</td>
+                	<td>
+                		@if($plan->status)
+                        	<span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
+                    	@else
+                        	<span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
+                    	@endif
+                	</td>
+            	</tr>
+        	<?php } ?>
     	</tbody>
 </table>
 
@@ -43,7 +53,8 @@
     #table-plans > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th { background: #f3f3f3; }
     #table-plans { margin-top:20px; }
     #table-plans th { font-size:16px; font-weight:200 !important; color:#666; padding-bottom:5px; }
-    #table-plans tbody tr td { cursor:pointer; ;font-size:14px; font-weight:200; color:#111; padding-top:10px; }
+    #table-plans tbody tr td { font-size:14px; font-weight:200; color:#111; padding-top:10px; }
+    #table-plans tbody tr td .edit { margin-right:10px; color:#326c7c; }
     #table-plans tbody tr td .color-box { display:inline-block; width:5px; height:22px; background:#326c7c; margin-right:10px; opacity:0; }
 </style>
 
@@ -57,21 +68,21 @@
 			getPlanFormModal('New', "{{ route('admin.settings.plans.new') }}");
 		});
 
-	    $('#table-plans tbody tr').each(function(){
-	        	$(this).hover(
-	        		function(){
-	        			$(this).css({'opacity':'0.8'});
-	        			$(this).find('.color-box').fadeIn('slow', 1);
-	        		},
-	        		function(){
-	        			$(this).css({'opacity':'1'});
-	        			$(this).find('.color-box').fadeTo('fast', 0);
-	        		}
-	        	);
-	        	
-	        	$(this).click(function(){
-	        		getPlanFormModal('Update', $(this).attr('data-route'));
-	        	});
+		$('#table-plans tbody tr').each(function(){
+            	$(this).hover(
+            		function(){
+            			$(this).css({'opacity':'0.8'});
+//             			$(this).find('.edit').fadeTo('fast', 1);
+            		},
+            		function(){
+            			$(this).css({'opacity':'1'});
+//             			$(this).find('.edit').fadeTo('fast', 0);
+            		}
+            	);
+		});
+
+	    $('#table-plans tbody tr.owner').click(function(){
+	        	getPlanFormModal('Update', $(this).attr('data-route'));
 	    });
 	    
 	});

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Models\Auth\User\User;
+use App\Models\Settings\Plan;
 
 
 class Controller extends BaseController
@@ -219,6 +220,45 @@ class Controller extends BaseController
         
         return new LengthAwarePaginator(array_slice($array, $offset, $perPage, true), count($array), $perPage, $page,
             ['path' => $request->url(), 'query' => $request->query()]);
+    }
+    
+    
+    public function getPlans() {
+        
+        $me = Auth::user();
+        
+        $adm = $me->hasRole('administrator');
+        $res = $me->hasRole('reseller');
+        $stg = $me->hasRole('storegroup');
+        
+        $plans = [];
+        if($adm) {
+            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
+                $query->where('owner_id', '=', 0)->orWhere('owner_id', '=', $me->id);
+            });
+                
+        } else if($res) {
+            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
+                $query->where(function ($query) {
+                    $query->where('default', '=', 1)->where('owner_id', '=', 0);
+                })
+                ->orWhere(function ($query) use ($me) {
+                    $query->where('owner_id', '=', $me->id);
+                });
+            });
+                
+        } else {
+            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
+                $query->where(function ($query) use ($me) {
+                    $query->where('default', '=', 1)->where('owner_id', '=', $me->parent_id);
+                })
+                ->orWhere(function ($query) use ($me) {
+                    $query->where('owner_id', '=', $me->id);
+                });
+            });
+        }
+        
+        return $plans->orderBy('name')->get();
     }
     
     
