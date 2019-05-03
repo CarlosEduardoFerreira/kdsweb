@@ -17,7 +17,9 @@ class SettingsController extends Controller {
 
         $me = Auth::user();
         
-        return view('admin.settings', ['me' => $me]);
+        $plansCount = count($this->getMyPlanList());
+        
+        return view('admin.settings', ['me' => $me, 'plansCount' => $plansCount]);
     }
 
     

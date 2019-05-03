@@ -118,10 +118,11 @@
         if(isSelected) {
             if (!$(".item").is(e.target) && $(".item").has(e.target).length === 0 && // if do not click on item
                     !$(".tab-a").is(e.target) && $(".tab-a").has(e.target).length === 0) { // if do not click on tabs
-            		isSelected = false;
+        			isSelected = false;
         			getItemsAll();
             		$('#selected-title').html('&nbsp;');
             		$('#clicked-guid').val('');
+            		$(".column-selected .items").sortable("destroy");
             }
         }
     });

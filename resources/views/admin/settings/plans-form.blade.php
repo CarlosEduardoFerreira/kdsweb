@@ -17,8 +17,34 @@ $stg = $me->hasRole('storegroup');
         @endif
         
         <input type="hidden" id="guid" name="guid" value="{{ $plan->guid }}">
+        @if(!$adm)
+    			<div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12" for="base-plan" >
+                    Base Plan:
+                    <span class="required">*</span>
+                </label>
+                <div class="col-lg-6">
+                    <select name="base_plan" id="base-plan" class="form-control selectpicker" required>
+                    <?php 
+                    $selectedPlan = $basePlans->first();
+                        foreach($basePlans as $basePlan) {
+                            $selected = "";
+                            if($plan->base_plan == $basePlan->guid) {
+                                $selectedPlan = $basePlan;
+                                $selected = "selected";
+                            }
+                        		?>
+                        		<option value="<?=$basePlan->guid?>" data-cost="<?=$basePlan->cost?>" <?=$selected ?>> <?=$basePlan->name?></option>
+                    <?php } ?>
+                    </select>
+                    <div style="margin-top:8px;font-weight:200;font-size:12px;font-style:italic;letter-spacing:1px;color:#666;">
+                    		Base Plan Cost: $<span id="base-plan-cost"><?=$selectedPlan->cost?></span>
+    				</div>
+                </div>
+            </div>
+        @endif
 
-        <div class="form-group">
+        <div class="form-group" style="padding-top:10px;">
             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="name" >
             		Plan Name:
                 <span class="required">*</span>
@@ -27,59 +53,56 @@ $stg = $me->hasRole('storegroup');
                 	<input id="name" name="name" type="text" class="form-control col-lg-12" value="{{ $plan->name }}" required>
             		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
             </div>
-        </div>
+        </div> 
         
         <div class="form-group" style="padding-top:15px;">
             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="cost" >
-            		Cost:
+                <span id="lbl-cost-price"><?=$adm?"Cost":"Price"?></span>:
                 <span class="required">*</span>
             </label>
             <div class="col-md-6 col-sm-6 col-xs-12">
-                	<input id="cost" name="cost" type="text" class="form-control col-md-7 col-xs-12" value="{{ $plan->cost }}" required>
+                	<input id="cost" name="cost" type="text" class="form-control money" value="{{ $plan->cost }}" required>
             		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
             </div>
         </div>
 
-        <div class="form-group" style="padding-top:15px;">
+        <div class="form-group" style="padding-top:5px;">
             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="payment_type" >
                 Payment Type:
                 <span class="required">*</span>
             </label>
             <div class="col-lg-3">
                 <select id="payment-type" name="payment_type" class="form-control selectpicker" data-width="auto" required>
-                <?php if(isset($payment_types)) { ?>
-                    @foreach($payment_types as $payment_type)
-                    		<?php 
+                <?php 
+                    foreach($payment_types as $payment_type) {
                     		$selected = $plan->payment_type == $payment_type->guid ? "selected" : "";
                     		?>
-                    		<option value="{{$payment_type->guid}}" <?=$selected ?>> {{$payment_type->name}}</option>
-                    @endforeach
+                    		<option value="<?=$payment_type->guid?>" <?=$selected ?>> <?=$payment_type->name?></option>
                 <?php } ?>
                 </select>
                 <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
             </div>
         </div>
         
-        <div class="form-group" style="padding-top:4px;">
-            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="app" >
-                App:
-                <span class="required">*</span>
-            </label>
-            <div class="col-lg-3">
-<!--                 		<input type="hidden" id="app-edit" value="{{ $plan->app }}"> -->
-                <select name="app" id="app" class="form-control selectpicker" required>
-                <?php if(isset($apps)) { ?>
-                    @foreach($apps as $app)
-                    		<?php 
-                    		$selected = $plan->app == $app->guid ? "selected" : "";
-                    		?>
-                    		<option value="{{$app->guid}}" <?=$selected ?>> {{$app->name}}</option>
-                    @endforeach
-                <?php } ?>
-                </select>
-                <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
+        @if($adm)
+            <div class="form-group" style="padding-top:10px;">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12" for="app" >
+                    App:
+                    <span class="required">*</span>
+                </label>
+                <div class="col-lg-3">
+                    <select name="app" id="app" class="form-control selectpicker" required>
+                    <?php
+                        foreach($apps as $app) {
+                        		$selected = $plan->app == $app->guid ? "selected" : "";
+                        		?>
+                        		<option value="<?=$app->guid?>" <?=$selected ?>> <?=$app->name?></option>
+                    <?php } ?>
+                    </select>
+                    <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
+                </div>
             </div>
-        </div>
+        @endif
         
 		@if($plan->exists)
             <div class="form-group">
@@ -95,14 +118,14 @@ $stg = $me->hasRole('storegroup');
             </div>
         @endif
         
-        @if($adm || $res)
+        @if($adm)
             <div class="form-group" style="padding-top:4px;">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="default" >
                     Default:
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
     				<label class="switch">
-                     	<input type="checkbox" id="default" name="default" @if($plan->default) checked="checked" @endif value="1">
+                     	<input type="checkbox" id="default" name="default" value="1" @if($plan->default) checked="checked" @endif>
                      	<span class="slider round" ></span>
                     	</label>
                     	<?php 
@@ -110,7 +133,7 @@ $stg = $me->hasRole('storegroup');
                     	?>
                     	<div style="float:right;margin-top:9px;margin-right:50px;font-weight:200;font-size:12px;font-style:italic;color:#999;">
                     		For new <?=$child?>s created.
-    				</div>
+    					</div>
                 </div>
             </div>
         @endif
@@ -126,7 +149,13 @@ $stg = $me->hasRole('storegroup');
 				<div class="col-lg-6" style="font-size:12px;text-align:left;font-style:italic;color:#aaa;"><br></div>
 			@endif
 			<div class="col-lg-6">
-				<button class="btn btn-danger" id="plan-btn-delete" style="margin-right:15px;">Delete</button>
+				<?php 
+				    if($plan->guid != '0f10c86c-a8ed-42dd-9318-b13d692f435c' &&
+				        $plan->guid != '66217032-ef6e-4f9f-ab1c-5ea0b70bffa6' &&
+				        $plan->guid != '68a511d7-660a-4380-8d6a-c8f040485eb5') {
+				?>
+					<button class="btn btn-danger" id="plan-btn-delete" style="margin-right:15px;">Delete</button>
+				<?php } ?>
                 	<button class="btn btn-primary" id="plan-btn-cancel" style="margin-right:15px;">Cancel</button>
                 	<button class="btn btn-success" id="plan-btn-save">Save</button>
             	</div>
@@ -156,6 +185,11 @@ $stg = $me->hasRole('storegroup');
     $('#plans-form-content #cost').mask('000,000,000,000,000.00', {reverse: true});
     
     $('#plans-form-content .selectpicker').selectpicker('refresh');
+
+    $('#base-plan').change(function(){
+        var cost = $(this).children("option:selected").attr('data-cost');
+		$('#base-plan-cost').text(cost);
+	});
 </script>
 
 
