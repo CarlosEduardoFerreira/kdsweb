@@ -9,6 +9,9 @@
         			<h5 class="modal-title" style="font-size:18px;font-weight:300;">Delete <span class="modal-item">item</span></h5>
         		</div>
         		<div class="modal-body">
+        			<div id="modal-extrahtml" style="text-align:center;font-size:16px;font-weight:300;">
+        			
+        			</div>
         			<div style="text-align:center;font-size:16px;font-weight:300;">
         				IF you are sure you want to delete this 
         				<b><span class="modal-item">item</span></b>, 

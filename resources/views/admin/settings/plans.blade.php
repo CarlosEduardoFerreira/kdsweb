@@ -1,9 +1,22 @@
 
+<?php 
+    $adm = $me->hasRole('administrator');
+    $res = $me->hasRole('reseller');
+    $stg = $me->hasRole('storegroup');
+?>
+
+<input type="hidden" id="me-adm" value="<?=$adm?>"/>
+<input type="hidden" id="me-res" value="<?=$res?>"/>
+<input type="hidden" id="me-stg" value="<?=$stg?>"/>
+
+<input type="hidden" id="plans-count" value="<?=count($plans)?>"/>
+<input type="hidden" id="base-plans-count" value="<?=count($basePlans)?>"/>
+
 <table id="table-plans" class="table table-striped table-hover">
     	<thead>
         <tr>
             <th width="20%">Plan Name</th>
-            <th width="10%">Cost</th>
+            <th width="10%"><?=($adm?"Cost":"Price")?></th>
             <th width="20%">Payment Type</th>
             <th width="20%">App Name</th>
             <th width="20%">Last Update</th>
@@ -11,12 +24,9 @@
         </tr>
     	</thead>
     	<tbody>
-    		<?php 
-    		
-    		$id = $me->hasRole('administrator') ? 0 : $me->id;
-
+    		<?php
     		foreach($plans as $plan) {
-    		    $owner = $plan->owner_id == $id;
+    		    $owner = $plan->owner_id == ($adm ? 0 : $me->id);
     		    
     		    $class  = $owner ? "class=\"owner\"" : "";
     		    $cursor = $owner ? "style=\"cursor:pointer;\"" : "";
@@ -37,6 +47,13 @@
                 	</td>
             	</tr>
         	<?php } ?>
+        	
+        	<tr id="tbody-no-plans" style="display:none;">
+    			<td colspan="6" style="text-align:center;height:150px;padding-top:50px;font-size:14px;letter-spacing:2px;">
+    				There are no Plans registered.
+    			</td>
+    		</tr>
+    		
     	</tbody>
 </table>
 
@@ -63,20 +80,36 @@
 <script>
 
 	$(function(){
-		
-		$('#settings-btn-new').click(function(){
-			getPlanFormModal('New', "{{ route('admin.settings.plans.new') }}");
-		});
+
+    		$('#settings-btn-new').show().click(function(){
+    			if($('#base-plans-count').val() == 0 && !$('#me-adm').val()) {
+				var res = $('#me-res').val();
+    				var oneUp  = res ? 'System Administrator' : 'Reseller';
+        			
+    				var error  = "There are no Base Plans registered for this <?=$me->roles[0]->display?>.";
+    					error += "<br>Contact your " + oneUp + ".";
+    				$('#modal-error').find('#modal-error-title').html("Error New Plan");
+				$('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
+				$('#modal-error').find('#modal-error-body').css({
+					'font-weight':'300',
+					'font-size':'14px',
+					'letter-spacing':'2px',
+					'text-align':'center'
+				});
+				$('#modal-error').modal('show');
+    				
+    			} else {
+    				getPlanFormModal('New', "{{ route('admin.settings.plans.new') }}");
+    			}
+    		});
 
 		$('#table-plans tbody tr').each(function(){
             	$(this).hover(
             		function(){
             			$(this).css({'opacity':'0.8'});
-//             			$(this).find('.edit').fadeTo('fast', 1);
             		},
             		function(){
             			$(this).css({'opacity':'1'});
-//             			$(this).find('.edit').fadeTo('fast', 0);
             		}
             	);
 		});
@@ -84,8 +117,32 @@
 	    $('#table-plans tbody tr.owner').click(function(){
 	        	getPlanFormModal('Update', $(this).attr('data-route'));
 	    });
-	    
+
+	    hideShowTabs();
 	});
+
+
+	function hideShowTabs() {
+		var adm = $('#me-adm').val();
+		var res = $('#me-res').val();
+		var stg = $('#me-stg').val();
+
+		var plansCount = $('#plans-count').val();
+		
+		if(plansCount == 0) {
+			$('#tbody-no-plans').show();
+			$('.li-plans').fadeOut('fast');
+			
+		} else if(adm) {
+			$('#li-plans-res').fadeIn('fast');
+			
+		} else if(res) {
+			$('#li-plans-stg').fadeIn('fast');
+			
+		} else if(stg) {
+			$('#li-plans-str').fadeIn('fast');
+		}
+	}
 
 	
 	function getPlanFormModal(action = 'New', routeURL) {
@@ -118,8 +175,9 @@
         					var url = "{{ route('admin.settings.plans.deletePlan') }}";
             				var guids = [$('#modal-default #guid').val()];
             				var itemText = "Plan";
+            				var extraHtml = "Be aware, <b>all Plans</b> that use this Plan as Base Plan also will be deleted.";
     
-            				new ModalDelete(url, guids, itemText, function(error) {
+            				new ModalDelete(url, guids, itemText, extraHtml, function(error) {
             					$('#modal-delete').modal('hide');
             					setTimeout(function(){
                 					if(error == '') {
@@ -129,8 +187,8 @@
                 						}, 400);
                     				} else {
         								$('#modal-error').find('#modal-error-title').html("Error Delete Plan");
-    			        				$('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
-    			        				$('#modal-error').modal('show');
+    			        					$('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
+    			        					$('#modal-error').modal('show');
                     				}
             					}, 400);
             				});
@@ -143,7 +201,7 @@
         
         			$('#modal-default #plan-btn-save').click(function(){
         				if($('#plans-form #name').val() == '' || $('#plans-form #cost').val() == '') {
-						alert("Plan Name and cost are required.");
+						alert("Plan Name and " + $('#lbl-cost-price').text() + " are required.");
 					
 					} else {
             				$('#modal-default').modal('hide');
@@ -158,8 +216,11 @@
         		        					AdminSettings.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'));
         		        				},
         		        				error : function (xhr, ajaxOptions, thrownError) {
-        		        					alert("error: " + xhr.status + " - " + xhr.responseText);
-        		        					location.href = "{{ route('admin.dashboard') }}";
+        		        					if(xhr.status == 401) { // {"error":"Unauthenticated."}
+        		            					location.href = "{{ route('admin.dashboard') }}";
+        		            				} else {
+        		        						alert("error: " + xhr.status + " - " + xhr.responseText);
+        		            				}
         		        				}
             					});
             				}, 400);
@@ -167,8 +228,11 @@
         			});
         		},
         		error : function (xhr, ajaxOptions, thrownError) {
-        			alert("Error: Please Login again. \n\nError: " + xhr.status + " - " + xhr.responseText);
-        			location.href = "{{ route('admin.dashboard') }}";
+        			if(xhr.status == 401) { // {"error":"Unauthenticated."}
+    					location.href = "{{ route('admin.dashboard') }}";
+    				} else {
+					alert("error: " + xhr.status + " - " + xhr.responseText);
+    				}
         		}
         });
 	}

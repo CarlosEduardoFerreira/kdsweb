@@ -1,13 +1,14 @@
 
 class ModalDelete {
 
-	constructor(url, guids, itemText, callback) {
+	constructor(url, guids, itemText, extraHtml, callback) {
+		
+		$('#modal-delete').find('.modal-item').text(itemText);
+		$('#modal-delete').find('#modal-extrahtml').html(extraHtml);
 		
 		$('#modal-delete').modal('show');
 				
 		$('#modal-delete').on('shown.bs.modal', function () {
-
-			$('#modal-delete').find('.modal-item').text(itemText);
 
 			var input = $('#modal-delete').find('#modal-input-delete');
 			

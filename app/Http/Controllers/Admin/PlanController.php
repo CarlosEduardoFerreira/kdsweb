@@ -24,7 +24,7 @@ class PlanController extends Controller {
 
         $me = Auth::user();
         
-        $plans = $this->getPlans();
+        $plans = $this->getMyPlanList();
         
         foreach($plans as $plan) {
             $plan->payment_type = PaymentType::where('guid', '=', $plan->payment_type)->get()->first()->name;
@@ -32,8 +32,10 @@ class PlanController extends Controller {
 
             $plan->update_time = Controller::readableDatetime($plan->update_time);
         }
+
+        $basePlans = $this->getBasePlans();
         
-        return view('admin.settings.plans', ['me' => $me, 'plans' => $plans]);
+        return view('admin.settings.plans', ['me' => $me, 'plans' => $plans, 'basePlans' => $basePlans]);
     }
     
     
@@ -46,7 +48,10 @@ class PlanController extends Controller {
         $types = Controller::getPlanPaymentTypes();
         $apps = Controller::getSystemApps();
         
-        return view('admin.settings.plans-form', ['me' => $me, 'plan' => $plan, 'apps' => $apps, 'payment_types' => $types]);
+        $basePlans = $this->getBasePlans();
+        
+        return view('admin.settings.plans-form', ['me' => $me, 'plan' => $plan, 'basePlans' => $basePlans,
+                                                    'apps' => $apps, 'payment_types' => $types]);
     }
     
     
@@ -54,14 +59,17 @@ class PlanController extends Controller {
         
         $me = Auth::user();
         
+        $basePlan = Plan::where('guid', '=', $request->get('base_plan'))->get()->first();
+        
         $data = [
             'guid'          => Uuid::uuid4(),
+            'base_plan'     => empty($basePlan->guid) ? NULL : $basePlan->guid,
             'name'          => $request->get('name'),
             'cost'          => $request->get('cost'),
             'payment_type'  => $request->get('payment_type'),
-            'app'           => $request->get('app'),
+            'app'           => empty($basePlan->app) ? $request->get('app') : $basePlan->app,
             'status'        => 1,
-            'default'       => $request->get('default') == null ? 0 : 1,
+            'default'       => empty($request->get('default')) ? 0 : 1,
             'create_time'   => time(),
             'update_time'   => time(),
             'update_user'   => $me->id,
@@ -69,8 +77,6 @@ class PlanController extends Controller {
         ];
         
         $plan = Plan::create($data);
-        
-        return redirect()->intended(route('admin.settings', [0, 'filter' => false])); // go to the list
     }
     
     
@@ -85,7 +91,10 @@ class PlanController extends Controller {
         
         $plan->update_user = User::whereId($plan->update_user)->get()->first()->name;
         
-        return view('admin.settings.plans-form', ['me' => $me, 'plan' => $plan, 'apps' => $apps, 'payment_types' => $types]);
+        $basePlans = $this->getBasePlans();
+        
+        return view('admin.settings.plans-form', ['me' => $me, 'plan' => $plan, 'basePlans' => $basePlans, 
+                                                    'apps' => $apps, 'payment_types' => $types]);
     }
     
     
@@ -93,13 +102,16 @@ class PlanController extends Controller {
         
         $me = Auth::user();
         
+        $basePlan = Plan::where('guid', '=', $request->get('base_plan'))->get()->first();
+        
         $data = [
+            'base_plan'     => empty($basePlan->guid) ? NULL : $basePlan->guid,
             'name'          => $request->get('name'),
             'cost'          => $request->get('cost'),
             'payment_type'  => $request->get('payment_type'),
-            'app'           => $request->get('app'),
-            'status'        => $request->get('status') == null ? 0 : 1,
-            'default'       => $request->get('default') == null ? 0 : 1,
+            'app'           => empty($basePlan->app) ? $request->get('app') : $basePlan->app,
+            'status'        => empty($request->get('status')) ? 0 : 1,
+            'default'       => empty($request->get('default')) ? 0 : 1,
             'update_time'   => time(),
             'update_user'   => $me->id
         ];
@@ -122,6 +134,18 @@ class PlanController extends Controller {
         
         foreach($guids as $guid) {
             Plan::where('guid', '=', $guid)->update($data);
+            
+            // Soft Delete on Plans that have this Plan as Base Plan
+            $basePlans = Plan::where('base_plan', '=', $guid)->get();
+            foreach($basePlans as $basePlan) {
+                $basePlan->update($data);
+            }
+            
+            // Hard Delete on linked Plans X Objects
+            $plansXObjects = PlanXObject::where('plan_guid', '=', $guid)->get();
+            foreach($plansXObjects as $planXObject) {
+                $planXObject->forceDelete();
+            }
         }
     }
     
@@ -130,9 +154,9 @@ class PlanController extends Controller {
         
         $all = empty($request->get('all')) ? false : ($request->get('all') == 'true' ? true : false);
         
+        $plans = $this->getMyPlanList();
+        
         if($all) {
-            $plans = $this->getPlans();
-            
             return view('admin.settings.plans-objects-items-plans', ['plans' => $plans]);
         }
         
@@ -151,7 +175,6 @@ class PlanController extends Controller {
         
         $plansXObjects = PlanXObject::where($primaryKey, '=', $guid)->get();
         
-        $plans = $this->getPlans();
         $guids = [];
         foreach($plans as $plan) {
             $isSelected = false;
@@ -301,14 +324,13 @@ class PlanController extends Controller {
             return $response;
         }
         
-        $clickedPK = $type == "Plan" ? "plan_guid" : "user_id";
-        $draggedPK = $type == "Plan" ? "user_id"   : "plan_guid";
+        $storeGuid = $type == "Plan" ? $dragGuid : $guid;
         
-        $planXObject = PlanXObject::where($clickedPK, '=', $guid)->where($draggedPK, '=', $dragGuid);
-        
-        if(count($planXObject) == 1) {
+        $planXObject = PlanXObject::where('user_id', '=', $storeGuid)->get();
+
+        if(count($planXObject) > 0) {
             $response['valid'] = false;
-            $response['error'] = "Store can have just 1 (one) Plan.";
+            $response['error'] = "Stores can have just 1 (one) Plan each.";
         }
         
         return $response;

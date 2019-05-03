@@ -18,7 +18,7 @@ class PlanXResellerController extends Controller {
 
         $me = Auth::user();
         
-        $plans = $this->getPlans();
+        $plans = $this->getMyPlanList();
         
         $resellers = Controller::filterUsers(null, 2, $me->id);
         

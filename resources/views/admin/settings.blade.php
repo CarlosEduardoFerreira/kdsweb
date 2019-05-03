@@ -4,27 +4,24 @@
 
 @section('content')
 
-<?php 
-    $adm = $me->hasRole('administrator'); 
-    $res = $me->hasRole('reseller');
-    $stg = $me->hasRole('storegroup');
-?>
 
 <div id="tabs" style="margin-top:50px;">
     <ul  class="nav nav-pills">
-        	<li class="active"><a class="tab-a" data-url="{{ route('admin.settings.plans') }}" href="#1a" data-toggle="tab">Plans</a></li>
+        	<li class="active">
+        		<a class="tab-a" data-url="{{ route('admin.settings.plans') }}" href="#1a" data-toggle="tab">Plans</a>
+        	</li>
+
+    		<li class="li-plans" id="li-plans-res">
+    			<a class="tab-a" data-url="{{ route('admin.settings.plansXresellers') }}" href="#1a" data-toggle="tab">Plans x Resellers</a>
+    		</li>
         
-        	<?php if($adm) { ?>
-        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXresellers') }}" href="#1a" data-toggle="tab">Plans x Resellers</a></li>
-        	<?php } ?>
+    		<li class="li-plans" id="li-plans-stg">
+    			<a class="tab-a" data-url="{{ route('admin.settings.plansXstoregroups') }}" href="#1a" data-toggle="tab">Plans x Store Groups</a>
+    		</li>
         
-        	<?php if($adm || $res) { ?>
-        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXstoregroups') }}" href="#1a" data-toggle="tab">Plans x Store Groups</a></li>
-        	<?php } ?>
-        
-        	<?php if($adm || $res || $stg) { ?>
-        		<li><a class="tab-a" data-url="{{ route('admin.settings.plansXstores') }}" href="#1a" data-toggle="tab">Plans x Stores</a></li>
-		<?php } ?>
+    		<li class="li-plans" id="li-plans-str">
+    			<a class="tab-a" data-url="{{ route('admin.settings.plansXstores') }}" href="#1a" data-toggle="tab">Plans x Stores</a>
+    		</li>
     </ul>
 </div>
 
@@ -45,6 +42,7 @@
     {{ Html::style(mix('assets/admin/css/checkbox.switch.css')) }}
     <style>
         #tabs .nav-pills { font-size:16px; font-weight:300; }
+        #tabs .nav-pills li.li-plans { display:none; }
         #tabs .nav-pills > li > a { width:180px; text-align:center; border:1px solid #ccc; margin-right:10px; border-radius:5px; padding:7px 15px; }
         #tabs .nav-pills > li > a:hover { border:1px solid #666; }
     </style>

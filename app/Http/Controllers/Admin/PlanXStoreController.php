@@ -18,7 +18,7 @@ class PlanXStoreController extends Controller {
 
         $me = Auth::user();
         
-        $plans = $this->getPlans();
+        $plans = $this->getMyPlanList();
         
         $stores = Controller::filterUsers(null, 4, $me->id);
         

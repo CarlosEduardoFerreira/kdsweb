@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use App\Models\Auth\User\User;
 use App\Models\Settings\Plan;
+use App\Models\Settings\PlanXObject;
 
 
 class Controller extends BaseController
@@ -223,42 +224,40 @@ class Controller extends BaseController
     }
     
     
-    public function getPlans() {
+    public function getBasePlans() {
+        
+        $me = Auth::user();
+        
+        $plansXObjects = PlanXObject::where('user_id', '=', $me->id)->get();
+        $guids = [];
+        foreach($plansXObjects as $planXObject) {
+            array_push($guids, $planXObject->plan_guid);
+        }
+        
+        $plans = Plan::whereIn('guid', $guids);
+        
+        return $plans->where('delete_time', '=', 0)->orderBy('name')->get();
+    }
+    
+    
+    public function getMyPlanList() {
         
         $me = Auth::user();
         
         $adm = $me->hasRole('administrator');
-        $res = $me->hasRole('reseller');
-        $stg = $me->hasRole('storegroup');
         
         $plans = [];
+        
         if($adm) {
-            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
+            $plans = Plan::where(function ($query) use ($me) {
                 $query->where('owner_id', '=', 0)->orWhere('owner_id', '=', $me->id);
             });
                 
-        } else if($res) {
-            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
-                $query->where(function ($query) {
-                    $query->where('default', '=', 1)->where('owner_id', '=', 0);
-                })
-                ->orWhere(function ($query) use ($me) {
-                    $query->where('owner_id', '=', $me->id);
-                });
-            });
-                
         } else {
-            $plans = Plan::where('delete_time', '=', 0)->where(function ($query) use ($me) {
-                $query->where(function ($query) use ($me) {
-                    $query->where('default', '=', 1)->where('owner_id', '=', $me->parent_id);
-                })
-                ->orWhere(function ($query) use ($me) {
-                    $query->where('owner_id', '=', $me->id);
-                });
-            });
+            $plans = Plan::where('owner_id', '=', $me->id);
         }
         
-        return $plans->orderBy('name')->get();
+        return $plans->where('delete_time', '=', 0)->orderBy('name')->get();
     }
     
     
