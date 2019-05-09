@@ -333,7 +333,7 @@
 	            success: function (devices) {
 
 		            if(devices !== undefined) {
-			            
+
 						$device = devices[0];
 						$settingsLocal = devices["settings_local"][0];
 						$settingsLineDisplay = devices["settings_line_display"][0]; // This will return an array with 4 indexes.
