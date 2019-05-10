@@ -31,18 +31,19 @@ class StoreGroupController extends Controller {
         }
 
         $sort = null;
-        $order = null;
+        $direction = null;
 
         if(isset($_GET['sort']) && ($_GET['sort'] == "apps" || $_GET['sort'] == "envs")) {
             $sort = $_GET['sort'];
             unset($_GET['sort']);
 
-            $order = $_GET['order'];
+            $direction = isset($_GET['order']) ? $_GET['order'] : ( isset($_GET['direction']) ? $_GET['direction'] : "ASC" );
             unset($_GET['order']);
+            unset($_GET['direction']);
         }
 
         $storegroups = Controller::filterUsers($request, 3, $resellerId,
-                                        $request->filter, $ignorePaginator = isset($sort) && isset($order));
+                                        $request->filter, $ignorePaginator = isset($sort) && isset($direction));
 
         $storeGroupIds = [];
         foreach ($storegroups as &$storegroup) {
@@ -77,9 +78,9 @@ class StoreGroupController extends Controller {
             }
         }
 
-        if (isset($sort) && isset($order)) {
-            usort($storegroups, function($a, $b) use ($order, $sort) {
-                return $order == "asc" ? strcmp($a->{$sort} , $b->{$sort}) : strcmp($b->{$sort} , $a->{$sort});
+        if (isset($sort) && isset($direction)) {
+            usort($storegroups, function($a, $b) use ($direction, $sort) {
+                return $direction == "asc" ? strcmp($a->{$sort} , $b->{$sort}) : strcmp($b->{$sort} , $a->{$sort});
             });
 
             $storegroups = $this->arrayPaginator($storegroups, $request, 10);
