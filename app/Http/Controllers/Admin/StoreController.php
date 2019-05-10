@@ -614,12 +614,17 @@ class StoreController extends Controller {
                 // Remove from Dependent Devices as Transfer
                 $this->removeFromDependentDevicesAsTransfer($storeGuid, $deviceId);
             }
+
+            $expeditor = $request->device['device-settings-expeditor'];
+            if (empty($expeditor)) {
+                $expeditor = "";
+            }
             
             $data = [
                 'name'                      => $request->device['device-settings-name'],
                 'id'                        => $deviceId,
                 'function'                  => $function,
-                'expeditor'                 => $request->device['device-settings-expeditor'],
+                'expeditor'                 => $expeditor,
                 'parent_id'                 => isset($request->device['device-settings-parent-id']) ? $request->device['device-settings-parent-id'] : 0,
                 'xml_order'                 => $request->device['device-settings-host'],
                 'line_display'              => $request->device['device-settings-line-display-enable'],

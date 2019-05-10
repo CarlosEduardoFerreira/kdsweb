@@ -169,7 +169,7 @@ class ApiController extends Controller
                     store_guid,
                     business_name
                 FROM users
-                WHERE username = '$username'";
+                WHERE username = '$username' AND deleted_at IS NULL";
         
         $result = DB::select($sql);
         
