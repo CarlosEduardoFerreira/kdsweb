@@ -77,7 +77,9 @@ class Controller extends BaseController
         
         $whereSearch = "";
         if($filterRole == 4 && !empty($request->search)) {
-            $whereSearch = "AND ( UPPER(stores.business_name) LIKE UPPER('%$request->search%') OR UPPER(stores.email) LIKE UPPER('%$request->search%') )";
+            $search = str_replace("\'", "'", $request->search);
+            $search = str_replace("'", "\'", $search);
+            $whereSearch = "AND ( UPPER(stores.business_name) LIKE UPPER('%$search%') OR UPPER(stores.email) LIKE UPPER('%$search%') )";
         }
         
         // Applications
