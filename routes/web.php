@@ -57,6 +57,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Admin Settings
     Route::get('settings', 'SettingsController@index')->name('settings');
     
+    // Admin Reports
+    Route::get('reports', 'ReportController@index')->name('reports');
+    Route::get('reports/costByPlan', 'ReportCostByPlanController@index')->name('reports.costByPlan');
+    Route::get('reports/costByStore', 'ReportCostByStoreController@index')->name('reports.costByStore');
+    
     // Plans
     Route::get('settings/plans', 'PlanController@index')->name('settings.plans');
     Route::get('settings/plans/0/form', 'PlanController@create')->name('settings.plans.new');

@@ -12,6 +12,8 @@
 <input type="hidden" id="plans-count" value="<?=count($plans)?>"/>
 <input type="hidden" id="base-plans-count" value="<?=count($basePlans)?>"/>
 
+<a class="btn btn-success" id="settings-btn-new" href="#" style="display:none;margin-top:-6px;">New</a>
+
 <table id="table-plans" class="table table-striped table-hover">
     	<thead>
         <tr>
@@ -26,7 +28,7 @@
     	<tbody>
     		<?php
     		foreach($plans as $plan) {
-    		    $owner = $plan->owner_id == ($adm ? 0 : $me->id);
+    		    $owner = $plan->owner_id == ($adm ? 0 : $me->id) && !$stg ;
     		    
     		    $class  = $owner ? "class=\"owner\"" : "";
     		    $cursor = $owner ? "style=\"cursor:pointer;\"" : "";
@@ -58,13 +60,6 @@
 </table>
 
 
-<?php include "assets/includes/modal.default.php"; ?>
-
-<?php include "assets/includes/modal.delete.php"; ?>
-
-<?php include "assets/includes/modal.error.php"; ?>
-
-
 <style>
     #table-plans > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th { background: #fcfcfc; }
     #table-plans > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th { background: #f3f3f3; }
@@ -81,27 +76,35 @@
 
 	$(function(){
 
-    		$('#settings-btn-new').show().click(function(){
-    			if($('#base-plans-count').val() == 0 && !$('#me-adm').val()) {
-				var res = $('#me-res').val();
-    				var oneUp  = res ? 'System Administrator' : 'Reseller';
-        			
-    				var error  = "There are no Base Plans registered for this <?=$me->roles[0]->display?>.";
-    					error += "<br>Contact your " + oneUp + ".";
-    				$('#modal-error').find('#modal-error-title').html("Error New Plan");
-				$('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
-				$('#modal-error').find('#modal-error-body').css({
-					'font-weight':'300',
-					'font-size':'14px',
-					'letter-spacing':'2px',
-					'text-align':'center'
-				});
-				$('#modal-error').modal('show');
-    				
-    			} else {
-    				getPlanFormModal('New', "{{ route('admin.settings.plans.new') }}");
-    			}
-    		});
+		<?php if(!$stg){ ?>
+
+			var $toolbar = $('#settings-btn-new');
+			$('#toolbarContainer').html($toolbar.fadeIn());
+		
+		    $('#settings-btn-new').click(function(){
+        			if($('#base-plans-count').val() == 0 && !$('#me-adm').val()) {
+    				var res = $('#me-res').val();
+        				var oneUp  = res ? 'System Administrator' : 'Reseller';
+            			
+        				var error  = "There are no Base Plans registered for this <?=$me->roles[0]->display?>.";
+        					error += "<br>Contact your " + oneUp + ".";
+        				$('#modal-error').find('#modal-error-title').html("Error New Plan");
+    				$('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
+    				$('#modal-error').find('#modal-error-body').css({
+    					'font-weight':'300',
+    					'font-size':'14px',
+    					'letter-spacing':'2px',
+    					'text-align':'center'
+    				});
+    				$('#modal-error').modal('show');
+        				
+        			} else {
+        				getPlanFormModal('New', "{{ route('admin.settings.plans.new') }}");
+        			}
+        		});
+    		
+		<?php } ?>
+    		
 
 		$('#table-plans tbody tr').each(function(){
             	$(this).hover(
@@ -183,7 +186,7 @@
                 					if(error == '') {
                 						$('#modal-default').modal('hide');
                 						setTimeout(function(){
-                							AdminSettings.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'));
+                							SyncPage.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'), '');
                 						}, 400);
                     				} else {
         								$('#modal-error').find('#modal-error-title').html("Error Delete Plan");
@@ -213,7 +216,7 @@
         		        				type: "POST",
         		        				data : $('#plans-form').serialize(),
         		        				success: function(response){
-        		        					AdminSettings.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'));
+        		        					SyncPage.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'), '');
         		        				},
         		        				error : function (xhr, ajaxOptions, thrownError) {
         		        					if(xhr.status == 401) { // {"error":"Unauthenticated."}

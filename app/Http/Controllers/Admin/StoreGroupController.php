@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
+use App\Models\Settings\Plan;
+use App\Models\Settings\PlanXObject;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Vars;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeZone;
 
@@ -122,6 +125,7 @@ class StoreGroupController extends Controller {
     
     public function insert(Request $request)
     {
+        $me = Auth::user();
         
         $created_at = new DateTime();
         $created_at->setTimezone(new DateTimeZone(Vars::$timezoneDefault));
@@ -151,7 +155,36 @@ class StoreGroupController extends Controller {
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 3]);
         
-        // return redirect()->intended(route('admin.storegroups.edit', [$id, 'filter' => false])); // keep on the same page
+        // Relation between Plans and Storegroups -------------------------------------------- //
+        $plans = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $me->id]])->get();
+        
+        foreach($plans as $planRes) {
+            $dataPlan = [
+                'guid'          => Uuid::uuid4(),
+                'base_plan'     => $planRes->guid,
+                'name'          => $planRes->name,
+                'cost'          => $planRes->cost,
+                'payment_type'  => $planRes->payment_type,
+                'app'           => empty($planRes->app) ? $request->get('app') : $planRes->app,
+                'status'        => 1,
+                'default'       => empty($planRes->default) ? 0 : 1,
+                'create_time'   => time(),
+                'update_time'   => time(),
+                'update_user'   => $me->id,
+                'owner_id'      => $id
+            ];
+            
+            Plan::create($dataPlan);
+            
+            $data = [
+                'plan_guid' => $planRes->guid,
+                'user_id'   => $id
+            ];
+            
+            PlanXObject::create($data);
+        }
+        // -------------------------------------------- Relation between Plans and Storegroups //
+        
         return redirect()->intended(route('admin.storegroups', [0, 'filter' => false])); // go to the list
     }
 
