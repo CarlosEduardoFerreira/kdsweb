@@ -105,7 +105,7 @@ mix.copy([
 ], 'public/assets/admin/fonts');
 
 
-//Bootstrap 3.3.7
+// Bootstrap 3.3.7
 mix.scripts([
     'resources/assets/admin/js/bootstrap-3.3.7.min.js',
 ], 'public/assets/admin/js/bootstrap-3.3.7.min.js').version();
@@ -119,7 +119,7 @@ mix.scripts([
     'resources/assets/admin/js/bootstrap-table.min.js',
 ], 'public/assets/admin/js/bootstrap-table.min.js').version();
 
-//Bootstrap Select 1.13.1
+// Bootstrap Select 1.13.1
 mix.styles([
     'resources/assets/admin/css/bootstrap-select.css',
 ], 'public/assets/admin/css/bootstrap-select.css').version();
@@ -127,8 +127,17 @@ mix.scripts([
     'resources/assets/admin/js/bootstrap-select.min.js',
 ], 'public/assets/admin/js/bootstrap-select.min.js').version();
 
+// Bootstrap Tabs Custom
+mix.styles([
+    'resources/assets/admin/css/bootstrap-tabs-custom.css',
+], 'public/assets/admin/css/bootstrap-tabs-custom.css').version();
 
-//JQuery 3.3.1
+// Sync Page
+mix.scripts([
+    'resources/assets/admin/js/SyncPage.js',
+], 'public/assets/admin/js/SyncPage.js').version();
+
+// JQuery 3.3.1
 mix.scripts([
     'resources/assets/admin/js/jquery-3.3.1.min.js',
 ], 'public/assets/admin/js/jquery-3.3.1.min.js').version();
@@ -140,6 +149,16 @@ mix.styles([
 mix.scripts([
 	'resources/assets/admin/js/jquery-ui.min.js',
 ], 'public/assets/admin/js/jquery-ui.min.js').version();
+
+// JQuery Table Export
+mix.scripts([
+	'resources/assets/admin/js/jquery-table-export.js',
+], 'public/assets/admin/js/jquery-table-export.js').version();
+
+// Bootstrap Table Export
+mix.scripts([
+	'resources/assets/admin/js/bootstrap-table-export.js',
+], 'public/assets/admin/js/bootstrap-table-export.js').version();
 
 // JQuery Data Table 1.10.19
 mix.styles([

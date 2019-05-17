@@ -24,6 +24,13 @@
             </footer>
         </div>
     </div>
+    
+<?php include "assets/includes/modal.default.php"; ?>
+
+<?php include "assets/includes/modal.delete.php"; ?>
+
+<?php include "assets/includes/modal.error.php"; ?>
+
 @stop
 
 @section('styles')
@@ -33,6 +40,7 @@
 
 @section('scripts')
     {{ Html::script(mix('assets/admin/js/admin.js')) }}
+    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
 @endsection
 
 

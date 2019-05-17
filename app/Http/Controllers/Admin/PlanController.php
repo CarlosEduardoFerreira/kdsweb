@@ -76,7 +76,47 @@ class PlanController extends Controller {
             'owner_id'      => $me->hasRole('administrator') ? 0 : $me->id
         ];
         
-        $plan = Plan::create($data);
+        $planRes = Plan::create($data);
+        
+        // Relation between Plans and Storegroups -------------------------------------------- //
+        if($me->hasRole('reseller')) {
+            $storegroups = Controller::filterUsers(null, 3, $me->id, true);
+            
+            // Create Plans
+            foreach($storegroups as $storegroup){
+                $data = [
+                    'guid'          => Uuid::uuid4(),
+                    'base_plan'     => $planRes->guid,
+                    'name'          => $request->get('name'),
+                    'cost'          => $request->get('cost'),
+                    'payment_type'  => $request->get('payment_type'),
+                    'app'           => empty($planRes->app) ? $request->get('app') : $planRes->app,
+                    'status'        => 1,
+                    'default'       => empty($request->get('default')) ? 0 : 1,
+                    'create_time'   => time(),
+                    'update_time'   => time(),
+                    'update_user'   => $me->id,
+                    'owner_id'      => $storegroup->id
+                ];
+                
+                Plan::create($data);
+            }
+            
+            
+            // Link Plans
+            foreach($storegroups as $storegroup){
+                $plans = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $me->id]])->get();
+                foreach($plans as $plan) {
+                    $data = [
+                        'plan_guid' => $plan->guid,
+                        'user_id'   => $storegroup->id
+                    ];
+                    PlanXObject::create($data);
+                }
+            }
+        }
+        // -------------------------------------------- Relation between Plans and Storegroups //
+
     }
     
     

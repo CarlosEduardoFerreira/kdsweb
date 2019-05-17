@@ -1,0 +1,5 @@
+
+#tabs .nav-pills { font-size:16px; font-weight:300; }
+#tabs .nav-pills li.no-display { display:none; }
+#tabs .nav-pills > li > a { width:180px; text-align:center; border:1px solid #ccc; margin-right:10px; border-radius:5px; padding:7px 15px; }
+#tabs .nav-pills > li > a:hover { border:1px solid #666; }

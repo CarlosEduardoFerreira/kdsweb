@@ -55,54 +55,16 @@
     {{ Html::script(mix('assets/admin/js/bootstrap-table.min.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
     {{ Html::script(mix('assets/admin/js/jquery.mask.js')) }}
-    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
+    {{ Html::script(mix('assets/admin/js/SyncPage.js')) }}
     <script>
-        class AdminSettings {
-        		static getContent(url, $container) {
-        			$.ajax({
-        				headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-        				url: url,
-        				type: "GET",
-        				data : {},
-        				success: function(response){
-            				$container.html("");
-    
-        					var $btns = $("<div></div>");
-        						$btns.css({'height':'50px', 'text-align':'right', 'margin-right':'20px'});
-        						
-        					$container.append($btns);
-            				
-        					if(url == "{{ route('admin.settings.plans') }}") {
-            					var $btnNew = $("<a class=\"btn btn-success\" id=\"settings-btn-new\" href=\"#\">New</a>");
-            						$btnNew.css({'margin-top':'-6px'});
-            						
-            					$btns.html($btnNew);
-        					}
-    					
-        					var $content = $("<div><div style=\"width:95%;margin:10px auto;\">" + response + "</div></div>");
-        					
-            					$content.css({'min-height':'700px', 'margin-top':'20px', 'margin-bottom':'50px', 'margin-left':'20px',
-                							  'margin-right':'20px', 'padding-top':'10px', 'background-color':'#fff'});
-    						
-        					$container.append($content);
-        				},
-        				error : function (xhr, ajaxOptions, thrownError) {
-            				if(xhr.status == 401) { // {"error":"Unauthenticated."}
-            					location.href = "{{ route('admin.dashboard') }}";
-            				} else {
-        						alert("error: " + xhr.status + " - " + xhr.responseText);
-            				}
-        				}
-        			});
-        		}
-        }
 
-        	AdminSettings.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'));
+    		SyncPage.getContent("{{ route('admin.settings.plans') }}", $('#settings-container'), '');
 
     		$('.tab-a').click(function(){
-			url = $(this).attr('data-url');
-			AdminSettings.getContent(url, $('#settings-container'));
+    			url = $(this).attr('data-url');
+    			SyncPage.getContent(url, $('#settings-container'), '');
         	});
+        	
     </script>
     
 @endsection
