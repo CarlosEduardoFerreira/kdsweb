@@ -169,7 +169,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Remove Device
     Route::post('stores/{store}/removeDevice', 'StoreController@removeDevice')->name('stores.removeDevice');
 
-    Route::post('stores/{store}/removeStore', 'StoreController@removeStore')->name('stores.removeStore');
+    Route::post('stores/removeStore', 'StoreController@removeStore')->name('stores.removeStore');
     // --------------------------------------------------------------------------------- Stores //
 
     // Users (Users is every system user. Even Admin, Resellers, Storegroups and Stores)
