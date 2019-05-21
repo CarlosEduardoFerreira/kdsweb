@@ -798,7 +798,7 @@
        	         			deviceToRemoveSerial = $(this).attr('device_serial');
        	         			deviceToRemoveGuid = $(this).attr('device_guid');
        	         			var deviceName = $(this).attr('device_name');
-       	         			$('#modalRemoveDevice #are-you-sure').html('<br>Are you sure you want to remove the KDS Station ' + 
+       	         			$('#modalRemoveDevice #are-you-sure').html('<br>Are you sure you want to remove the KDS Station ' +
        	         					'\"<span style="color:red;">' + deviceName +  '\</span>"?')
        	         		});
 
@@ -810,7 +810,7 @@
             	        					 	headers: token,
             	        			            url: 'removeDevice',
             	        			            type: 'POST',
-            	        			            data: { 
+            	        			            data: {
             	        			            		storeGuid: storeGuid,
             	        			            		deviceSerial: deviceToRemoveSerial,
             	        			            		deviceGuid: deviceToRemoveGuid
@@ -827,7 +827,7 @@
             	        			}
             	        		});
             	        		// --------------------------------------------------------------------------------- Remove Device //
-            	        		
+
         	            }
         		 });
 		}

@@ -367,6 +367,7 @@
 
             <div class="form-group" style="text-align:right;padding-top:50px;padding-bottom:100px;">
                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                    <a class="btn btn-danger remove-store pull-left">Delete Store</a>
                     <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
                     <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
                 </div>
@@ -396,7 +397,10 @@
     </div>
 </div>
 {{-- ---------------------------------------------------------------------------------------------------- Modal Error --}}
-    
+
+
+<?php include "assets/includes/modal.delete.php"; ?>
+
     
 @endsection
 
@@ -414,11 +418,44 @@
 @endsection
 
 @section('scripts')
+
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
     {{ Html::script(mix('assets/admin/js/location.js')) }}
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
+
+    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
+    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
+
+    <script>
+
+        $(function(){
+            $('.remove-store').click(function(){
+                var url = "{{ route('admin.stores.removeStore') }}";
+                var guids = ["{{ $user->guid }}"];
+                var itemText = "Store";
+
+                new ModalDelete(url, guids, itemText, "", function(error) {
+                    $('#modal-delete').modal('hide');
+                    setTimeout(function(){
+                        if(error == '') {
+                            $('#modal-default').modal('hide');
+
+                            sendNotificationToFirebase();
+                            setTimeout(function(){ window.location.href = "/admin/stores/0"; }, 3000);
+
+                        } else {
+                            $('#modal-error').find('#modal-error-title').html("Error Delete Store");
+                            $('#modal-error').find('#modal-error-body').html("<div>" + error + "</div>");
+                            $('#modal-error').modal('show');
+                        }
+                    }, 400);
+                });
+            });
+
+        });
+    </script>
 @endsection
 
 
