@@ -367,6 +367,10 @@
 
             <div class="form-group" style="text-align:right;padding-top:50px;padding-bottom:100px;">
                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                    <a class="btn btn-danger remove-store pull-left" href="#"
+                       store_guid="{{$user->store_guid}}"
+                       data-toggle="modal" data-target="#modalRemoveStore" data-title="Delete Store"
+                       data-placement="top">Delete Store</a>
                     <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
                     <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
                 </div>
@@ -396,6 +400,34 @@
     </div>
 </div>
 {{-- ---------------------------------------------------------------------------------------------------- Modal Error --}}
+
+
+{{-- Modal Remove Store -------------------------------------------------------------------------------------------- --}}
+<div class="modal fade" id="modalRemoveStore" tabindex="-1" role="dialog" aria-labelledby="modalRemoveStore" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close hide-loading" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 class="modal-title" id="modalLongTitle">Delete Store</h5>
+            </div>
+            <div id="are-you-sure" class="modal-body hide-loading">
+            </div>
+            <div class="modal-body hide-loading">
+                <input id="confirm_remove_store" type="text" class="form-control">
+            </div>
+            <div id="loading" class="modal-body" style="display:none;height:100px;font-size:14px;text-align:center;">
+                Deleting... <img src="/images/loading.gif" style="width:100px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary hide-loading" data-dismiss="modal">Close</button>
+                <button id="btn-remove-store-confirm" type="button" class="btn btn-danger hide-loading" disabled>Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- -------------------------------------------------------------------------------------------- Modal Remove Store --}}
     
     
 @endsection
@@ -414,11 +446,61 @@
 @endsection
 
 @section('scripts')
+
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
     {{ Html::script(mix('assets/admin/js/location.js')) }}
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
+
+    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
+
+    <script>
+        var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        var storeToRemoveGuid = "";
+
+        $('.remove-store').click(function(){
+            storeToRemoveGuid = $(this).attr('store_guid');
+            var storeName = $('#business_name').val();
+
+            $('#modalRemoveStore #are-you-sure').html('If you are sure you want to delete the store ' +
+                '\"<span style="color:red;">' + storeName +  '\</span>". Please write "delete" on the bellow field.')
+
+            $('#confirm_remove_store').val("");
+            $("#btn-remove-store-confirm").prop("disabled", true);
+        });
+
+        $('#btn-remove-store-confirm').click(function(){
+            if(storeToRemoveGuid !== "") {
+                $('#modalRemoveStore .hide-loading').hide();
+                $('#modalRemoveStore #loading').show();
+
+                $.ajax({
+                    headers: token,
+                    url: 'removeStore',
+                    type: 'POST',
+                    data: {
+                        storeToRemoveGuid: storeToRemoveGuid
+                    },
+                    success: function (response) {
+                        if(response !== "") {
+                            console.log(response);
+                            alert(response);
+
+                        } else {
+                            sendNotificationToFirebase();
+
+                            setTimeout(function(){ window.location.href = "/admin/stores/0"; }, 3000);
+                        }
+                    }
+                });
+            }
+        });
+
+        $('#confirm_remove_store').on('input',function(e){
+            $("#btn-remove-store-confirm").prop("disabled", e.currentTarget.value.toLowerCase() !== "delete");
+        });
+    </script>
 @endsection
 
 

@@ -79,13 +79,6 @@
 						   data-toggle="tooltip" data-placement="top" data-title="Reports" style="background:#29a66b;">
 							<i class="fa fa-line-chart"></i>
 						</a>
-
-						<a class="btn btn-xs btn-danger settings-icons remove-store" href="#" store_name="{{$store->business_name}}"
-						   	store_guid="{{$store->store_guid}}"
-							data-toggle="modal" data-target="#modalRemoveStore" data-title="Remove Store"
-						   	data-placement="top">
-							<i class="fa fa-trash"></i>
-						</a>
                         
 						<?php 
 						  //echo "store_guid: " . $store->store_guid;
@@ -99,29 +92,6 @@
             {{ $stores->links() }}
         </div>
     </div>
-
-
-	{{-- Modal Store Device -------------------------------------------------------------------------------------------- --}}
-	<div class="modal fade" id="modalRemoveStore" tabindex="-1" role="dialog" aria-labelledby="modalRemoveStore" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h5 class="modal-title" id="modalLongTitle">Remove Store</h5>
-				</div>
-				<div id="are-you-sure" class="modal-body">
-					Are you sure you want to remove this Store?
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button id="remove-device-confirm" type="button" class="btn btn-danger" data-dismiss="modal">Remove</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	{{-- -------------------------------------------------------------------------------------------- Modal Remove Store --}}
     
 @endsection
 
@@ -139,13 +109,9 @@
 
 @section('scripts')
 	@parent
-	{{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
+
     <script>
 		$(function(){
-            var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-
-            var storeToRemoveGuid = "";
-
 			const searchInput = $('#search-input');
 
 			var getUrlParameter = function getUrlParameter(sParam) {
@@ -202,37 +168,6 @@
             	  		goFilter();
             	  	}
             });
-
-            $('.remove-store').click(function(){
-                storeToRemoveGuid = $(this).attr('store_guid');
-                var storeName = $(this).attr('store_name');
-                $('#modalRemoveStore #are-you-sure').html('Are you sure you want to remove the Store ' +
-                    '\"<span style="color:red;">' + storeName +  '\</span>"?')
-            });
-
-            $('#remove-device-confirm').click(function(){
-                if(storeToRemoveGuid != "") {
-                    $.ajax({
-                        headers: token,
-                        url: 'removeStore',
-                        type: 'POST',
-                        data: {
-                            storeToRemoveGuid: storeToRemoveGuid
-                        },
-                        success: function (response) {
-                            if(response !== "") {
-                            	console.log(response);
-                                alert(response);
-
-                            } else {
-                                sendNotificationToFirebase();
-                                location.reload();
-                            }
-                        }
-                    });
-                }
-            });
-
 		});
     </script>
 @endsection
