@@ -656,7 +656,7 @@
         var columns = [
             				{ field: 'id', title: 'ID', class: 'devices-td-config' }, 
             				{ field: 'kds_station_name', title: 'KDS Station Name' }, 
-            				{ field: 'serial_number', title: 'Serial Number' }, 
+            				{ field: 'serial_number', title: 'Serial Number' },
             				{ field: 'function', title: 'Function' }, 
             				{ field: 'parent_id', title: 'Parent ID' }, 
             				{ field: 'expeditor', title: 'Expeditor' }, 
@@ -724,11 +724,11 @@
                                 				 "</a>";
                     	        }
 
-        	            			// Add Device Row
+								// Add Device Row
                 	            data.push({ 
                     	            id: devices[i].id,
                     	            kds_station_name: devices[i].name,
-                    	            serial_number: devices[i].serial.substring(0,8),
+                    	            serial_number: "<span title=\"" + devices[i].serial + "\">" + devices[i].serial.slice(-6) + "</span>",
                     	            'function': devices[i].function,
                     	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
                     	            expeditor: devices[i].expeditor,
@@ -737,7 +737,7 @@
                     	            	: devices[i].app_version + " (" + devices[i].app_version_code + ")" + " - " + devices[i].db_version,
                     	            license: licenseHTML,
                     	            settings: settingsHTML,
-                                remove: removeHTML
+                                	remove: removeHTML
                     	        });
                 	            
             	            	}
