@@ -1137,7 +1137,7 @@ class StoreController extends Controller {
                     $expeditorIdsNew = rtrim($expeditorIdsNew,",");
                 }
                 
-                $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew' WHERE guid = '$dependent->guid'";
+                $sql = "UPDATE devices SET expeditor = '$expeditorIdsNew', update_time = " . time() ." WHERE guid = '$dependent->guid'";
                 $result = DB::statement($sql);
             }
         }
@@ -1153,7 +1153,7 @@ class StoreController extends Controller {
         
         if(count($dependentsAsParent) > 0) {
             foreach($dependentsAsParent as $dependent) {
-                $sql = "UPDATE devices SET parent_id = NULL WHERE guid = '$dependent->guid'";
+                $sql = "UPDATE devices SET parent_id = NULL, update_time = " . time() ." WHERE guid = '$dependent->guid'";
                 $result = DB::statement($sql);
             }
         }
@@ -1169,7 +1169,7 @@ class StoreController extends Controller {
         
         if(count($dependentsAsTransfer) > 0) {
             foreach($dependentsAsTransfer as $dependent) {
-                $sql = "UPDATE devices SET bump_transfer_device_id = NULL WHERE guid = '$dependent->guid'";
+                $sql = "UPDATE devices SET bump_transfer_device_id = NULL, update_time = " . time() ." WHERE guid = '$dependent->guid'";
                 $result = DB::statement($sql);
             }
         }
