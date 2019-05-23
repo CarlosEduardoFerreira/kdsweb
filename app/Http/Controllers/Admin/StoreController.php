@@ -1018,11 +1018,11 @@ class StoreController extends Controller {
 
     public function removeStore(Request $request) {
 
-        if($request->post('storeToRemoveGuid') === null) {
-            return "storeToRemoveGuid not provided.";
+        if(empty($request->post('guids'))) {
+            return "store guid was not provided.";
         }
 
-        $storeToRemoveGuid = $request->post('storeToRemoveGuid');
+        $storeToRemoveGuid = $request->post('guids')[0];
 
         $stores = DB::table('users')
             ->where('store_guid', '=', $storeToRemoveGuid);
