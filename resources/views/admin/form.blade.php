@@ -367,7 +367,9 @@
 
             <div class="form-group" style="text-align:right;padding-top:50px;padding-bottom:100px;">
                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                    <a class="btn btn-danger remove-store pull-left">Delete Store</a>
+                    <?php if ($obj == 'store') { ?>
+                        <a class="btn btn-danger remove-store pull-left">Delete</a>
+                    <?php } ?>
                     <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
                     <button id="btn-save-form" type="button" class="btn btn-success" obj="<?=$obj?>" edit="<?=$user->exists?>"> {{ __('views.admin.users.edit.save') }}</button>
                 </div>
@@ -433,7 +435,7 @@
         $(function(){
             $('.remove-store').click(function(){
                 var url = "{{ route('admin.stores.removeStore') }}";
-                var guids = ["{{ $user->guid }}"];
+                var guids = ["{{ $user->store_guid }}"];
                 var itemText = "Store";
 
                 new ModalDelete(url, guids, itemText, "", function(error) {
