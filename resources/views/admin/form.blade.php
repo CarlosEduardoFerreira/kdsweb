@@ -238,7 +238,7 @@
                     		<?php 
                     		$selected = $user->country == $country->id ? "selected" : "";
                     		?>
-                    		<option value="{{$country->id}}" <?=$selected ?>>{{$country->name}}</option>
+                    		<option value="{{$country->id}}" country_code="{{$country->sortname}}" <?=$selected ?>>{{$country->name}}</option>
                     @endforeach
                     </select>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
@@ -252,16 +252,7 @@
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                		<select id="timezone" name="timezone" class="form-control" style="width:350px;" required>
-                		<?php 
-                		$timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL); 
-                		
-                		foreach($timezones as $timezone) { 
-                			$selected = $user->timezone == $timezone ? "selected" : "";
-                    		?>
-                    		<option value="<?=$timezone?>" <?=$selected ?>><?=$timezone?></option>
-                		<?php } ?>
-                		</select>
+                    <select id="timezone" name="timezone" class="form-control" style="width:350px;" required></select>
                 </div>
 			</div>
 			<?php } ?>
@@ -367,7 +358,7 @@
 
             <div class="form-group" style="text-align:right;padding-top:50px;padding-bottom:100px;">
                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                    <?php if ($obj == 'store') { ?>
+                    <?php if ($obj == 'store' && $user->exists) { ?>
                         <a class="btn btn-danger remove-store pull-left">Delete</a>
                     <?php } ?>
                     <a class="btn btn-primary" href="{{ URL::previous() }}" style="margin-right:50px;"> {{ __('views.admin.users.edit.cancel') }}</a>
@@ -456,6 +447,34 @@
                 });
             });
 
+            function updateTimezones() {
+                var countryCode = $('#country option:selected' ).attr('country_code');
+
+                var timezone = $("#timezone");
+                timezone.empty();
+
+                $.ajax({
+                    url: "/timezonesByCountry",
+                    type: 'POST',
+                    data: {
+                        countryCode: countryCode,
+                    },
+                    success: function (timezones) {
+                        var userTimezone = "{{ $user->timezone }}";
+                        console.log(userTimezone);
+
+                        $.each(timezones, function(key,value) {
+                            timezone.append($("<option></option>").attr("value", value)
+                            .attr("selected", userTimezone === value).text(value));
+                        });
+                }});
+            }
+
+            $("#country").change(function() {
+                updateTimezones();
+            });
+
+            updateTimezones();
         });
     </script>
 @endsection

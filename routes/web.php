@@ -192,13 +192,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('location/get_city_list','LocationController@getCityList')->name('location.cities');
     
     Route::get('forbidden', 'Controller@forbidden')->name('forbidden');
-    
+
 });
 
 
 Route::get('/', 'HomeController@index');
 
-
+Route::post('timezonesByCountry', 'Controller@timezonesByCountry')->name('timezonesByCountry');
 
 
 /**

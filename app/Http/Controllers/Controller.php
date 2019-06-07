@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DateTimeZone;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -283,6 +284,16 @@ class Controller extends BaseController
         $updateLast = $updateLast->setTimezone(new \DateTimeZone($timezone));
         
         return $updateLast->setTimestamp($datetime)->format('D, d M Y H:i:s');
+    }
+
+
+    public function timezonesByCountry(Request $request) {
+        if(empty($request->post('countryCode'))) {
+            return [];
+        }
+
+        $countryCode = $request->post('countryCode');
+        return DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $countryCode);
     }
     
 }
