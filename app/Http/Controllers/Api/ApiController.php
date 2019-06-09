@@ -32,16 +32,32 @@ class ApiController extends Controller
     private $method = "";
     private $requestError;
     
-    private $DB;
-    private $connection = "mysql";
-    
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
     
     
     public function __construct() {
-        $this->DB = DB::class;
         $this->premium["sync_tables"] = [];
+    }
+    
+
+    public function getRequest() {
+        $this->request = file_get_contents("php://input");
+        $this->request = htmlspecialchars_decode($this->request);
+        $this->request = json_decode($this->request, true);
         
+        // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
+        if (!isset($this->request[0]["tok"]) || $this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
+            $this->requestError  = "Your application has no permission to do this!";
+            
+        } else {
+            $this->request = $this->request[1];
+        }
+        // -------------------------------------------------------------------------- TOKEN - THIS CANNOT BE CHANGED!!! //
+        
+        /** // Request
+         *  req = Resquest/Function
+         */
+        $this->method = $this->request["req"];
     }
     
     
@@ -84,27 +100,6 @@ class ApiController extends Controller
         } else {
             return $this->loadMethod();
         }
-    }
-    
-    
-    public function getRequest() {
-        $this->request = file_get_contents("php://input");
-        $this->request = htmlspecialchars_decode($this->request);
-        $this->request = json_decode($this->request, true);
-
-        // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
-        if (!isset($this->request[0]["tok"]) || $this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
-            $this->requestError  = "Your application has no permission to do this!";
-            
-        } else {
-            $this->request = $this->request[1];
-        }
-        // -------------------------------------------------------------------------- TOKEN - THIS CANNOT BE CHANGED!!! //
-        
-        /** // Request
-         *  req = Resquest/Function
-         */
-        $this->method = $this->request["req"];
     }
     
 
