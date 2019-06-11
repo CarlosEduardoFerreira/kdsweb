@@ -21,6 +21,15 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
+    private $DB;
+    private $connection = "mysql";
+    
+    
+    function forbidden() {
+        return view('admin.forbidden', []);
+    }
+    
+    
     function canIsee(User $me, int $objectId) {
         
         $validObj   = $objectId != 0 && $me->id != $objectId;
@@ -43,11 +52,6 @@ class Controller extends BaseController
                                    AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id OR resellers.parent_id = $me->id)");
         
         return isset($users[0]);
-    }
-    
-    
-    function forbidden() {
-        return view('admin.forbidden', []);
     }
     
 

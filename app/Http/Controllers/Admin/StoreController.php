@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Auth\Role\Role;
 use App\Models\Auth\User\User;
+use App\Models\Settings\Plan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Vars;
@@ -14,8 +15,16 @@ use Ramsey\Uuid\Uuid;
 use DateTime;
 use DateTimeZone;
 use PhpParser\Builder\Use_;
+use App\Models\Settings\PlanXObject;
+use App\Models\Settings\App;
 
 class StoreController extends Controller {
+    
+    
+    public function __construct() {
+        $this->DB = DB::class;
+    }
+    
     
     /**
      * Display a listing of the resource.
@@ -833,6 +842,25 @@ class StoreController extends Controller {
     
     public function reportByStation(Request $request)
     {
+        $error = array();
+        
+        $storeId = $request->get('storeId');
+        
+        $planXObject = PlanXObject::where("user_id", "=", $storeId)->get()->first();
+        if(empty($planXObject)) {
+            $error["error"]["msg"] = "There is no plan defined for this store.";
+            return response()->json($error);
+        }
+        
+        $plan = Plan::where("guid", "=", $planXObject->plan_guid)->get()->first();
+        $app = App::where("guid", "=", $plan->app)->get()->first();
+        
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+        $this->connection = env('DB_CONNECTION', 'mysql');
+        if($app->name == "Premium") {
+            $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
+        }
+        
         $devicesIds = $request->get('devicesIds');
         $reportId   = $request->get('reportId');
         
@@ -866,14 +894,14 @@ class StoreController extends Controller {
                         JOIN items i ON ib.guid = i.item_bump_guid 
                         JOIN orders o ON o.guid = i.order_guid 
 
-                        JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
-                        JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
+                        JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                        JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
                         	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                 
-                        JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
-                
-                        WHERE u.id = " . $request->get('storeId') .
-                        " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                        JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                        
+                        WHERE u.id = $storeId
+                            AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
                               else ib.prepared_device_id end) != 0";
             
             $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
@@ -914,14 +942,14 @@ class StoreController extends Controller {
                             JOIN items i ON ib.guid = i.item_bump_guid
                             JOIN orders o ON o.guid = i.order_guid 
 
-                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
-                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
+                            JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                            JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
                             	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                                   
-                            JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                            JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
                             
-                            WHERE u.id = " . $request->get('storeId') . 
-                            " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                            WHERE u.id = $storeId 
+                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
             
             $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') 
@@ -963,14 +991,14 @@ class StoreController extends Controller {
                             JOIN items i ON ib.guid = i.item_bump_guid
                             JOIN orders o ON o.guid = i.order_guid 
 
-                            JOIN devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
-                            JOIN devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
+                            JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
+                            JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
                             	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                 
-                            JOIN users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                            JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
                 
-                            WHERE u.id = " . $request->get('storeId') .
-                            " AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                            WHERE u.id = $storeId
+                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
                             
             $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
@@ -987,8 +1015,7 @@ class StoreController extends Controller {
                     GROUP BY select_orders.device_name, select_orders.item_name";
             
         }
-
-        return DB::select($sql);
+        return $this->DB::connection($this->connection)->select($sql);
     }
     
     

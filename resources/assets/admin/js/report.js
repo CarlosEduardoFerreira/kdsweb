@@ -242,15 +242,22 @@ $(function(){
             		endDatetime: endDatetime.format('YYYY-MM-DD HH:mm') 
             	},
             success: function (response) {
- 
-				fillDataTable(response, dataTable);
-            		
+
              	$('#report-loading').hide();
              	
              	if(response.length == 0) {
                 		$('#no-data').fadeIn('slow');
+                		
+             	} else if(response["error"] != undefined) {
+             		$('#no-data').fadeIn('slow');
+             		$('#modal-error').modal("show");
+             		$('#modal-error').find('.modal-body').css({'padding':'20px', 'font-size':'14px', 'font-weight':'300', 'letter-spacing':'2px',
+             			'text-align':'center', 'color':'red'});
+             		$('#modal-error').find('.modal-body').html(response["error"]["msg"]);
 
             		} else {
+            			
+            			fillDataTable(response, dataTable);
             			
             			var cssClasses = {
         		 			headerRow: 'tblHeaderClass', 
