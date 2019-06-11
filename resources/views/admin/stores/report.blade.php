@@ -192,6 +192,9 @@
 </div>
 
 
+<?php include "assets/includes/modal.error.php"; ?>
+
+
 @section('styles')
     @parent
     

@@ -24,11 +24,6 @@ class Controller extends BaseController
     private $connection = "mysql";
     
     
-    public function __construct() {
-        $this->DB = DB::class;
-    }
-    
-    
     function forbidden() {
         return view('admin.forbidden', []);
     }

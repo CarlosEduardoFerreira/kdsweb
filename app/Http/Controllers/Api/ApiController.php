@@ -3,18 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-// Even eclipse shows the errors below we need keep this, at least laravel will not work.
-// use App\Http\Controllers\Api;
-// use App\Http\Controllers\Api\ApiSyncController;
-// use App\Http\Controllers\Api\ApiUserController;
-// use App\Http\Controllers\Api\ApiSettingsController;
-// use App\Http\Controllers\Api\ApiDeviceController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Input;
-use Illuminate\Support\Facades\Session;
 use Ramsey\Uuid\Uuid;
 
 class ApiController extends Controller
@@ -36,6 +27,7 @@ class ApiController extends Controller
     
     
     public function __construct() {
+        $this->DB = DB::class;
         $this->premium["sync_tables"] = [];
     }
     
