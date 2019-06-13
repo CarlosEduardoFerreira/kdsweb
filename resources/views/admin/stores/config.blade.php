@@ -316,6 +316,64 @@
 	            }
             });
         }
+
+        function updateOrderHeaderOptions() {
+            var orderHeaderValues = {
+                "ORDER_ID": "Order ID",
+                "SERVER_NAME": "Server Name",
+                "WAITING_TIME": "Wait Time",
+                "DESTINATION": "Destination",
+                "POS_STATION": "POS Station",
+                "TABLE_NAME": "Table Name",
+                "USER_INFO": "User Info",
+                "ORDER_TYPE": "Order Type",
+                "ARRIVAL_TIME": "Arrival Time",
+            };
+
+            var selectTextTopLeft = $modal.find('#device-settings-order-header-top-left');
+            var selectTextTopRight = $modal.find('#device-settings-order-header-top-right');
+            var selectTextBottomLeft = $modal.find('#device-settings-order-header-bottom-left');
+            var selectTextBottomRight = $modal.find('#device-settings-order-header-bottom-right');
+
+            var selectedTopLeft = selectTextTopLeft.val();
+            var selectedTopRight = selectTextTopRight.val();
+            var selectedBottomLeft = selectTextBottomLeft.val();
+            var selectedBottomRight = selectTextBottomRight.val();
+
+            console.log(selectedTopLeft + " | " + selectedTopRight + " | " + selectedBottomLeft + " | " + selectedBottomRight);
+
+            selectTextTopLeft.empty();
+            selectTextTopRight.empty();
+            selectTextBottomLeft.empty();
+            selectTextBottomRight.empty();
+
+            for (const [key, value] of Object.entries(orderHeaderValues)) {
+                if (key !== selectedTopRight && key !== selectedBottomLeft && key !== selectedBottomRight) {
+                    selectTextTopLeft.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === selectedTopLeft));
+                }
+
+                if (key !== selectedTopLeft && key !== selectedBottomLeft && key !== selectedBottomRight) {
+                    selectTextTopRight.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === selectedTopRight));
+                }
+
+                if (key !== selectedTopLeft && key !== selectedTopRight && key !== selectedBottomRight) {
+                    selectTextBottomLeft.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === selectedBottomLeft));
+                }
+
+                if (key !== selectedTopRight && key !== selectedTopLeft && key !== selectedBottomLeft) {
+                    selectTextBottomRight.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === selectedBottomRight));
+                }
+            }
+
+            selectTextTopLeft.selectpicker('refresh');
+            selectTextTopRight.selectpicker('refresh');
+            selectTextBottomLeft.selectpicker('refresh');
+            selectTextBottomRight.selectpicker('refresh');
+        }
 		
         
         function getDeviceSettings(deviceGuid, deviceScreenId) {
@@ -440,6 +498,23 @@
 
 				        });
 
+				        updateOrderHeaderOptions();
+
+                        $modal.find('#device-settings-order-header-top-left').change(function() {
+                            updateOrderHeaderOptions();
+                        });
+
+                        $modal.find('#device-settings-order-header-top-right').change(function() {
+                            updateOrderHeaderOptions();
+                        });
+
+                        $modal.find('#device-settings-order-header-bottom-left').change(function() {
+                            updateOrderHeaderOptions();
+                        });
+
+                        $modal.find('#device-settings-order-header-bottom-right').change(function() {
+                            updateOrderHeaderOptions();
+                        });
 		            }
 	            }
             });
@@ -860,44 +935,44 @@
 
     $(document).ready(function(){
 
-        	function setSwitchMarketPlaceEnable(obj) {
-        		var configSwitchClass 	= $(obj).attr('config_switch');
-        		var configMessageClass 	= $(obj).attr('config_msg');
-        		var checking = $(obj).prop("checked");
-        		setSwitchMarketPlaceCustom($('.'+configSwitchClass).find('.switch-mp-use-custom'));
-        		if (checking) {
-        			$('.'+configSwitchClass).fadeIn();
-                	$('.'+configMessageClass).css('opacity',1);
+		function setSwitchMarketPlaceEnable(obj) {
+			var configSwitchClass 	= $(obj).attr('config_switch');
+			var configMessageClass 	= $(obj).attr('config_msg');
+			var checking = $(obj).prop("checked");
+			setSwitchMarketPlaceCustom($('.'+configSwitchClass).find('.switch-mp-use-custom'));
+			if (checking) {
+				$('.'+configSwitchClass).fadeIn();
+				$('.'+configMessageClass).css('opacity',1);
 //         			$('.'+configMessageClass).find('input').prop('disabled',false);
-        		} else {
-        			$('.'+configSwitchClass).hide();
-        			$('.'+configMessageClass).css('opacity',0.3);
-        			$('.'+configMessageClass).find('input').prop('disabled',true);
-        		}
-        		
-        	}
-    
-        	function setSwitchMarketPlaceCustom(obj) {
-        		var inputId 	= $(obj).attr('input_message_id');
-        		var smsDefault = $('#'+inputId).attr('sms_default');
-        		var smsCustom = $('#'+inputId).attr('sms_custom');
-        		var checking = $(obj).prop("checked");
-        		if (checking) {
-        			$('#'+inputId).prop('disabled',false);
-        			$('#'+inputId).val(smsCustom);
-        		} else {
-        			$('#'+inputId).prop('disabled',true);
-        			$('#'+inputId).val(smsDefault);
-        		}
-        	}
+			} else {
+				$('.'+configSwitchClass).hide();
+				$('.'+configMessageClass).css('opacity',0.3);
+				$('.'+configMessageClass).find('input').prop('disabled',true);
+			}
 
-        	$('.switch-mp-enable').change(function(){
-        		setSwitchMarketPlaceEnable($(this));
-        	});
+		}
 
-        	$('.switch-mp-use-custom').change(function(){
-        		setSwitchMarketPlaceCustom($(this));
-        	});
+		function setSwitchMarketPlaceCustom(obj) {
+			var inputId 	= $(obj).attr('input_message_id');
+			var smsDefault = $('#'+inputId).attr('sms_default');
+			var smsCustom = $('#'+inputId).attr('sms_custom');
+			var checking = $(obj).prop("checked");
+			if (checking) {
+				$('#'+inputId).prop('disabled',false);
+				$('#'+inputId).val(smsCustom);
+			} else {
+				$('#'+inputId).prop('disabled',true);
+				$('#'+inputId).val(smsDefault);
+			}
+		}
+
+		$('.switch-mp-enable').change(function(){
+			setSwitchMarketPlaceEnable($(this));
+		});
+
+		$('.switch-mp-use-custom').change(function(){
+			setSwitchMarketPlaceCustom($(this));
+		});
         	
     });
 
