@@ -144,6 +144,12 @@ class PlanController extends Controller {
         
         $basePlan = Plan::where('guid', '=', $request->get('base_plan'))->get()->first();
         
+        $default = empty($request->get('default')) ? 0 : 1;
+        
+        if($me->hasRole('storegroup') && $default) {
+            Plan::where('owner_id', '=', $me->id)->update(['default' => 0]);
+        }
+        
         $data = [
             'base_plan'     => empty($basePlan->guid) ? NULL : $basePlan->guid,
             'name'          => $request->get('name'),
@@ -151,7 +157,7 @@ class PlanController extends Controller {
             'payment_type'  => $request->get('payment_type'),
             'app'           => empty($basePlan->app) ? $request->get('app') : $basePlan->app,
             'status'        => empty($request->get('status')) ? 0 : 1,
-            'default'       => empty($request->get('default')) ? 0 : 1,
+            'default'       => $default,
             'update_time'   => time(),
             'update_user'   => $me->id
         ];

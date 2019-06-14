@@ -17,18 +17,22 @@
 <table id="table-plans" class="table table-striped table-hover">
     	<thead>
         <tr>
-            <th width="20%">Plan Name</th>
-            <th width="10%"><?=($adm?"Cost":"Price")?></th>
-            <th width="20%">Payment Type</th>
-            <th width="20%">App Name</th>
-            <th width="20%">Last Update</th>
-            <th width="10%">Status</th>
+            	<th width="20%">Plan Name</th>
+            	<th width="10%"><?=($adm?"Cost":"Price")?></th>
+            	<th width="20%">Payment Type</th>
+            	<th width="15%">App Name</th>
+            	<th width="20%">Last Update</th>
+            	<th width="8%">Status</th>
+            
+            	<?php if($adm || $stg){ ?>
+            		<th width="7%">Default</th>
+            	<?php } ?>
         </tr>
     	</thead>
     	<tbody>
     		<?php
     		foreach($plans as $plan) {
-    		    $owner = $plan->owner_id == ($adm ? 0 : $me->id) && !$stg ;
+    		    $owner = $plan->owner_id == ($adm ? 0 : $me->id);
     		    
     		    $class  = $owner ? "class=\"owner\"" : "";
     		    $cursor = $owner ? "style=\"cursor:pointer;\"" : "";
@@ -47,6 +51,15 @@
                         	<span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
                     	@endif
                 	</td>
+                	<?php if($adm || $stg){ ?>
+                    	<td>
+                    		@if($plan->default)
+                            	<i class="fa fa-check" style="font-size:16px;font-weight:200;color:#347ab7;"></i>
+                        	@else
+                            	<span></span>
+                        	@endif
+                    	</td>
+                	<?php } ?>
             	</tr>
         	<?php } ?>
         	
@@ -201,12 +214,29 @@
         			$('#modal-default #plan-btn-cancel').click(function(){
         				$('#modal-default').modal('hide');
         			});
+
+        			var defaultOld = $('#default').is(":checked");
         
         			$('#modal-default #plan-btn-save').click(function(){
+
+        				var defaultNew = $('#default').is(":checked");
+        				
         				if($('#plans-form #name').val() == '' || $('#plans-form #cost').val() == '') {
-						alert("Plan Name and " + $('#lbl-cost-price').text() + " are required.");
+        					$('#modal-error').find('#modal-error-title').html("Error Update Plan");
+        					$('#modal-error').find('#modal-error-body').html("<div>Plan Name and " + $('#lbl-cost-price').text() + " are required.</div>");
+        					$('#modal-error').modal('show');
+
+        				} 
+        				<?php if($stg){ ?>
+        				else if(defaultOld && !defaultNew) {
+        					$('#modal-error').find('#modal-error-title').html("Warning");
+        					$('#modal-error').find('#modal-error-body').html("<div style=\"text-align:center;color:red;font-weight:300;letter-spacing:2px;\">" +
+                					"Select another Plan as Default to select this Plan as Not Default.</div>");
+        					$('#modal-error').modal('show');
 					
-					} else {
+					} 
+					<?php } ?>
+    					else {
             				$('#modal-default').modal('hide');
             				
             				setTimeout(function(){

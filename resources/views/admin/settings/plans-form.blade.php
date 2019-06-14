@@ -118,7 +118,7 @@ $stg = $me->hasRole('storegroup');
             </div>
         @endif
         
-        @if($adm)
+        @if($adm || $stg)
             <div class="form-group" style="padding-top:4px;">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="default" >
                     Default:

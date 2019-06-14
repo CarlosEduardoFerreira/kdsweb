@@ -86,6 +86,8 @@ class StoreController extends Controller {
     
     public function insert(Request $request)
     {
+        $me = Auth::user();
+        
         $now = new DateTime();
         
         $dateTimezone = new DateTime();
@@ -125,7 +127,7 @@ class StoreController extends Controller {
         // Insert Settings ------------------------------------------------------------ //
         $settingsTable = DB::table('settings');
         
-        $data = [
+        $dataSettings = [
             'guid'                     => Uuid::uuid4(),
             'store_guid'               => $data['store_guid'],
             'server_address'           => "",
@@ -140,11 +142,19 @@ class StoreController extends Controller {
             'create_time'              => $now->getTimestamp()
         ];
 
-        $settingsTable->insert($data);
+        $settingsTable->insert($dataSettings);
         // ---------------------------------------------------------------------------- //
         
-        // Store Apps
-        $this->updateApp($data['store_guid'], $request->get('user_apps'));
+        // Relation between Default Plan and Store -------------------------------------------- //
+        $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $me->id], ['default', '=', 1]])->get()->first();
+
+        $dataPlan = [
+            'plan_guid' => $defaultPlan->guid,
+            'user_id'   => $id
+        ];
+        
+        PlanXObject::create($dataPlan);
+        // -------------------------------------------- Relation between Defaut Plan and Store //
         
         // Store Environments
         $this->updateEnv($data['store_guid'], $request->get('user_envs'));
