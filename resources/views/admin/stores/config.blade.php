@@ -766,7 +766,7 @@
 
         						// License
             	            		var licenseHTML = "";
-            	            		if (devices[i].split_screen_parent_device_id == 0) {
+            	            		if (devices[i].split_screen_parent_device_id == 0 && devices[i].function != "CUSTOMER_DISPLAY") {
                 	            		var checked = devices[i].license == 1 ? "checked=\"checked\"" : "";
             	            			licenseHTML = "<label class=\"switch\">" +
                                                     "<input class=\"device-license-login\" store_guid=\"" + devices[i].store_guid + "\" " +
