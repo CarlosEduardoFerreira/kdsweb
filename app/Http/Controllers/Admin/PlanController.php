@@ -142,19 +142,24 @@ class PlanController extends Controller {
         
         $me = Auth::user();
         
-        $basePlan = Plan::where('guid', '=', $request->get('base_plan'))->get()->first();
+        $stg = $me->hasRole('storegroup');
+        
+        $basePlanGuid = $request->get('base_plan');
+        if($stg) {
+            $basePlanGuid = $request->get('base_plan_hidden');
+        }
+        $basePlan = Plan::where('guid', '=', $basePlanGuid)->get()->first();
         
         $default = empty($request->get('default')) ? 0 : 1;
-        
-        if($me->hasRole('storegroup') && $default) {
+        if($stg && $default) {
             Plan::where('owner_id', '=', $me->id)->update(['default' => 0]);
         }
         
         $data = [
             'base_plan'     => empty($basePlan->guid) ? NULL : $basePlan->guid,
             'name'          => $request->get('name'),
-            'cost'          => $request->get('cost'),
-            'payment_type'  => $request->get('payment_type'),
+            'cost'          => $stg ? $request->get('cost_hidden') : $request->get('cost'),
+            'payment_type'  => $stg ? $request->get('payment_type_hidden') :  $request->get('payment_type'),
             'app'           => empty($basePlan->app) ? $request->get('app') : $basePlan->app,
             'status'        => empty($request->get('status')) ? 0 : 1,
             'default'       => $default,
