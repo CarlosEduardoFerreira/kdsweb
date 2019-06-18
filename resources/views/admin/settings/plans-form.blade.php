@@ -3,6 +3,8 @@
 $adm = $me->hasRole('administrator');
 $res = $me->hasRole('reseller');
 $stg = $me->hasRole('storegroup');
+
+$disabled = $stg ? "disabled" : "";
 ?>
 
 <div id="plans-form-content" class="row">
@@ -14,17 +16,18 @@ $stg = $me->hasRole('storegroup');
         @else
         		{{ Form::open(['route'=>['admin.settings.plans.update', $plan->guid], 'id' => 'plans-form', 'method' => 'put', 
         			'class'=>'form-horizontal form-label-left']) }}
-        @endif
+        	@endif
         
-        <input type="hidden" id="guid" name="guid" value="{{ $plan->guid }}">
-        @if(!$adm)
+        	<input type="hidden" id="guid" name="guid" value="{{ $plan->guid }}">
+        
+        	@if(!$adm)
     			<div class="form-group">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="base-plan" >
                     Base Plan:
                     <span class="required">*</span>
                 </label>
                 <div class="col-lg-6">
-                    <select name="base_plan" id="base-plan" class="form-control selectpicker" required>
+                    <select name="base_plan" id="base-plan" class="form-control selectpicker" required <?=$disabled?>>
                     <?php 
                     $selectedPlan = $basePlans->first();
                         foreach($basePlans as $basePlan) {
@@ -37,8 +40,16 @@ $stg = $me->hasRole('storegroup');
                         		<option value="<?=$basePlan->guid?>" data-cost="<?=$basePlan->cost?>" <?=$selected ?>> <?=$basePlan->name?></option>
                     <?php } ?>
                     </select>
+                    
+                    <input type="hidden" id="base_plan_hidden" name="base_plan_hidden" value="{{ $selectedPlan->guid }}">
+                    
                     <div style="margin-top:8px;font-weight:200;font-size:12px;font-style:italic;letter-spacing:1px;color:#666;">
-                    		Base Plan Cost: $<span id="base-plan-cost"><?=$selectedPlan->cost?></span>
+                    		<?php 
+                    		if(!$stg) {
+                    		    echo "Base Plan Cost: $<span id=\"base-plan-cost\">$selectedPlan->cost</span>";
+                    		}
+                    		?>
+                    		
     				</div>
                 </div>
             </div>
@@ -61,7 +72,8 @@ $stg = $me->hasRole('storegroup');
                 <span class="required">*</span>
             </label>
             <div class="col-md-6 col-sm-6 col-xs-12">
-                	<input id="cost" name="cost" type="text" class="form-control money" value="{{ $plan->cost }}" required>
+                	<input id="cost" name="cost" type="text" class="form-control money" value="{{ $plan->cost }}" required <?=$disabled?>>
+                	<input type="hidden" id="cost_hidden" name="cost_hidden" value="{{ $plan->cost }}">
             		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
             </div>
         </div>
@@ -72,14 +84,20 @@ $stg = $me->hasRole('storegroup');
                 <span class="required">*</span>
             </label>
             <div class="col-lg-3">
-                <select id="payment-type" name="payment_type" class="form-control selectpicker" data-width="auto" required>
+                <select id="payment-type" name="payment_type" class="form-control selectpicker" data-width="auto" required <?=$disabled?>>
                 <?php 
+                    $typeSelected = $payment_types[0];
                     foreach($payment_types as $payment_type) {
-                    		$selected = $plan->payment_type == $payment_type->guid ? "selected" : "";
+                        $selected = "";
+                        if($plan->payment_type == $payment_type->guid) {
+                            $typeSelected = $payment_type;
+                            $selected = "selected";
+                        }
                     		?>
                     		<option value="<?=$payment_type->guid?>" <?=$selected ?>> <?=$payment_type->name?></option>
                 <?php } ?>
                 </select>
+                <input type="hidden" id="payment_type_hidden" name="payment_type_hidden" value="{{ $typeSelected->guid }}">
                 <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
             </div>
         </div>
@@ -150,7 +168,8 @@ $stg = $me->hasRole('storegroup');
 			@endif
 			<div class="col-lg-6">
 				<?php 
-				    if($plan->guid != '0f10c86c-a8ed-42dd-9318-b13d692f435c' &&
+				    if( !$stg &&
+				        $plan->guid != '0f10c86c-a8ed-42dd-9318-b13d692f435c' &&
 				        $plan->guid != '66217032-ef6e-4f9f-ab1c-5ea0b70bffa6' &&
 				        $plan->guid != '68a511d7-660a-4380-8d6a-c8f040485eb5') {
 				?>

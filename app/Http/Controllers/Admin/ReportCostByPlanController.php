@@ -18,8 +18,10 @@ class ReportCostByPlanController extends Controller {
     public function index() {
 
         $me = Auth::user();
+        
+        $ownerId = $me->roles[0]->name == 'administrator' ? 0 : $me->id;
 
-        $whereOwnerId = "AND plans.owner_id = 0";
+        $whereOwnerId = "AND plans.owner_id = $ownerId";
 
         $sql = "SELECT
                     plans.name as planName,
@@ -42,7 +44,7 @@ class ReportCostByPlanController extends Controller {
                 WHERE
                     (stores.deleted_at IS NULL OR stores.deleted_at = '') 
                     AND plans.delete_time = 0
-                    AND plans.owner_id = 0
+                    $whereOwnerId
                 GROUP BY
                     plans.name, plans.cost";
 
