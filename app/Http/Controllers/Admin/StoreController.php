@@ -146,7 +146,7 @@ class StoreController extends Controller {
         // ---------------------------------------------------------------------------- //
         
         // Relation between Default Plan and Store -------------------------------------------- //
-        $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $me->id], ['default', '=', 1]])->get()->first();
+        $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $request->get('parent_id')], ['default', '=', 1]])->get()->first();
 
         $dataPlan = [
             'plan_guid' => $defaultPlan->guid,
