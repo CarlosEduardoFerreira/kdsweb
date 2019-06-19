@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Settings\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -654,6 +655,12 @@ class ApiController extends Controller
         if(count($return) == 0 && isset($request->obj)) {
             
             if ($request->obj == 'store') {
+                
+                $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $request->parent_id], ['default', '=', 1]])->get()->first();
+                if(empty($defaultPlan)) {
+                    $return["FIELD"] = "parent_id";
+                    $return["ERROR"] = "This StoreGroup does not have a default Plan.";
+                }
                 
                 // App is linked by Plan
 //                 if (!isset($request->user_apps)) {

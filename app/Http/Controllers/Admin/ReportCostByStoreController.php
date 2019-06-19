@@ -19,8 +19,12 @@ class ReportCostByStoreController extends Controller {
 
         $me = Auth::user();
         
+        $liveStoreGuid = 'b78ba4b7-6534-4e3e-87a5-ee496b1b4264';
+        
+        $role = $me->roles[0]->name;
+        
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id)";
-        if ($me->roles[0]->name == 'administrator') {
+        if ($role == 'administrator') {
             $whereParentId = "AND (resellers.parent_id = $me->id OR resellers.parent_id = 0)";
         }
         
@@ -28,9 +32,26 @@ class ReportCostByStoreController extends Controller {
                      resellers.business_name as resellerBName,
                      storegroups.business_name as storegroupBName,
                      stores.business_name as storeBName,
-                     plansAdm.name as planName,
-                     plansAdm.cost as planCost,
-                     COUNT(devices.guid) as devicesTotal
+
+                     (case when '$role' = 'storegroup' then plansStG.name 
+                     else
+                        case when '$role' = 'reseller' then plansRes.name
+                        else
+                            plansAdm.name
+                        end
+                     end) as planName,
+                     
+                     (case when '$role' = 'storegroup' then plansStG.cost 
+                     else
+                        case when '$role' = 'reseller' then plansRes.cost
+                        else
+                            plansAdm.cost
+                        end
+                     end) as planCost,
+
+                     COUNT(devices.guid) as devicesTotal,
+
+                    (case when store_environment.environment_guid = '$liveStoreGuid' then true else false end) as live
 
                 FROM
                      users AS stores
@@ -46,11 +67,32 @@ class ReportCostByStoreController extends Controller {
                 
                 LEFT JOIN devices ON devices.store_guid = stores.store_guid AND devices.is_deleted = 0
                 LEFT JOIN users_roles ON users_roles.user_id = stores.id AND users_roles.role_id = 4
+                LEFT JOIN store_environment ON store_environment.store_guid = stores.store_guid
 
                 WHERE
                      (stores.deleted_at IS NULL OR stores.deleted_at = '') $whereParentId
                 GROUP BY
-                     resellers.business_name, storegroups.business_name, stores.business_name, plansAdm.name, plansAdm.cost";
+                    resellers.business_name, 
+                    storegroups.business_name, 
+                    stores.business_name,
+
+                    (case when '$role' = 'storegroup' then plansStG.name 
+                     else
+                        case when '$role' = 'reseller' then plansRes.name
+                        else
+                            plansAdm.name
+                        end
+                     end),
+
+                    (case when '$role' = 'storegroup' then plansStG.cost 
+                     else
+                        case when '$role' = 'reseller' then plansRes.cost
+                        else
+                            plansAdm.cost
+                        end
+                     end),
+
+                    store_environment.environment_guid";
         
         $stores =  DB::select($sql);
         
@@ -59,3 +101,16 @@ class ReportCostByStoreController extends Controller {
 
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -42,6 +42,7 @@ $('#btn-save-form').click(function(){
 	if (submit) {
 		
 		var id = $('#user_id').val();
+		var parent_id = $('#parent_id').val();
 		var obj = $('#user_obj').val();
 		var email = $('#email').val();
 		var username = $('#username').val();
@@ -58,6 +59,7 @@ $('#btn-save-form').click(function(){
 			url: URL_BASE + "/api/register/validation",
 	        data: { req: "REGISTER_VALIDATION",
 	        		id: id,
+	        		parent_id: parent_id,
 	        		obj: obj,
 	        		email: email,
 	        		username: username,
