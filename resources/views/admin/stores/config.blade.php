@@ -819,7 +819,7 @@
 						
         	            		// Build Table
         	            		$('#devices-table').bootstrapTable({ 
-        	            			pagination: true,
+        	            			pagination: false,
         	            			search:true,
             	            		columns: columns
             	            	});
