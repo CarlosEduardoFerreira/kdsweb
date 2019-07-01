@@ -685,10 +685,13 @@ class ApiController extends Controller
     
     public function activeLicense(Request $request) {
         
+        $response = array();
+        
         $device = DB::table('devices')->where(['guid' => $request->guid])->first();
         
-        if ($request->active) {
-            if (isset($device)) {
+        if (isset($device)) {
+            
+            if ($request->active) {
                 
                 if (isset($device->serial)) {
                     $sameSerialActive = DB::table('devices')
@@ -700,7 +703,7 @@ class ApiController extends Controller
                     ->where('split_screen_parent_device_id', '=', 0)
                     ->first();
                     if (isset($sameSerialActive)) {
-                        return array("There is another KDS Station with the same serial number active.");
+                        $response["error"] = "There is another KDS Station with the same serial number active.";
                     }
                 }
                 
@@ -717,20 +720,43 @@ class ApiController extends Controller
                 }
                 
                 if($licensesInUse >= $licenseTotal) {
-                    return array("There is no license available.");
+                    $response["error"] = "There is no license available.";
                 }
                 // --------------------------------------------------------- License Amount validation -- //
             }
+            
+            if(empty($resposnse["error"])) {
+                $update_time = time();
+                
+                $store = DB::table('users')->where(['store_guid' => $device->store_guid])->first();
+                
+                if(!empty($store)) {
+                    
+                    $storeApp = DB::table('store_app')->where(['store_guid' => $store->store_guid])->first();
+                    
+                    if(!empty($storeApp)) {
+                        
+                        $isPremium = $storeApp->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f" ? true : false;
+                        
+                        $whereClause = "AND (guid = '$device->guid'";
+                        if(!$isPremium) {
+                            $whereClause .= " OR split_screen_parent_device_id = $device->id";
+                        }
+                        $whereClause .= ")";
+                        
+                        $sql = "update devices set license = $request->active, update_time = $update_time
+                            where store_guid = '$device->store_guid' $whereClause";
+                        
+                        $response["error"] = DB::statement($sql);
+                    }
+                }
+            }
+            
+        } else {
+            $response["error"] = "KDS Station not found.";
         }
         
-        $update_time = time();
-        
-        $sql = "update devices set license = $request->active, update_time = $update_time 
-                where guid = '$request->guid' OR split_screen_parent_device_id = $device->id";
-        
-        $result = DB::statement($sql);
-        
-        return array($result);
+        return array($response["error"]);
     }
     
     
