@@ -19,7 +19,7 @@
     		?>
     		<tr>
     			<td><?=$store->planName?></td>
-    			<td><?=$store->devicesTotal?></td>
+    			<td><?=$store->licensesTotal?></td>
     			<td><?=number_format($store->planCost, 2, '.', '')?></td>
     			<td><?=number_format($store->totalPrice, 2, '.', '')?></td>
     		</tr>

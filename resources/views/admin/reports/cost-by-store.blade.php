@@ -31,7 +31,6 @@ $stg = $me->hasRole('storegroup');
     			<th width="15%" data-field="license-type"  data-sortable="true">License <br>Type</th>
     			<th width="5%"  data-field="devices-count" data-sortable="true" class="text-right">Stations<br>Quantity</th>
     			<th width="10%" data-field="license-cost"  data-sortable="true" class="text-right">Price per<br>License</th>
-<!--     			<th width="10%" data-field="support-cost"  data-sortable="true" class="text-right">Support <br>Cost</th> -->
     			<th width="10%" data-field="Total Cost" 	  data-sortable="true" class="text-right">Total <br>Price</th>
     		</tr>
     	</thead>
@@ -48,10 +47,9 @@ $stg = $me->hasRole('storegroup');
     		<?php } ?>
     			<td><?=$store->storeBName?></td>
     			<td><?=$store->planName?></td>
-    			<td><?php echo $store->live ? $store->devicesTotal : "0"; ?></td>
+    			<td><?php echo $store->live ? $store->licensesTotal : "0"; ?></td>
     			<td><?=number_format($store->planCost, 2, '.', '')?></td>
-    			<!-- <td><?=number_format($store->devicesTotal * 10, 2, '.', '')?></td> -->
-    			<td><?php echo $store->live ? number_format($store->devicesTotal * $store->planCost, 2, '.', '') : "0.00"; ?></td>
+    			<td><?php echo $store->live ? number_format($store->licensesTotal * $store->planCost, 2, '.', '') : "0.00"; ?></td>
     		</tr>
     		<?php } ?>
     	</tbody>
