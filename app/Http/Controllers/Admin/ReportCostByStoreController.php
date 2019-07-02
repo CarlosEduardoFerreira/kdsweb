@@ -49,7 +49,7 @@ class ReportCostByStoreController extends Controller {
                         end
                      end) as planCost,
 
-                     COUNT(devices.guid) as devicesTotal,
+                     SUM(settings.licenses_quantity) as licensesTotal,
 
                     (case when store_environment.environment_guid = '$liveStoreGuid' then true else false end) as live
 
@@ -68,6 +68,7 @@ class ReportCostByStoreController extends Controller {
                 LEFT JOIN devices ON devices.store_guid = stores.store_guid AND devices.is_deleted = 0
                 LEFT JOIN users_roles ON users_roles.user_id = stores.id AND users_roles.role_id = 4
                 LEFT JOIN store_environment ON store_environment.store_guid = stores.store_guid
+                LEFT JOIN settings ON settings.store_guid = stores.store_guid
 
                 WHERE
                      (stores.deleted_at IS NULL OR stores.deleted_at = '') $whereParentId
