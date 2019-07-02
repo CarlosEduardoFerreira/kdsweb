@@ -29,7 +29,7 @@ $stg = $me->hasRole('storegroup');
     		<?php } ?>
     			<th width="15%" data-field="store" 		  data-sortable="true">Store</th>
     			<th width="15%" data-field="license-type"  data-sortable="true">License <br>Type</th>
-    			<th width="5%"  data-field="devices-count" data-sortable="true" class="text-right">Total <br>Stations</th>
+    			<th width="5%"  data-field="devices-count" data-sortable="true" class="text-right">Stations<br>Quantity</th>
     			<th width="10%" data-field="license-cost"  data-sortable="true" class="text-right">Price per<br>License</th>
 <!--     			<th width="10%" data-field="support-cost"  data-sortable="true" class="text-right">Support <br>Cost</th> -->
     			<th width="10%" data-field="Total Cost" 	  data-sortable="true" class="text-right">Total <br>Price</th>
