@@ -764,6 +764,10 @@
         	            		
         	            		for(var i=0; i<devices.length; i++) {
 
+            	            		if(devices[i].function == "CUSTOMER_DISPLAY") {
+								continue;
+            	            		}
+
         						// License
             	            		var licenseHTML = "";
             	            		if (devices[i].split_screen_parent_device_id == 0 && devices[i].function != "CUSTOMER_DISPLAY") {
