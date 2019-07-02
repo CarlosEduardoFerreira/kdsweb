@@ -8,7 +8,7 @@
     	<thead>
     		<tr>
     			<th width="45%" data-field="plan-name" 	  data-sortable="true">Plan Name</th>
-    			<th width="15%"  data-field="devices-count" data-sortable="true" class="text-right">License Quantity</th>
+    			<th width="15%"  data-field="devices-count" data-sortable="true" class="text-right">Stations Quantity</th>
     			<th width="20%" data-field="license-cost"  data-sortable="true" class="text-right">Price per License</th>
     			<th width="20%" data-field="Total Cost" 	  data-sortable="true" class="text-right">Total Price</th>
     		</tr>
