@@ -340,8 +340,6 @@
             var selectedBottomLeft = selectTextBottomLeft.val();
             var selectedBottomRight = selectTextBottomRight.val();
 
-            console.log(selectedTopLeft + " | " + selectedTopRight + " | " + selectedBottomLeft + " | " + selectedBottomRight);
-
             selectTextTopLeft.empty();
             selectTextTopRight.empty();
             selectTextBottomLeft.empty();
@@ -835,27 +833,68 @@
         	            			var store_guid = $(this).attr('store_guid');
         	            			var guid 	   = $(this).attr('guid');
         	            			var checking   = $(this).prop("checked");
-        	            			
-        	            			$.ajax({
-        	            				headers: token,
-        	            				type:'GET',
-        	            			   	dataType: 'json',
-        	            				url: URL_BASE + "/api/devices/active",
-        	            	            data: {req: "DEVICES_ACTIVE", store_guid: store_guid, guid: guid, active: checking ? 1 : 0},
-        	            	            success: function (response) {
-        	            	            		if (response != true && response != "true") {
-        	            	            			theCkeck.prop("checked", !checking);
-        	            	            			$("#modal-error .modal-title").text("Action not permitted");
-        	            	            			$("#modal-error .modal-body").text(response);
-        	            	            			$('#modal-error').modal('show');
-        	            	            		} else {
-        	            	            			var numbers  = $('#license-info').text().split(": ")[1]; // Licenses: e.g. 1 / 3
-        	            	            			var info  = numbers.split(" / "); // e.g. 1 / 3
-        	            	            			var count = parseInt(info[0]) + (checking?1:-1);
-        	            	            			$('#license-info').text("Licenses: " + count + " / " + info[1])
-        	            	            		}
-        	            	            }
-        	            	        });
+
+        	            			function showError(error) {
+                                        theCkeck.prop("checked", !checking);
+                                        $("#modal-error .modal-title").text("Action not permitted");
+                                        $("#modal-error .modal-body").text(error);
+                                        $('#modal-error').modal('show');
+        	            			}
+
+        	            			function changeLicense() {
+                                        $.ajax({
+                                            headers: token,
+                                            type:'GET',
+                                            dataType: 'json',
+                                            url: URL_BASE + "/api/devices/active",
+                                            data: {req: "DEVICES_ACTIVE", store_guid: store_guid, guid: guid, active: checking ? 1 : 0},
+                                            error: function () {
+                                                showError("An error occurred when try to change license. Please try again.");
+                                            },
+                                            success: function (response) {
+                                                if (response != true && response != "true") {
+                                                    showError(response);
+
+                                                } else {
+                                                    var numbers  = $('#license-info').text().split(": ")[1]; // Licenses: e.g. 1 / 3
+                                                    var info  = numbers.split(" / "); // e.g. 1 / 3
+                                                    var count = parseInt(info[0]) + (checking ? 1 : -1);
+                                                    $('#license-info').text("Licenses: " + count + " / " + info[1])
+                                                }
+                                            }
+                                        });
+									}
+
+        	            			if (!checking) {
+                                        let modalError = $('#modal-error');
+
+                                        modalError.find(".modal-title").text("Disable License");
+                                        modalError.find(".modal-body").text("Are you sure you want to disable this license?");
+                                        modalError.find(".close").hide();
+
+										function resetModal() {
+                                            setTimeout(function(){
+                                                modalError.find(".close").show();
+                                                modalError.find('#btn-error-close').text("Close");
+                                                modalError.find('#btn-error-ok').hide();
+											}, 100);
+										}
+
+                                        modalError.find('#btn-error-close').text("No").show().click(function(){
+                                            theCkeck.prop("checked", true);
+                                            resetModal();
+                                        });
+
+                                        modalError.find('#btn-error-ok').text("Yes").show().click(function(){
+                                            changeLicense();
+                                            resetModal();
+                                        });
+
+                                        modalError.modal('show');
+
+        	            			} else {
+        	            				changeLicense();
+        	            			}
         	            		});
         	            		// ------------------------------------------------------------------------------- Device License //
 

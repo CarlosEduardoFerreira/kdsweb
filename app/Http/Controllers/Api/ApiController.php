@@ -732,22 +732,29 @@ class ApiController extends Controller
                 
                 if(!empty($store)) {
                     
-                    $storeApp = DB::table('store_app')->where(['store_guid' => $store->store_guid])->first();
+                    $storePlan = DB::table('plans_x_objects')->where(['user_id' => $store->id])->first();
                     
-                    if(!empty($storeApp)) {
-                        
-                        $isPremium = $storeApp->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f" ? true : false;
-                        
-                        $whereClause = "AND (guid = '$device->guid'";
-                        if(!$isPremium) {
-                            $whereClause .= " OR split_screen_parent_device_id = $device->id";
-                        }
-                        $whereClause .= ")";
-                        
-                        $sql = "update devices set license = $request->active, update_time = $update_time
+                    if(!empty($storePlan)) {
+
+                        $plan = DB::table('plans')->where(['guid' => $storePlan->plan_guid])->first();
+
+                        if(!empty($plan)) {
+                            $isPremium = $plan->app == "bc68f95c-1af5-47b1-a76b-e469f151ec3f" ? true : false;
+
+                            $whereClause = "AND (guid = '$device->guid'";
+                            if(!$isPremium) {
+                                $whereClause .= " OR split_screen_parent_device_id = $device->id";
+                            }
+                            $whereClause .= ")";
+
+                            $sql = "update devices set license = $request->active, update_time = $update_time
                             where store_guid = '$device->store_guid' $whereClause";
-                        
-                        $response["error"] = DB::statement($sql);
+
+                            $response["error"] = DB::statement($sql);
+                        }
+
+                    } else {
+                        $response["error"] = "This Store does not have a Plan.";
                     }
                 }
             }
