@@ -317,8 +317,28 @@
             });
         }
 
-        function updateOrderHeaderOptions() {
-            var orderHeaderValues = {
+        function updateLineDisplayColumns(fillAll) {
+            let lineDisplayValues = {
+                "ORDER_ID": "Order ID",
+                "ITEM_NAME": "Name",
+                "WAITING_TIME": "Wait Time",
+                "DESTINATION": "Destination",
+                "CONDIMENTS": "Condiments",
+                "TABLE_NAME": "Table Name",
+                "USER_INFO": "User Info",
+                "ARRIVAL_TIME": "Arrival Time",
+            };
+
+            updateOrderDataOptions(lineDisplayValues, fillAll,
+                $modal.find('#device-settings-line-display-column-1-text'),
+                $modal.find('#device-settings-line-display-column-2-text'),
+                $modal.find('#device-settings-line-display-column-3-text'),
+                $modal.find('#device-settings-line-display-column-4-text')
+            );
+        }
+
+        function updateOrderHeaderOptions(fillAll) {
+            let orderHeaderValues = {
                 "ORDER_ID": "Order ID",
                 "SERVER_NAME": "Server Name",
                 "WAITING_TIME": "Wait Time",
@@ -330,47 +350,51 @@
                 "ARRIVAL_TIME": "Arrival Time",
             };
 
-            var selectTextTopLeft = $modal.find('#device-settings-order-header-top-left');
-            var selectTextTopRight = $modal.find('#device-settings-order-header-top-right');
-            var selectTextBottomLeft = $modal.find('#device-settings-order-header-bottom-left');
-            var selectTextBottomRight = $modal.find('#device-settings-order-header-bottom-right');
+            updateOrderDataOptions(orderHeaderValues, fillAll,
+            	$modal.find('#device-settings-order-header-top-left'),
+            	$modal.find('#device-settings-order-header-top-right'),
+            	$modal.find('#device-settings-order-header-bottom-left'),
+            	$modal.find('#device-settings-order-header-bottom-right')
+			);
+        }
 
-            var selectedTopLeft = selectTextTopLeft.val();
-            var selectedTopRight = selectTextTopRight.val();
-            var selectedBottomLeft = selectTextBottomLeft.val();
-            var selectedBottomRight = selectTextBottomRight.val();
+        function updateOrderDataOptions(options, fillAll, select1, select2, select3, select4) {
+            let select1Val = select1.val();
+            let select2Val = select2.val();
+            let select3Val = select3.val();
+            let select4Val = select4.val();
 
-            selectTextTopLeft.empty();
-            selectTextTopRight.empty();
-            selectTextBottomLeft.empty();
-            selectTextBottomRight.empty();
+            select1.empty();
+            select2.empty();
+            select3.empty();
+            select4.empty();
 
-            for (const [key, value] of Object.entries(orderHeaderValues)) {
-                if (key !== selectedTopRight && key !== selectedBottomLeft && key !== selectedBottomRight) {
-                    selectTextTopLeft.append($("<option></option>").attr("value", key).text(value)
-                        .attr("selected", key === selectedTopLeft));
+            for (const [key, value] of Object.entries(options)) {
+                if (fillAll || key !== select2Val && key !== select3Val && key !== select4Val) {
+                    select1.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === select1Val));
                 }
 
-                if (key !== selectedTopLeft && key !== selectedBottomLeft && key !== selectedBottomRight) {
-                    selectTextTopRight.append($("<option></option>").attr("value", key).text(value)
-                        .attr("selected", key === selectedTopRight));
+                if (fillAll || key !== select1Val && key !== select3Val && key !== select4Val) {
+                    select2.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === select2Val));
                 }
 
-                if (key !== selectedTopLeft && key !== selectedTopRight && key !== selectedBottomRight) {
-                    selectTextBottomLeft.append($("<option></option>").attr("value", key).text(value)
-                        .attr("selected", key === selectedBottomLeft));
+                if (fillAll || key !== select1Val && key !== select2Val && key !== select4Val) {
+                    select3.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === select3Val));
                 }
 
-                if (key !== selectedTopRight && key !== selectedTopLeft && key !== selectedBottomLeft) {
-                    selectTextBottomRight.append($("<option></option>").attr("value", key).text(value)
-                        .attr("selected", key === selectedBottomRight));
+                if (fillAll || key !== select2Val && key !== select1Val && key !== select3Val) {
+                    select4.append($("<option></option>").attr("value", key).text(value)
+                        .attr("selected", key === select4Val));
                 }
             }
 
-            selectTextTopLeft.selectpicker('refresh');
-            selectTextTopRight.selectpicker('refresh');
-            selectTextBottomLeft.selectpicker('refresh');
-            selectTextBottomRight.selectpicker('refresh');
+            select1.selectpicker('refresh');
+            select2.selectpicker('refresh');
+            select3.selectpicker('refresh');
+            select4.selectpicker('refresh');
         }
 		
         
@@ -420,31 +444,6 @@
 						$modal.find('#device-settings-order-status-ontime').val($settingsLocal.display_order_status_ontime);
 						$modal.find('#device-settings-order-status-almost').val($settingsLocal.display_order_status_almost);
 						$modal.find('#device-settings-order-status-delayed').val($settingsLocal.display_order_status_delayed);
-
-						// Line Display
-						$modal.find('#device-settings-line-display-enable').prop('checked', $device.line_display);
-						for(var $i = 0; $i < $settingsLineDisplay.length; $i++) {
-							$modal.find("#device-settings-line-display-column-" + ($i+1) + "-text")
-								.val($settingsLineDisplay[$i].column_name)
-								.selectpicker('refresh');
-							$modal.find("#device-settings-line-display-column-" + ($i+1) + "-percent")
-								.prop('old_value',$settingsLineDisplay[$i].column_percent)
-								.val($settingsLineDisplay[$i].column_percent)
-								.selectpicker('refresh');
-						}
-						loadTransfers($device.bump_transfer_device_id);
-						lineDisplayDisable();
-
-						// Order Header
-						var topLeftDefault		= $settingsLocal.header_top_left != null ? $settingsLocal.header_top_left : "DESTINATION" ;
-						var topRightDefault		= $settingsLocal.header_top_right != null ? $settingsLocal.header_top_right : "TABLE_NAME" ;
-						var BottomLeftDefault	= $settingsLocal.header_bottom_left != null ? $settingsLocal.header_bottom_left : "ORDER_ID" ;
-						var BottomRightDefault	= $settingsLocal.header_bottom_right != null ? $settingsLocal.header_bottom_right : "WAITING_TIME" ;
-
-						$modal.find('#device-settings-order-header-top-left').val(topLeftDefault).selectpicker('refresh');
-						$modal.find('#device-settings-order-header-top-right').val(topRightDefault).selectpicker('refresh');
-						$modal.find('#device-settings-order-header-bottom-left').val(BottomLeftDefault).selectpicker('refresh');
-						$modal.find('#device-settings-order-header-bottom-right').val(BottomRightDefault).selectpicker('refresh');
 						
 						// Anchor Dialog
 						var anchorTimeValidNew = $settingsLocal.anchor_time_new != null && $settingsLocal.anchor_time_new != 0;
@@ -496,22 +495,59 @@
 
 				        });
 
-				        updateOrderHeaderOptions();
+                        loadTransfers($device.bump_transfer_device_id);
+
+						// Line Display
+				        updateLineDisplayColumns(true);
+
+                        // Line Display
+                        $modal.find('#device-settings-line-display-enable').prop('checked', $device.line_display);
+                        for(var $i = 0; $i < $settingsLineDisplay.length; $i++) {
+                            $modal.find("#device-settings-line-display-column-" + ($i+1) + "-text")
+                            	.val($settingsLineDisplay[$i].column_name).selectpicker('refresh')
+                                .change(function() {
+                                    updateLineDisplayColumns(false);
+                                });
+
+                            $modal.find("#device-settings-line-display-column-" + ($i+1) + "-percent")
+                                .prop('old_value',$settingsLineDisplay[$i].column_percent)
+                                .val($settingsLineDisplay[$i].column_percent)
+                                .selectpicker('refresh');
+                        }
+
+                        lineDisplayDisable();
+
+                        updateLineDisplayColumns(false);
+
+						// Order Header
+				        updateOrderHeaderOptions(true);
+
+                        var topLeftDefault		= $settingsLocal.header_top_left != null ? $settingsLocal.header_top_left : "DESTINATION" ;
+                        var topRightDefault		= $settingsLocal.header_top_right != null ? $settingsLocal.header_top_right : "TABLE_NAME" ;
+                        var BottomLeftDefault	= $settingsLocal.header_bottom_left != null ? $settingsLocal.header_bottom_left : "ORDER_ID" ;
+                        var BottomRightDefault	= $settingsLocal.header_bottom_right != null ? $settingsLocal.header_bottom_right : "WAITING_TIME" ;
+
+                        $modal.find('#device-settings-order-header-top-left').val(topLeftDefault).selectpicker('refresh');
+                        $modal.find('#device-settings-order-header-top-right').val(topRightDefault).selectpicker('refresh');
+                        $modal.find('#device-settings-order-header-bottom-left').val(BottomLeftDefault).selectpicker('refresh');
+                        $modal.find('#device-settings-order-header-bottom-right').val(BottomRightDefault).selectpicker('refresh');
+
+                        updateOrderHeaderOptions(false);
 
                         $modal.find('#device-settings-order-header-top-left').change(function() {
-                            updateOrderHeaderOptions();
+                            updateOrderHeaderOptions(false);
                         });
 
                         $modal.find('#device-settings-order-header-top-right').change(function() {
-                            updateOrderHeaderOptions();
+                            updateOrderHeaderOptions(false);
                         });
 
                         $modal.find('#device-settings-order-header-bottom-left').change(function() {
-                            updateOrderHeaderOptions();
+                            updateOrderHeaderOptions(false);
                         });
 
                         $modal.find('#device-settings-order-header-bottom-right').change(function() {
-                            updateOrderHeaderOptions();
+                            updateOrderHeaderOptions(false);
                         });
 		            }
 	            }
@@ -761,6 +797,10 @@
         	            		data = [];
         	            		
         	            		for(var i=0; i<devices.length; i++) {
+
+            	            		if(devices[i].function == "CUSTOMER_DISPLAY") {
+								continue;
+            	            		}
 
         						// License
             	            		var licenseHTML = "";

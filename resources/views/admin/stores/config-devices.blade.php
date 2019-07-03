@@ -718,28 +718,19 @@ hr.separator-1 { border:none; width:100%; height:20px; border-bottom:1px solid #
 {{-- Line Display -------------------------------------------------------------------------------------------- --}}
 
 function lineDisplayFillTextAndPercent(columnId) {
-	var selectText = document.getElementById('device-settings-line-display-column-' + columnId + '-text');
-		selectText.innerHTML  = '<option value="ORDER_ID">Order ID</option>';
-		selectText.innerHTML += '<option value="ITEM_NAME">Name</option>';
-		selectText.innerHTML += '<option value="WAITING_TIME">Wait Time</option>';
-		selectText.innerHTML += '<option value="DESTINATION">Destination</option>';
-		selectText.innerHTML += '<option value="CONDIMENTS">Condiments</option>';
-		selectText.innerHTML += '<option value="TABLE_NAME">Table Name</option>';
-		selectText.innerHTML += '<option value="USER_INFO">User Info</option>';
-    	selectText.innerHTML += '<option value="ARRIVAL_TIME">Arrival Time</option>';
+    let selectPercent = document.getElementById('device-settings-line-display-column-' + columnId + '-percent');
 
-	var selectPercent = document.getElementById('device-settings-line-display-column-' + columnId + '-percent');
-		selectPercent.innerHTML  = '<option value="5">05%</option>';
-		selectPercent.innerHTML += '<option value="10">10%</option>';
-		selectPercent.innerHTML += '<option value="20">20%</option>';
-		selectPercent.innerHTML += '<option value="30">30%</option>';
-		selectPercent.innerHTML += '<option value="40">40%</option>';
-		selectPercent.innerHTML += '<option value="50">50%</option>';
-		selectPercent.innerHTML += '<option value="60">60%</option>';
-		selectPercent.innerHTML += '<option value="70">70%</option>';
-		selectPercent.innerHTML += '<option value="80">80%</option>';
-		selectPercent.innerHTML += '<option value="90">90%</option>';
-		selectPercent.innerHTML += '<option value="100">100%</option>';
+    selectPercent.innerHTML  = '<option value="5">05%</option>';
+    selectPercent.innerHTML += '<option value="10">10%</option>';
+    selectPercent.innerHTML += '<option value="20">20%</option>';
+    selectPercent.innerHTML += '<option value="30">30%</option>';
+    selectPercent.innerHTML += '<option value="40">40%</option>';
+    selectPercent.innerHTML += '<option value="50">50%</option>';
+    selectPercent.innerHTML += '<option value="60">60%</option>';
+    selectPercent.innerHTML += '<option value="70">70%</option>';
+    selectPercent.innerHTML += '<option value="80">80%</option>';
+    selectPercent.innerHTML += '<option value="90">90%</option>';
+    selectPercent.innerHTML += '<option value="100">100%</option>';
 }
 
 for(var i=1; i<=4; i++) {
@@ -747,30 +738,6 @@ for(var i=1; i<=4; i++) {
 }
 
 {{-- -------------------------------------------------------------------------------------------- Line Display --}}
-
-
-{{-- Order Header -------------------------------------------------------------------------------------------- --}}
-
-function orderHeaderFillSelect(id) {
-	var selectText = document.getElementById('device-settings-order-header-' + id);
-	
-	selectText.innerHTML  = '<option value="ORDER_ID">Order ID</option>';
-	selectText.innerHTML += '<option value="SERVER_NAME">Server Name</option>';
-	selectText.innerHTML += '<option value="WAITING_TIME">Wait Time</option>';
-	selectText.innerHTML += '<option value="DESTINATION">Destination</option>';
-	selectText.innerHTML += '<option value="POS_STATION">POS Station</option>';
-	selectText.innerHTML += '<option value="TABLE_NAME">Table Name</option>';
-	selectText.innerHTML += '<option value="USER_INFO">User Info</option>';
-	selectText.innerHTML += '<option value="ORDER_TYPE">Order Type</option>';
-    selectText.innerHTML += '<option value="ARRIVAL_TIME">Arrival Time</option>';
-}
-
-orderHeaderFillSelect('top-left');
-orderHeaderFillSelect('top-right');
-orderHeaderFillSelect('bottom-left');
-orderHeaderFillSelect('bottom-right');
-
-{{-- -------------------------------------------------------------------------------------------- Order Header --}}
 
 
 {{-- Anchor Dialog ------------------------------------------------------------------------------------------- --}}

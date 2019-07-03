@@ -8,7 +8,7 @@
     	<thead>
     		<tr>
     			<th width="45%" data-field="plan-name" 	  data-sortable="true">Plan Name</th>
-    			<th width="15%"  data-field="devices-count" data-sortable="true" class="text-right">License Quantity</th>
+    			<th width="15%"  data-field="devices-count" data-sortable="true" class="text-right">Stations Quantity</th>
     			<th width="20%" data-field="license-cost"  data-sortable="true" class="text-right">Price per License</th>
     			<th width="20%" data-field="Total Cost" 	  data-sortable="true" class="text-right">Total Price</th>
     		</tr>
@@ -19,7 +19,7 @@
     		?>
     		<tr>
     			<td><?=$store->planName?></td>
-    			<td><?=$store->devicesTotal?></td>
+    			<td><?=$store->licensesTotal?></td>
     			<td><?=number_format($store->planCost, 2, '.', '')?></td>
     			<td><?=number_format($store->totalPrice, 2, '.', '')?></td>
     		</tr>
