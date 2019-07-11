@@ -182,14 +182,14 @@ class Controller extends BaseController
         }
         
         $licensesActive =  DB::select("SELECT 
-                                    sum(case when devices.split_screen_parent_device_id = 0 then devices.license else 0 end) AS active
+                                    sum(case when devices.split_screen_parent_device_id = 0 then 1 else 0 end) AS active
                                 FROM users AS stores
                                 LEFT JOIN users AS storegroups ON (storegroups.id = stores.parent_id)
                                 LEFT JOIN users AS resellers ON (resellers.id = storegroups.parent_id)
                                 INNER JOIN devices ON devices.store_guid = stores.store_guid
                                 INNER JOIN settings ON settings.store_guid = stores.store_guid
                                 INNER JOIN users_roles ON users_roles.user_id = stores.id
-                                WHERE users_roles.role_id = 4 $whereParentId");
+                                WHERE users_roles.role_id = 4 $whereParentId and devices.is_deleted <> 1");
         
         $licensesQuantity =  DB::select("SELECT 
                                 	   sum(settings.licenses_quantity) AS quantity
