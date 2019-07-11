@@ -117,9 +117,6 @@ class ApiController extends Controller
             } else if ($this->method == "GET_DEVICES") {
                 $this->response = $this->getDevices($this->request, $this->response);
                 
-            } else if ($this->method == "DEVICES_ACTIVE") {
-                $this->response = $this->activeLicense($this->request, $this->response);
-                
             } else if ($this->method == "DEVICE_ONLINE") {
                 $this->response = $this->setDeviceOnline($this->request, $this->response);
                 
@@ -223,8 +220,7 @@ class ApiController extends Controller
                 $response[0]["error"] = $this->error_exist_device_in_another_store;
                 
             } else {
-                $sql = "UPDATE devices SET serial = '$device_serial', license = 1  
-                            WHERE guid = '$device_guid'";
+                $sql = "UPDATE devices SET serial = '$device_serial' WHERE guid = '$device_guid'";
     
                 $result = DB::statement($sql);
                 
@@ -683,90 +679,6 @@ class ApiController extends Controller
     }
     
     
-    public function activeLicense(Request $request) {
-        
-        $response = array();
-        
-        $device = DB::table('devices')->where(['guid' => $request->guid])->first();
-        
-        if (isset($device)) {
-            
-            if ($request->active) {
-                
-                if (isset($device->serial)) {
-                    $sameSerialActive = DB::table('devices')
-                    //->where('store_guid', '=',  $request->store_guid) // should permit same serial for the same store?
-                    ->where('guid', '<>',  $request->guid)
-                    ->where('serial', '=', $device->serial)
-                    ->where('is_deleted', '=', 0)
-                    ->where('license', '=', 1) // should permit same serial active license?
-                    ->where('split_screen_parent_device_id', '=', 0)
-                    ->first();
-                    if (isset($sameSerialActive)) {
-                        $response["error"] = "There is another KDS Station with the same serial number active.";
-                    }
-                }
-                
-                // -- License Amount validation --------------------------------------------------------- //
-                $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
-                                        WHERE store_guid = '$device->store_guid'
-                                        AND is_deleted != 1
-                                        AND split_screen_parent_device_id = 0")[0]->inUse;
-                
-                $settings = DB::table('settings')->where(['store_guid' => $device->store_guid])->first();
-                $licenseTotal = 0;
-                if(isset($settings)) {
-                    $licenseTotal = $settings->licenses_quantity;
-                }
-                
-                if($licensesInUse >= $licenseTotal) {
-                    $response["error"] = "There is no license available.";
-                }
-                // --------------------------------------------------------- License Amount validation -- //
-            }
-            
-            if(empty($resposnse["error"])) {
-                $update_time = time();
-                
-                $store = DB::table('users')->where(['store_guid' => $device->store_guid])->first();
-                
-                if(!empty($store)) {
-                    
-                    $storePlan = DB::table('plans_x_objects')->where(['user_id' => $store->id])->first();
-                    
-                    if(!empty($storePlan)) {
-
-                        $plan = DB::table('plans')->where(['guid' => $storePlan->plan_guid])->first();
-
-                        if(!empty($plan)) {
-                            $isPremium = $plan->app == "bc68f95c-1af5-47b1-a76b-e469f151ec3f" ? true : false;
-
-                            $whereClause = "AND (guid = '$device->guid'";
-                            if(!$isPremium) {
-                                $whereClause .= " OR split_screen_parent_device_id = $device->id";
-                            }
-                            $whereClause .= ")";
-
-                            $sql = "update devices set license = $request->active, update_time = $update_time
-                            where store_guid = '$device->store_guid' $whereClause";
-
-                            $response["error"] = DB::statement($sql);
-                        }
-
-                    } else {
-                        $response["error"] = "This Store does not have a Plan.";
-                    }
-                }
-            }
-            
-        } else {
-            $response["error"] = "KDS Station not found.";
-        }
-        
-        return array($response["error"]);
-    }
-    
-    
     public function setDeviceOnline(array $request, array $response) {
         $deviceUpdated = array();
         
@@ -813,7 +725,6 @@ class ApiController extends Controller
             ->where('serial', '=', $device_serial)
             ->where('store_guid', '<>',  $store_guid)
             ->where('is_deleted', '=', 0)
-            ->where('license', '=', 1)
             ->where('split_screen_parent_device_id', '=', 0)
             ->first();
 

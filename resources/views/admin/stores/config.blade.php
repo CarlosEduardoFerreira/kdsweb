@@ -7,7 +7,7 @@
 
 @section('settings')
 
-@include('admin.stores.config-settings');
+@include('admin.stores.config-settings')
 
 @endsection
 
@@ -18,7 +18,7 @@
 
 @section('devices')
 
-@include('admin.stores.config-devices');
+@include('admin.stores.config-devices')
 
 @endsection
 
@@ -29,7 +29,7 @@
 
 @section('marketplace')
 
-@include('admin.stores.config-marketplace');
+	@include('admin.stores.config-marketplace')
 
 @endsection
 
@@ -771,7 +771,6 @@
             				{ field: 'expeditor', title: 'Expeditor' }, 
             				{ field: 'last_update', title: 'Last Update', class: 'devices-td-config' }, 
             				{ field: 'app_version', title: 'Version', class: 'devices-td-config' },
-            				{ field: 'license', title: 'License', class: 'devices-td-config' }, 
             				{ field: 'settings', title: 'Settings', class: 'devices-td-config' }, 
             				{ field: 'remove', title: 'Remove', class: 'devices-td-config' }
             			];
@@ -784,206 +783,127 @@
 
 		
 		function loadDevicesTable() {
-
 			$.ajax({
-        			 	headers: token,
-        	            url: 'loadDevicesTable',
-        	            type: 'POST',
-        	            data: {
-        	            		storeGuid: "{{$store->store_guid}}"
-        	            	},
-        	            success: function (devices) {
-            	            
-        	            		data = [];
-        	            		
-        	            		for(var i=0; i<devices.length; i++) {
+				headers: token,
+				url: 'loadDevicesTable',
+				type: 'POST',
+				data: {
+					storeGuid: "{{$store->store_guid}}"
+				},
+				success: function (devices) {
+					data = [];
 
-            	            		if(devices[i].function == "CUSTOMER_DISPLAY") {
-								continue;
-            	            		}
+					for(var i=0; i<devices.length; i++) {
 
-        						// License
-            	            		var licenseHTML = "";
-            	            		if (devices[i].split_screen_parent_device_id == 0 && devices[i].function != "CUSTOMER_DISPLAY") {
-                	            		var checked = devices[i].license == 1 ? "checked=\"checked\"" : "";
-            	            			licenseHTML = "<label class=\"switch\">" +
-                                                    "<input class=\"device-license-login\" store_guid=\"" + devices[i].store_guid + "\" " +
-                                                    		"guid=\"" + devices[i].guid + "\" type=\"checkbox\" " + 
-                      									checked + " value=\"" + devices[i].license + "\">" +
-                                                  "<span class=\"slider round\"></span>" +
-                                               "</label>";
-                	            }
+						if(devices[i].function == "CUSTOMER_DISPLAY") {
+							continue;
+						}
 
-            	            		// Settings
-            	            		var settingsHTML = "";
-            	            		if(devices[i].app_version > 1.2) {
-                    	        		settingsHTML = "<a class=\"btn btn-xs btn-warning btn-icons device-settings\" href=\"#\" " +
-                    	        							"store_guid=\"" + devices[i].store_guid + "\" " +
-                    	        							"guid=\"" + devices[i].guid + "\" screen_id=\"" + devices[i].screen_id + "\" " +
-                                        				"data-toggle=\"modal\" data-target=\"#modalDeviceSettings\" data-title=\"Device Settings\">" +
-                                                		"<i class=\"fa fa-cogs fa-lg\"></i>" +
-                                                "</a>";
-            	            		}
+						// Settings
+						var settingsHTML = "";
+						if(devices[i].app_version > 1.2) {
+							settingsHTML = "<a class=\"btn btn-xs btn-warning btn-icons device-settings\" href=\"#\" " +
+												"store_guid=\"" + devices[i].store_guid + "\" " +
+												"guid=\"" + devices[i].guid + "\" screen_id=\"" + devices[i].screen_id + "\" " +
+											"data-toggle=\"modal\" data-target=\"#modalDeviceSettings\" data-title=\"Device Settings\">" +
+											"<i class=\"fa fa-cogs fa-lg\"></i>" +
+									"</a>";
+						}
 
-                             // Remove
-                    	        var removeHTML = "";
-                    	        if (devices[i].split_screen_parent_device_id == 0) {
-                    	        		removeHTML = "<a class=\"btn btn-xs btn-danger btn-icons remove-device\" href=\"#\" " +
-                            						"store_guid=\"" + devices[i].store_guid + "\" device_serial=\"" + devices[i].serial + "\" " +
-                            						"device_guid=\"" + devices[i].guid + "\" device_name=\"" + devices[i].name + "\" " +
-                                    				"data-toggle=\"modal\" data-target=\"#modalRemoveDevice\" data-title=\"Remove Device\" " +
-                                    				">" +
-                                    				"<i class=\"fa fa-trash fa-lg\"></i>" +
-                                				 "</a>";
-                    	        }
+						// Remove
+						var removeHTML = "";
+						if (devices[i].split_screen_parent_device_id == 0) {
+								removeHTML = "<a class=\"btn btn-xs btn-danger btn-icons remove-device\" href=\"#\" " +
+											"store_guid=\"" + devices[i].store_guid + "\" device_serial=\"" + devices[i].serial + "\" " +
+											"device_guid=\"" + devices[i].guid + "\" device_name=\"" + devices[i].name + "\" " +
+											"data-toggle=\"modal\" data-target=\"#modalRemoveDevice\" data-title=\"Remove Device\" " +
+											">" +
+											"<i class=\"fa fa-trash fa-lg\"></i>" +
+										 "</a>";
+						}
 
-								// Add Device Row
-                	            data.push({ 
-                    	            id: devices[i].id,
-                    	            kds_station_name: devices[i].name,
-                    	            serial_number: "<span title=\"" + devices[i].serial + "\">" + devices[i].serial.slice(-6) + "</span>",
-                    	            'function': devices[i].function,
-                    	            parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
-                    	            expeditor: devices[i].expeditor,
-                    	            last_update: timeConverter(devices[i].update_time),
-                    	            app_version: devices[i].function == "CUSTOMER_DISPLAY" ? devices[i].db_version + ""
-                    	            	: devices[i].app_version + " (" + devices[i].app_version_code + ")" + " - " + devices[i].db_version,
-                    	            license: licenseHTML,
-                    	            settings: settingsHTML,
-                                	remove: removeHTML
-                    	        });
+						// Add Device Row
+						data.push({
+							id: devices[i].id,
+							kds_station_name: devices[i].name,
+							serial_number: "<span title=\"" + devices[i].serial + "\">" + devices[i].serial.slice(-6) + "</span>",
+							'function': devices[i].function,
+							parent_id: devices[i].parent_id == 0 ? "" : devices[i].parent_id,
+							expeditor: devices[i].expeditor,
+							last_update: timeConverter(devices[i].update_time),
+							app_version: devices[i].function == "CUSTOMER_DISPLAY" ? devices[i].db_version + ""
+								: devices[i].app_version + " (" + devices[i].app_version_code + ")" + " - " + devices[i].db_version,
+							settings: settingsHTML,
+							remove: removeHTML
+						});
                 	            
-            	            	}
+					}
 						
-        	            		// Build Table
-        	            		$('#devices-table').bootstrapTable({ 
-        	            			pagination: false,
-        	            			search:true,
-            	            		columns: columns
-            	            	});
+					// Build Table
+					$('#devices-table').bootstrapTable({
+						pagination: true,
+						search:true,
+						columns: columns
+					});
 
-            	            	// Load Table (update data when it is reloaded)
-        	            		$('#devices-table').bootstrapTable("load", data);
+					// Load Table (update data when it is reloaded)
+					$('#devices-table').bootstrapTable("load", data);
 
-        	            		// Device License ------------------------------------------------------------------------------- //
-        	            		var URL_BASE = window.location.protocol + "//" + window.location.host;
-        	            		
-        	            		$('.device-license-login').change(function(){
-        	            			var theCkeck = $(this);
-        	            			var store_guid = $(this).attr('store_guid');
-        	            			var guid 	   = $(this).attr('guid');
-        	            			var checking   = $(this).prop("checked");
+					var URL_BASE = window.location.protocol + "//" + window.location.host;
 
-        	            			function showError(error) {
-                                        theCkeck.prop("checked", !checking);
-                                        $("#modal-error .modal-title").text("Action not permitted");
-                                        $("#modal-error .modal-body").text(error);
-                                        $('#modal-error').modal('show');
-        	            			}
+					function addEvents() {
+						// Device Settings ------------------------------------------------------------------------------- //
+						$(".device-settings").click(function(){
+							var deviceGuid = $(this).attr('guid');
+							var deviceScreenId = $(this).attr('screen_id');
+							getDeviceSettings(deviceGuid, deviceScreenId);
+						});
+						// ------------------------------------------------------------------------------- Device Settings //
 
-        	            			function changeLicense() {
-                                        $.ajax({
-                                            headers: token,
-                                            type:'GET',
-                                            dataType: 'json',
-                                            url: URL_BASE + "/api/devices/active",
-                                            data: {req: "DEVICES_ACTIVE", store_guid: store_guid, guid: guid, active: checking ? 1 : 0},
-                                            error: function () {
-                                                showError("An error occurred when try to change license. Please try again.");
-                                            },
-                                            success: function (response) {
-                                                if (response != true && response != "true") {
-                                                    showError(response);
+						// Remove Device --------------------------------------------------------------------------------- //
+						$('.remove-device').click(function(){
+							storeGuid = $(this).attr('store_guid');
+							deviceToRemoveSerial = $(this).attr('device_serial');
+							deviceToRemoveGuid = $(this).attr('device_guid');
+							var deviceName = $(this).attr('device_name');
+							$('#modalRemoveDevice #are-you-sure').html('<br>Are you sure you want to remove the KDS Station ' +
+								'\"<span style="color:red;">' + deviceName +  '\</span>"?')
+						});
 
-                                                } else {
-                                                    var numbers  = $('#license-info').text().split(": ")[1]; // Licenses: e.g. 1 / 3
-                                                    var info  = numbers.split(" / "); // e.g. 1 / 3
-                                                    var count = parseInt(info[0]) + (checking ? 1 : -1);
-                                                    $('#license-info').text("Licenses: " + count + " / " + info[1])
-                                                }
-                                            }
-                                        });
-									}
-
-        	            			if (!checking) {
-                                        let modalError = $('#modal-error');
-
-                                        modalError.find(".modal-title").text("Disable License");
-                                        modalError.find(".modal-body").text("Are you sure you want to disable this license?");
-                                        modalError.find(".close").hide();
-
-										function resetModal() {
-                                            setTimeout(function(){
-                                                modalError.find(".close").show();
-                                                modalError.find('#btn-error-close').text("Close");
-                                                modalError.find('#btn-error-ok').hide();
-											}, 100);
+						$('#remove-device-confirm').click(function(){
+							if(deviceToRemoveSerial != "" && deviceToRemoveGuid != "") {
+								$('#modalRemoveDevice .hide-loading').hide();
+								$('#modalRemoveDevice #loading').show();
+								$.ajax({
+									headers: token,
+									url: 'removeDevice',
+									type: 'POST',
+									data: {
+										storeGuid: storeGuid,
+										deviceSerial: deviceToRemoveSerial,
+										deviceGuid: deviceToRemoveGuid
+									},
+									success: function (response) {
+										if(response !== "") {
+											alert(response);
+										} else {
+											sendNotificationToFirebase(true);
+											setTimeout(function(){ location.reload(); }, 3000);
 										}
+									}
+								});
+							}
+						});
+						// --------------------------------------------------------------------------------- Remove Device //
+					}
 
-                                        modalError.find('#btn-error-close').text("No").show().click(function(){
-                                            theCkeck.prop("checked", true);
-                                            resetModal();
-                                        });
+					$('#devices-table').on('page-change.bs.table', function(){
+						addEvents();
+					});
 
-                                        modalError.find('#btn-error-ok').text("Yes").show().click(function(){
-                                            changeLicense();
-                                            resetModal();
-                                        });
-
-                                        modalError.modal('show');
-
-        	            			} else {
-        	            				changeLicense();
-        	            			}
-        	            		});
-        	            		// ------------------------------------------------------------------------------- Device License //
-
-        	            		// Device Settings ------------------------------------------------------------------------------- //
-        	            		$(".device-settings").click(function(){
-               	         	var deviceGuid = $(this).attr('guid');
-               	         	var deviceScreenId = $(this).attr('screen_id');
-               	         	getDeviceSettings(deviceGuid, deviceScreenId);
-                			});
-        	            		// ------------------------------------------------------------------------------- Device Settings //
-
-        	            		// Remove Device --------------------------------------------------------------------------------- //
-       	             	$('.remove-device').click(function(){
-       	         			storeGuid = $(this).attr('store_guid');
-       	         			deviceToRemoveSerial = $(this).attr('device_serial');
-       	         			deviceToRemoveGuid = $(this).attr('device_guid');
-       	         			var deviceName = $(this).attr('device_name');
-       	         			$('#modalRemoveDevice #are-you-sure').html('<br>Are you sure you want to remove the KDS Station ' +
-       	         					'\"<span style="color:red;">' + deviceName +  '\</span>"?')
-       	         		});
-
-            	        		$('#remove-device-confirm').click(function(){
-            	        			if(deviceToRemoveSerial != "" && deviceToRemoveGuid != "") {
-            	        				$('#modalRemoveDevice .hide-loading').hide();
-            	        				$('#modalRemoveDevice #loading').show();
-            	        				 $.ajax({
-            	        					 	headers: token,
-            	        			            url: 'removeDevice',
-            	        			            type: 'POST',
-            	        			            data: {
-            	        			            		storeGuid: storeGuid,
-            	        			            		deviceSerial: deviceToRemoveSerial,
-            	        			            		deviceGuid: deviceToRemoveGuid
-            	        			            	},
-            	        			            success: function (response) {
-            	        							if(response !== "") {
-            	        								alert(response);
-            	        							} else {
-            	        								sendNotificationToFirebase(true);
-												setTimeout(function(){ location.reload(); }, 3000);
-            	        							}
-            	        			            }
-            	        				 });
-            	        			}
-            	        		});
-            	        		// --------------------------------------------------------------------------------- Remove Device //
-
-        	            }
-        		 });
+                    addEvents();
+				}
+		 	});
 		}
 
 		// Load Devices Table

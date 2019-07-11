@@ -25,8 +25,4 @@ Route::group(['namespace' => 'Api'], function () {
     
     // Ajax register validation
     Route::get('register/validation', 'ApiController@registerValidation')->name('register.validation');
-    
-    // Ajax active License
-    Route::get('devices/active', 'ApiController@activeLicense')->name('devices.active');
-    
 });

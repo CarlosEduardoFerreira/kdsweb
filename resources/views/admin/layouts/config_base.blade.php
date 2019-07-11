@@ -79,7 +79,7 @@
             </footer>
         </div>
     </div>
-    
+
 
     {{-- Modal Error ---------------------------------------------------------------------------------------------------- --}}
     <div class="modal fade" id="modal-error" tabindex="-1" role="dialog" aria-labelledby="modalError" aria-hidden="true">
