@@ -61,6 +61,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('reports', 'ReportController@index')->name('reports');
     Route::get('reports/costByPlan', 'ReportCostByPlanController@index')->name('reports.costByPlan');
     Route::get('reports/costByStore', 'ReportCostByStoreController@index')->name('reports.costByStore');
+    Route::get('reports/costByStatement', 'ReportCostByStatementController@index')->name('reports.costByStatement');
     
     // Plans
     Route::get('settings/plans', 'PlanController@index')->name('settings.plans');
@@ -176,6 +177,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     Route::post('stores/removeStore', 'StoreController@removeStore')->name('stores.removeStore');
     // --------------------------------------------------------------------------------- Stores //
+    
+    // -- Report ---------------------------------------------------------------------------- --//
+    Route::get('reports/getLicensesQuantityByMonth', 'ReportController@getLicensesQuantityByMonth')->name('reports.getLicensesQuantityByMonth');
+    Route::get('reports/getStatementListExcelFile', 'ReportController@getStatementListExcelFile')->name('reports.getStatementListExcelFile');
+    Route::post('reports/downloadCompleted', 'ReportController@downloadCompleted')->name('reports.downloadCompleted');
+    // -- ---------------------------------------------------------------------------- Report --//
 
     // Users (Users is every system user. Even Admin, Resellers, Storegroups and Stores)
     Route::get('users', 'UserController@index')->name('users');

@@ -17,6 +17,8 @@ use DateTimeZone;
 use PhpParser\Builder\Use_;
 use App\Models\Settings\PlanXObject;
 use App\Models\Settings\App;
+use App\Models\LicenseLog;
+use App\Models\LicenseLogMonth;
 
 class StoreController extends Controller {
     
@@ -697,8 +699,9 @@ class StoreController extends Controller {
     }
     
 
-    public function updateSettings(Request $request, User $store)
-    {
+    public function updateSettings(Request $request, User $store) {
+        $me = Auth::user();
+        
         if(isset($store->store_guid) and $store->store_guid != '') {
             $settings = DB::table('settings')->where(['store_guid' => $store->store_guid])->first();
         }
@@ -712,36 +715,46 @@ class StoreController extends Controller {
         $kdsTime->setTime($auto_done_order_time[0], $auto_done_order_time[1]);
         $auto_done_order_time = $kdsTime->getTimestamp();
         
+        $newLicensesQuantity = $request->get('licenses_quantity');
+        
+        if($settings->licenses_quantity != $newLicensesQuantity) {
+            // Licenselog
+            $dataLicenseLog = [
+                'store_guid'    => $store->store_guid,
+                'quantity'      => $newLicensesQuantity,
+                'update_time'   => time(),
+                'update_user'   => $me->id
+            ];
+            LicenseLog::create($dataLicenseLog);
+        }
+        
         $data = [
-                    'server_address'           => $request->get('server_address'),
-                    'server_username'          => $request->get('server_username'),
-                    'server_password'          => $request->get('server_password'),
-                    'socket_port'              => $request->get('socket_port'),
-                    'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
-                    'auto_done_order_time'     => $auto_done_order_time,
-                    'smart_order'              => $request->get('smart_order') == 'on' ? 1 : 0,
-                    'smart_order_hide_mode'    => $request->get('smart_order_hide_mode') == 'on' ? 1 : 0,
-                    'smart_order_with_start'   => $request->get('smart_order_with_start') == 'on' ? 1 : 0,
-                    'licenses_quantity'        => $request->get('licenses_quantity'),
-                    'update_time'              => time()
-                ];
+            'server_address'           => $request->get('server_address'),
+            'server_username'          => $request->get('server_username'),
+            'server_password'          => $request->get('server_password'),
+            'socket_port'              => $request->get('socket_port'),
+            'auto_done_order_hourly'   => $request->get('auto_done_order_hourly'),
+            'auto_done_order_time'     => $auto_done_order_time,
+            'smart_order'              => $request->get('smart_order') == 'on' ? 1 : 0,
+            'smart_order_hide_mode'    => $request->get('smart_order_hide_mode') == 'on' ? 1 : 0,
+            'smart_order_with_start'   => $request->get('smart_order_with_start') == 'on' ? 1 : 0,
+            'licenses_quantity'        => $newLicensesQuantity,
+            'update_time'              => time()
+        ];
         
         if (empty($request->get('store_key'))) {
             $data['store_key'] = substr(Uuid::uuid4(), 0, 8);
         }
 
         if(!isset($settings)) {
-            
-            $data['store_guid'] = $store->store_guid; 
+            $data['store_guid'] = $store->store_guid;
             $settingsTable->insert($data);
             
         } else {
-            
             $settingsTable->where('store_guid', $store->store_guid)->update($data);
-            
         }
         
-        return redirect()->intended(route('admin.stores.config', [$store->id]));
+        return redirect()->intended(route('admin.stores.config', [$store->id, 'licenseQuantity' => $licenseQuantity]));
     }
     
     

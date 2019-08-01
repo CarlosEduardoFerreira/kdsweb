@@ -1,5 +1,4 @@
 
-
 <div class="row" id="store-settings-container">
 
 	<div class="col-md-3 col-sm-3 col-xs-3" id="store-settings-menu">

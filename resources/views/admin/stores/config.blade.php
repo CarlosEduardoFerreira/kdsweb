@@ -7,7 +7,7 @@
 
 @section('settings')
 
-@include('admin.stores.config-settings');
+@include('admin.stores.config-settings')
 
 @endsection
 
@@ -18,7 +18,7 @@
 
 @section('devices')
 
-@include('admin.stores.config-devices');
+@include('admin.stores.config-devices')
 
 @endsection
 
@@ -29,7 +29,7 @@
 
 @section('marketplace')
 
-@include('admin.stores.config-marketplace');
+@include('admin.stores.config-marketplace')
 
 @endsection
 

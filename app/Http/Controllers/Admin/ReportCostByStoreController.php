@@ -93,7 +93,9 @@ class ReportCostByStoreController extends Controller {
                         end
                      end),
 
-                    store_environment.environment_guid";
+                    store_environment.environment_guid
+                ORDER BY 
+                    resellers.business_name";
         
         $stores =  DB::select($sql);
         
