@@ -301,7 +301,7 @@ class Controller extends BaseController
         $countryCode = $request->post('countryCode');
         return DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $countryCode);
     }
-    
+
 }
 
 

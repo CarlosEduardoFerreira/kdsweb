@@ -14,6 +14,10 @@
     		<li>
     			<a class="tab-a" data-url="{{ route('admin.reports.costByStore') }}" href="#1a" data-toggle="tab">by Store</a>
     		</li>
+    		
+    		<li>
+    			<a class="tab-a" data-url="{{ route('admin.reports.costByStatement') }}" href="#1a" data-toggle="tab">by Statement</a>
+    		</li>
     </ul>
 </div>
 
@@ -33,9 +37,6 @@
     {{ Html::style(mix('assets/admin/css/bootstrap-select.css')) }}
     {{ Html::style(mix('assets/admin/css/checkbox.switch.css')) }}
     {{ Html::style(mix('assets/admin/css/bootstrap-tabs-custom.css')) }}
-    <style>
-    
-    </style>
 @endsection
 
 
