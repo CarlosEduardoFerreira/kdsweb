@@ -54,12 +54,10 @@
                             Settings
                         </a>
                     </li>
-                    <?php } ?>
-                    
-                    <?php if($adm || $res || $stg) { ?>
+
                     	<li>
                         <a href="{{ route('admin.reports') }}">
-                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <i class="fa fa-line-chart" aria-hidden="true"></i>
                             Reports
                         </a>
                     </li>
