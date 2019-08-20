@@ -320,7 +320,15 @@ $(function(){
              	
              	// Refresh Button show
              	$('#report-refresh-img').fadeIn('slow');
-            }
+            },
+	    		error : function (xhr, ajaxOptions, thrownError) {
+	    			if(xhr.status == 401) { // {"error":"Unauthenticated."}
+					location.href = "{{ route('admin.dashboard') }}";
+				} else if(xhr.status == 504) { // {"error":"Gateway Time-out."}
+					$('#report-loading').hide();
+					$('#no-data').fadeIn('slow');
+				}
+	    		}
             	
     		});
     	}

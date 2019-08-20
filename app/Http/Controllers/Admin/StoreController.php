@@ -324,7 +324,7 @@ class StoreController extends Controller {
         $activeLicenses = 0;
         $sortedDevices = [];
         foreach ($devices as &$device) {
-            $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
+            $activeLicenses += $device->split_screen_parent_device_id == 0 ? $device->license : 0;
 
             if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
                 array_push($sortedDevices, $device);
@@ -770,8 +770,8 @@ class StoreController extends Controller {
             $error["msg"] = "Invalid number in the \"Licenses Quantity\" field.";
             return response()->json($error);
         }
-
-        $licensesInUse  = DB::select("SELECT count(guid) as inUse FROM devices
+        
+        $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
                                         WHERE store_guid = '$storeGuid'
                                         AND is_deleted != 1
                                         AND split_screen_parent_device_id = 0")[0]->inUse;
@@ -907,9 +907,7 @@ class StoreController extends Controller {
                         	count(distinct i.guid) AS item_count,
                         
                         	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                        		(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then
-                                (case when ib.prepared_local_time = 0 then ib.create_local_time else ib.prepared_local_time end) else ib.create_local_time end)) /
-                                count(distinct i.order_guid) AS order_avg_time,
+                        		ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
                         
                         dn.login AS active
                         
@@ -955,9 +953,7 @@ class StoreController extends Controller {
                             	count(distinct i.guid) AS item_count,
                                     
                             	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
-                            		(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then 
-                                    (case when ib.prepared_local_time = 0 then ib.create_local_time else ib.prepared_local_time end) else ib.create_local_time end)) / 
-                                    count(distinct i.guid) AS item_avg_time,
+                            		ib.create_local_time) / count(distinct i.guid) AS item_avg_time,
                                     
                             	dn.login AS active
                                 
@@ -1004,9 +1000,7 @@ class StoreController extends Controller {
                             	count(distinct i.guid) AS item_count,
                 
                             	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                            		(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then
-                                    (case when ib.prepared_local_time = 0 then ib.create_local_time else ib.prepared_local_time end) else ib.create_local_time end)) /
-                                    count(distinct i.guid) AS item_avg_time,
+                            		ib.create_local_time) / count(distinct i.guid) AS item_avg_time,
                 
                             	dn.login AS active
                 
@@ -1116,6 +1110,7 @@ class StoreController extends Controller {
         // Remove Device
         $data = [
             'is_deleted' => 1,
+            'license' => 0,
             'login' => 0,
             'update_time' => time()
         ];
