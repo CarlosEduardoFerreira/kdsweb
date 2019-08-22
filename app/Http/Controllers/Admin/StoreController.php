@@ -880,8 +880,11 @@ class StoreController extends Controller {
         
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $this->connection = env('DB_CONNECTION', 'mysql');
+        
+        $itemQuantitySQL = "count(distinct i.guid)";
         if($app->name == "Premium") {
             $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
+            $itemQuantitySQL = "sum(i.quantity)";
         }
         
         $devicesIds = $request->get('devicesIds');
@@ -896,36 +899,36 @@ class StoreController extends Controller {
         if($reportId == Vars::$reportIds[0]["id"]) {
             
             $sql = "SELECT
-                    	select_orders.device_name AS column_0,
-                    SUM(select_orders.order_count) AS column_1,
-                    SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2,
-                    case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
-                FROM
-                    	(SELECT
-                        	dn.name AS device_name,
-                        	count(distinct i.order_guid) AS order_count,
-                        	count(distinct i.guid) AS item_count,
-                        
-                        	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                        		ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
-                        
-                        dn.login AS active
-                        
+                        select_orders.device_name AS column_0,
+                        SUM(select_orders.order_count) AS column_1,
+                        SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2,
+                        case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
+                    FROM
+                        (SELECT
+                            	dn.name AS device_name,
+                            	count(distinct i.order_guid) AS order_count,
+                            	$itemQuantitySQL AS item_count,
+                            
+                            	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                            		ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
+                            
+                            dn.login AS active
+                            
                         FROM item_bumps ib
                         JOIN items i ON ib.guid = i.item_bump_guid 
                         JOIN orders o ON o.guid = i.order_guid 
-
+    
                         JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                         JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
-                        	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
-                
+                        (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                    
                         JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
-                        
+                            
                         WHERE u.id = $storeId
-                            AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                        AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
                               else ib.prepared_device_id end) != 0";
             
-            $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
+            $sql .= " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
                             then ib.done_local_time else ib.prepared_local_time end) >= $startDatetime
                             AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
                             then ib.done_local_time else ib.prepared_local_time end) <= $endDatetime)";
@@ -950,10 +953,10 @@ class StoreController extends Controller {
                         	(SELECT 
                             	dn.name AS device_name,
                             	count(distinct i.order_guid) AS order_count,
-                            	count(distinct i.guid) AS item_count,
+                            	$itemQuantitySQL AS item_count,
                                     
                             	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
-                            		ib.create_local_time) / count(distinct i.guid) AS item_avg_time,
+                            		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
                                     
                             	dn.login AS active
                                 
@@ -997,10 +1000,10 @@ class StoreController extends Controller {
                             	dn.name AS device_name,
                              i.name AS item_name,
                             	count(distinct i.order_guid) AS order_count,
-                            	count(distinct i.guid) AS item_count,
+                            	$itemQuantitySQL AS item_count,
                 
                             	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                            		ib.create_local_time) / count(distinct i.guid) AS item_avg_time,
+                            		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
                 
                             	dn.login AS active
                 
