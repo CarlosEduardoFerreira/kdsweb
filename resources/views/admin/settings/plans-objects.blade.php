@@ -129,24 +129,31 @@
 
 	
 	function setDragAndDrop() {
+		var dragParentId = '';
+		var dropParentId = '';
+		
 		// Drag and Drop
         $(".column-selected .items").sortable({
             connectWith: ".column-selected .items",
             cancel: ".no-drag",
             start: function(e, info) {
                 	info.item.css({ 'background':'#fff', 'cursor':'move', 'box-shadow':'0 10px 6px 0px #ccc' });
+                	
+                	dragParentId = info.item.parent().parent().attr('id');
             },
             stop: function(e, info) {
             		var dragGuid = info.item.attr('data-guid');
                 $this = this;
-                
+
+                dropParentId = info.item.parent().parent().attr('id');
+
                 	if(!isSelected) {
                 		$($this).sortable('cancel');
     					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
                 		
                 	} else {
                     validPlanXObject(dragGuid, function(response) {
-                        if(!response['valid']) {
+                        if(!response['valid'] && dragParentId != 'column-center' && dragParentId != dropParentId) {
             					$($this).sortable('cancel');
             					info.item.css({ 'cursor':'pointer', 'box-shadow':'none' });
             					alert(response['error']);
@@ -159,6 +166,8 @@
                             $("#column-plans, #column-objects").find('.items .item').on('click', handleClick);
                             checkNoItems();
                         }
+                        dragParentId = '';
+                        dropParentId = '';
                     });
                 	}
             }
