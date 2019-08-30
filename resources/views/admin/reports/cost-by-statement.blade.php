@@ -60,9 +60,9 @@ $stg = $me->hasRole('storegroup');
     		<?php } ?>
     			<td><?=$store->storeBName?></td>
     			<td><?=$store->planName?></td>
-    			<td class="licenses-total"></td>
+    			<td class="licenses-total"><?=$store->licensesQuantity?></td>
     			<td class="price-per-license text-right"><?=number_format($store->planCost, 2, '.', '')?></td>
-    			<td class="total-price text-right"></td>
+    			<td class="total-price text-right"><?=number_format($store->licensesQuantity * $store->planCost, 2, '.', '')?></td>
     		</tr>
     		<?php } ?>
     	</tbody>
@@ -106,12 +106,15 @@ $stg = $me->hasRole('storegroup');
     		var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
 
     		$('#report-table').bootstrapTable({
-    		    onSearch: function (text) {
-    		    		loadLicensesQuantity();
-    		    },
-			onPageChange: function (number, size) {
-    				loadLicensesQuantity();
-    		    }
+//     		    onSearch: function (text) {
+//     		    		loadLicensesQuantity();
+//     		    },
+// 			onPageChange: function (number, size) {
+//     				loadLicensesQuantity();
+//     		    },
+// 			onSort: function (number, size) {
+//     				loadLicensesQuantity();
+//     		    }
         	});
 		$('#report-table').fadeIn();
 
@@ -127,95 +130,65 @@ $stg = $me->hasRole('storegroup');
         		$(this).toggleClass("bold-blue");
         });
 
-		function loadLicensesQuantity() {
-			$trDataLength = $('.tr-data').length;
-			$trDataLoaded = 0;
+		// Set filter month
+        $('#statement-filter-month').val("<?=$month?>");
+        
+        // Set filter search
+        $(function(){
+        		$(".fixed-table-toolbar .search .form-control").val("<?=$search?>").blur();
+        });
 
-			$imgDownload = $('<img src="/images/cloud-download.png" title="Download">')
-        			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-        		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
-        			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-        	
-        		$toolbar.find('.export').html($imgDownload.fadeIn());
-        		$toolbar.find('.export').append($imgLoading);
+		f$trDataLength = $('.tr-data').length;
+		$trDataLoaded = 0;
 
-        		$imgDownload.click(function(){
-        			$imgDownload.hide();
-        			$imgLoading.show();
-        			
-        			$.ajax({
-            		 	headers: token,
-                    url: 'reports/getStatementListExcelFile',
-                    type: 'GET',
-                    data: {
-                    		search: $('.fixed-table-toolbar .search .form-control').val(),
-                    		month: $('#statement-filter-month').val()
-                    	},
-                    success: function (response) {
-                    		$imgLoading.hide();
-                    		$imgDownload.fadeIn();
-                    		
-                    	    window.location.href = response;
+		$imgDownload = $('<img src="/images/cloud-download.png" title="Download">')
+    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+    		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
+    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+    	
+    		$toolbar.find('.export').html($imgDownload.fadeIn());
+    		$toolbar.find('.export').append($imgLoading);
 
-                    	    downloadCompleted(response);
-                    }
-                });
-        		});
+    		$imgDownload.click(function(){
+    			$imgDownload.hide();
+    			$imgLoading.show();
+    			
+    			$.ajax({
+        		 	headers: token,
+                url: 'reports/getStatementListExcelFile',
+                type: 'GET',
+                data: {
+                		search: $('.fixed-table-toolbar .search .form-control').val(),
+                		month: $('#statement-filter-month').val()
+                	},
+                success: function (response) {
+                		$imgLoading.hide();
+                		$imgDownload.fadeIn();
+                		
+                	    window.location.href = response;
 
-    			$loaded = false;
-			function handleTrDataLoaded() {
-				$trDataLoaded++;
-				if($trDataLength <= $trDataLoaded) {
-					$loaded = true;
-					$imgLoading.hide();
-					$imgDownload.fadeIn();
-				}
-			}
-			
-            $('.tr-data').each(function(){
-				var $tr = $(this);
-                
-        			var storeGuid = $tr.attr('data-store-guid');
-        			var live = $tr.attr('data-live');
-        			var month = $('#statement-filter-month').val();
-
-        			$tr.find('.licenses-total').html('<img src="/images/loading4.gif" height="18px">');
-        			
-                $.ajax({
-            		 	headers: token,
-                    url: 'reports/getLicensesQuantityByMonth',
-                    type: 'GET',
-                    data: {
-                    		storeGuid: storeGuid,
-                    		month: month
-                    	},
-                    success: function (response) {
-                        if(!$loaded) {
-                    			handleTrDataLoaded();
-                        }
-                        	var quantity = live == 1 ? (response < 0 ? 0 : response) : 0; 
-                        	var price = $tr.find('.price-per-license').text();
-                        	var total = (quantity * price).toFixed(2);
-
-						$tr.find('.licenses-total').text(quantity);
-						$tr.find('.total-price').text(total);
-                    },
-                		error : function (xhr, ajaxOptions, thrownError) {
-                			if(!$loaded) {
-                				handleTrDataLoaded();
-                			}
-                			if(xhr.status == 401) { // {"error":"Unauthenticated."}
-            					location.href = "{{ route('admin.dashboard') }}";
-            				}
-                		}
-                });
+                	    downloadCompleted(response);
+                }
             });
-		}
+    		});
 
-		loadLicensesQuantity();
+		$loaded = false;
+		function handleTrDataLoaded() {
+			$trDataLoaded++;
+			if($trDataLength <= $trDataLoaded) {
+				$loaded = true;
+				$imgLoading.hide();
+				$imgDownload.fadeIn();
+			}
+		}
 		
 		$('#statement-filter-month').change(function(){
-			loadLicensesQuantity();
+			var month = $('#statement-filter-month').val();
+			var search = $('.fixed-table-toolbar .search .form-control').val();
+			
+			filter = "?month=" + month + "&search=" + search;
+			
+			SyncPage.getContent("{{ route('admin.reports.costByStatement') }}" + filter, $('#reports-container'), '');
 		});
 
 

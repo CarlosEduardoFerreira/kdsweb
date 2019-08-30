@@ -28,7 +28,7 @@ class ReportController extends Controller {
     }
 
     
-    public function getLicensesQuantityByMonth(Request $request) {
+    public static function getLicensesQuantityByMonth(Request $request) {
         
         if(empty($request->storeGuid) or empty($request->month)) {
             return -1;

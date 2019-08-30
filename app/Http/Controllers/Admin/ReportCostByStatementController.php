@@ -15,12 +15,22 @@ class ReportCostByStatementController extends Controller {
     }
     
     
-    public function index() {
+    public function index(Request $request) {
         $me = Auth::user();
         
-        $stores = $this->getStoresForStatements($me, new Request());
+        if(!isset($request->month)) {
+            $request->month = date('Y-m');
+        }
+
+        $stores = ReportCostByStatementController::getStoresForStatements($me, $request);
         
-        return view('admin.reports.cost-by-statement', [ 'me' => $me, 'stores' => $stores ]);
+        foreach($stores as $store) {
+            $request->storeGuid = $store->store_guid;
+            
+            $store->licensesQuantity = $store->live ? ReportController::getLicensesQuantityByMonth($request) : 0;
+        }
+        
+        return view('admin.reports.cost-by-statement', [ 'me' => $me, 'stores' => $stores, 'month' => $request->month, 'search' => $request->search ]);
     }
     
     
@@ -33,14 +43,6 @@ class ReportCostByStatementController extends Controller {
         $whereParentId = "AND (stores.parent_id = $me->id OR storegroups.parent_id = $me->id)";
         if ($role == 'administrator') {
             $whereParentId = "AND (resellers.parent_id = $me->id OR resellers.parent_id = 0)";
-        }
-        
-        $searchSQL = "";
-        if(!empty($request->search)) {
-            $searchSQL = "WHERE allStores.resellerBName LIKE '%$request->search%'
-                            OR  allStores.storegroupBName LIKE '%$request->search%'
-                            OR  allStores.storeBName LIKE '%$request->search%'
-                            OR  allStores.planName LIKE '%$request->search%'";
         }
         
         $sql = "SELECT
@@ -118,7 +120,7 @@ class ReportCostByStatementController extends Controller {
                          
                         store_environment.environment_guid
                     ORDER BY
-                        resellers.business_name) AS allStores $searchSQL";
+                        resellers.business_name) AS allStores";
         
         return  DB::select($sql);
     }
