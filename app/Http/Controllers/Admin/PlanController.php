@@ -379,7 +379,7 @@ class PlanController extends Controller {
         
         $planXObject = PlanXObject::where('user_id', '=', $storeGuid)->get();
 
-        if(count($planXObject) > 0) {
+        if(count($planXObject) == 1) {
             $response['valid'] = false;
             $response['error'] = "Stores can have just 1 (one) Plan each.";
         }
