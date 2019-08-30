@@ -4,19 +4,18 @@
 
 @section('content')
 
-
 <div id="tabs" style="margin-top:50px;">
     <ul  class="nav nav-pills">
         	<li class="active">
-        		<a class="tab-a" data-url="{{ route('admin.reports.costByPlan') }}" href="#1a" data-toggle="tab">by Plan</a>
+        		<a class="tab-a" data-id="0" href="#1a" data-toggle="tab">by Plan</a>
         	</li>
 
     		<li>
-    			<a class="tab-a" data-url="{{ route('admin.reports.costByStore') }}" href="#1a" data-toggle="tab">by Store</a>
+    			<a class="tab-a" data-id="1" href="#1a" data-toggle="tab">by Store</a>
     		</li>
     		
     		<li>
-    			<a class="tab-a" data-url="{{ route('admin.reports.costByStatement') }}" href="#1a" data-toggle="tab">by Statement</a>
+    			<a class="tab-a" data-id="2" href="#1a" data-toggle="tab">by Statement</a>
     		</li>
     </ul>
 </div>
@@ -50,12 +49,20 @@
 	{{ Html::script(mix('assets/admin/js/bootstrap-table-export.js')) }}
 	{{ Html::script(mix('assets/admin/js/SyncPage.js')) }}
 	<script>
-
-        SyncPage.getContent("{{ route('admin.reports.costByPlan') }}", $('#reports-container'), '');
-
+		
+        reports = [
+            ['costByPlan' , "{{ route('admin.reports.costByPlan') }} "],
+            ['costByStore' , "{{ route('admin.reports.costByStore') }}"],
+            ['costByStatement' , "{{ route('admin.reports.costByStatement') }}"]
+        ];
+		
+		$(function(){
+			SyncPage.getContent(reports[0][1], $('#reports-container'), '');
+		});
+		
     		$('.tab-a').click(function(){
-    			url = $(this).attr('data-url');
-    			SyncPage.getContent(url, $('#reports-container'), '');
+    			id = $(this).attr('data-id');
+    			SyncPage.getContent(reports[id][1], $('#reports-container'), '');
         	});
         	
     </script>

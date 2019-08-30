@@ -30,8 +30,8 @@ class ReportCostByPlanController extends Controller {
         
         $sql = "SELECT
                     byStore.planName,
-                    byStore.planCost,
                     SUM(case when byStore.live then  byStore.licensesTotal else 0 end) as licensesTotal,
+                    byStore.planCost,
                     SUM(case when byStore.live then (byStore.planCost * byStore.licensesTotal) else 0 end) as totalPrice
                 FROM
                    (SELECT
