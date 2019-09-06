@@ -61,8 +61,10 @@ $disabled = $stg ? "disabled" : "";
                 <span class="required">*</span>
             </label>
             <div class="col-md-6 col-sm-6 col-xs-12">
+               
                 	<input id="name" name="name" type="text" class="form-control col-lg-12" value="{{ $plan->name }}" required>
             		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
+                  
             </div>
         </div> 
         
@@ -205,6 +207,7 @@ $disabled = $stg ? "disabled" : "";
     
     $('#plans-form-content .selectpicker').selectpicker('refresh');
 
+    
     $('#base-plan').change(function(){
         var cost = $(this).children("option:selected").attr('data-cost');
 		$('#base-plan-cost').text(cost);
