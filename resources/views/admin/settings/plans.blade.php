@@ -252,7 +252,7 @@
         		        					if(xhr.status == 401) { // {"error":"Unauthenticated."}
         		            					location.href = "{{ route('admin.dashboard') }}";
         		            				} else {
-        		        						alert("error: " + xhr.status + " - " + xhr.responseText);
+        		        						alert(xhr.responseText);
         		            				}
         		        				}
             					});
@@ -264,7 +264,7 @@
         			if(xhr.status == 401) { // {"error":"Unauthenticated."}
     					location.href = "{{ route('admin.dashboard') }}";
     				} else {
-					alert("error: " + xhr.status + " - " + xhr.responseText);
+						alert(xhr.responseText);
     				}
         		}
         });
