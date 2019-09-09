@@ -201,7 +201,7 @@ class PlanController extends Controller {
             // Hard Delete on linked Plans X Objects
             $plansXObjects = PlanXObject::where('plan_guid', '=', $guid)->get();
             foreach($plansXObjects as $planXObject) {
-                $planXObject->forceDelete();
+                $planXObject->where('plan_guid', '=', $planXObject->plan_guid)->forceDelete();
             }
         }
     }
