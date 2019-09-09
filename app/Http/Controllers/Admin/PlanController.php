@@ -61,7 +61,9 @@ class PlanController extends Controller {
         
         $basePlan = Plan::where('guid', '=', $request->get('base_plan'))->get()->first();
 
-        $alreadyExist = Plan::where('name', '=', $request->get('name'))->get()->first();
+        $alreadyExist = Plan::where('name', '=', $request->get('name'))
+            ->where('delete_time', '=', 0)->where('base_plan', '!=', NULL)
+            ->where('owner_id', '=', $me->id)->get()->first();
         if(isset($alreadyExist)) {
             header('HTTP/1.1 500 Internal Server Error');
             die('The name ' . $request->get('name') . ' is already in use.');

@@ -9,7 +9,7 @@
         			<h5 class="modal-title" style="font-size:18px;font-weight:300;">Delete <span class="modal-item">item</span></h5>
         		</div>
         		<div class="modal-body">
-        			<div id="modal-extrahtml" style="text-align:center;font-size:16px;font-weight:300;">
+        			<div id="modal-extrahtml">
         			
         			</div>
         			<div style="text-align:center;font-size:16px;font-weight:300;">
@@ -24,7 +24,12 @@
         			</div>
         		</div>
     			<div class="modal-footer">
-    				<button type="button" class="btn btn-primary" onclick="javascript:$('#modal-delete').modal('toggle')">Cancel</button>
+					<div style="width:78%;display:inline-table;float:left;"> 
+						<button type="button" id="cancel-button" class="btn btn-primary" onclick="javascript:$('#modal-delete').modal('toggle')">Cancel</button>
+					</div>
+					<div style="width:20%;display:inline-table;float:right;">
+						<button type="button" id="confirm-button" class="btn btn-success" onclick="javascript:$('#modal-delete').modal('toggle')" style="display:none;":>Confirm</button>
+					</div>
     			</div>
         	</div>
     </div>
