@@ -114,7 +114,8 @@ class StoreController extends Controller {
             'zipcode'         => $request->get('zipcode'),
             'timezone'        => $request->get('timezone'),
             'username'        => $request->get('username'),
-            'created_at'      => $now
+            'created_at'      => $now,
+            'updated_at'     => $now
         ];
         
         if ($request->get('password') != "") {

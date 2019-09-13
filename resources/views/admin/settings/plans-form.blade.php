@@ -212,6 +212,11 @@ $disabled = $stg ? "disabled" : "";
         var cost = $(this).children("option:selected").attr('data-cost');
 		$('#base-plan-cost').text(cost);
 	});
+    
+    $(document).ready(function()
+                {
+                  $("#cost").attr('maxlength','10');
+                 });
 </script>
 
 
