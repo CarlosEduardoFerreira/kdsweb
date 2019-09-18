@@ -325,7 +325,7 @@ class StoreController extends Controller {
         $activeLicenses = 0;
         $sortedDevices = [];
         foreach ($devices as &$device) {
-            $activeLicenses += $device->split_screen_parent_device_id == 0 ? $device->license : 0;
+            $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
 
             if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
                 array_push($sortedDevices, $device);
@@ -772,7 +772,7 @@ class StoreController extends Controller {
             return response()->json($error);
         }
         
-        $licensesInUse  = DB::select("SELECT SUM(license) as inUse FROM devices
+        $licensesInUse  = DB::select("SELECT SUM(1) as inUse FROM devices
                                         WHERE store_guid = '$storeGuid'
                                         AND is_deleted != 1
                                         AND split_screen_parent_device_id = 0")[0]->inUse;
