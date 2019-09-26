@@ -454,6 +454,10 @@
 
             updateTimezones();
         });
+        $(document).ready(function()
+                {
+                  $("#zipcode").attr('type','number');
+                 });
     </script>
 @endsection
 
