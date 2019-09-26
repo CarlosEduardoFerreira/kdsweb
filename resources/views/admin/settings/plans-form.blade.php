@@ -62,7 +62,7 @@ $disabled = $stg ? "disabled" : "";
             </label>
             <div class="col-md-6 col-sm-6 col-xs-12">
                
-                	<input id="name" name="name" type="text" class="form-control col-lg-12" value="{{ $plan->name }}" maxlength="199" required>
+                	<input id="name" name="name" type="text" class="form-control col-lg-12" value="{{ $plan->name }}" required>
             		<ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                   
             </div>
