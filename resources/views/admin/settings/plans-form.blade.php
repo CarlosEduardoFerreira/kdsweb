@@ -216,6 +216,7 @@ $disabled = $stg ? "disabled" : "";
     $(document).ready(function()
                 {
                   $("#cost").attr('maxlength','10');
+                  $("#name").attr('maxlength','30');
                  });
 </script>
 
