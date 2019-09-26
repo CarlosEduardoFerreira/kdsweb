@@ -721,11 +721,14 @@ class ApiController extends Controller
 
     // Check if the same serial number is activate in another store.
     public function existDeviceInAnotherStore($store_guid, $device_serial) {
-        $device = DB::table('devices')
-            ->where('serial', '=', $device_serial)
-            ->where('store_guid', '<>',  $store_guid)
-            ->where('is_deleted', '=', 0)
-            ->where('split_screen_parent_device_id', '=', 0)
+        $device = DB::table('users')
+            ->join('devices', 'users.store_guid', '=', 'devices.store_guid')
+            ->select('devices.guid')
+            ->whereNull('users.deleted_at')
+            ->where('devices.serial', '=', $device_serial)
+            ->where('devices.store_guid', '<>',  $store_guid)
+            ->where('devices.is_deleted', '=', 0)
+            ->where('devices.split_screen_parent_device_id', '=', 0)
             ->first();
 
         return isset($device);
