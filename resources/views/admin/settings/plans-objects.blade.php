@@ -49,7 +49,7 @@
     #multi-select .column { width:30%; display:inline-block; vertical-align:top; }
     #multi-select .column .title { margin-bottom:20px; color:#333; letter-spacing:2px; }
     #multi-select .column .items {  overflow-y:auto; height:400px; padding:10px; }
-    #multi-select .column .items .item { padding-top:5px; width:100%; height:34px; cursor:pointer; font-weight:300; font-size:16px;
+    #multi-select .column .items .item { padding-top:5px; width:100%; height:auto; cursor:pointer; font-weight:300; font-size:16px;
                                          border:1px solid #ddd; border-radius:5px; color:#000; }
     #multi-select .column .items .no-items { margin-top:50px; }
 </style>
