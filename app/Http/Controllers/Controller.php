@@ -30,7 +30,7 @@ class Controller extends BaseController
     }
     
     
-    function canIsee(User $me, int $objectId) {
+    function canIsee(User $me, $objectId) {
         
         $validObj   = $objectId != 0 && $me->id != $objectId;
         $notAdmin   = $me->roles[0]->name != 'administrator';
@@ -63,7 +63,7 @@ class Controller extends BaseController
      *  $filterRole = The role to show. // 1 = admin, 2 = reseller, 3 = storegroup, 4 = store
      *  $parentId   = The Parent User filtered. Even if the actual user is an admin, this can be something.
      */
-    public function filterUsers(Request $request = null, int $filterRole, int $parentId = null, $all = false, $ignorePaginator = false) {
+    public function filterUsers(Request $request = null, int $filterRole, $parentId = null, $all = false, $ignorePaginator = false) {
         
         $me = Auth::user();
         
