@@ -846,6 +846,7 @@ class StoreController extends Controller {
             $devices  = DB::table('devices')
             ->where(['store_guid' => $store->store_guid])
             ->where('is_deleted', '<>',  1)
+            ->where('name', '<>', 'KDSRouter')
             ->orderBy('license','desc')
             ->orderBy('id','asc')->paginate(50);
         }
@@ -892,7 +893,7 @@ class StoreController extends Controller {
         
         $startDatetime = strtotime($request->get('startDatetime'));
         $endDatetime   = strtotime($request->get('endDatetime'));
-        
+         
         $sql = "";
         
         // Quantity and Average Time by Order

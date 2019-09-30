@@ -380,7 +380,7 @@ class ApiController extends Controller
                 
                 $sms_start_use_default = $storeSettings->sms_start_use_default !== null ? $storeSettings->sms_start_use_default : 0;
                 $sms_ready_use_default = $storeSettings->sms_ready_use_default !== null ? $storeSettings->sms_ready_use_default : 0;
-                $sms_done_use_default = $storeSettings->sms_done_use_default !== null ? $storeSettings->sms_done_use_default : 0;
+                $sms_done_use_default  = $storeSettings->sms_done_use_default !== null ? $storeSettings->sms_done_use_default : 0;
                 
                 if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.new' || $orderStatus == 'new' || $orderStatus == '0') && 
                     isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
