@@ -122,7 +122,7 @@ $(function(){
 				var deviceId = $(this).attr('deviceId');
 				devicesIds.push(deviceId);
 			}
-		})
+		});
 		
 		startReport();
 	});
@@ -235,7 +235,8 @@ $(function(){
         $.ajax({
             url: 'reportByStation',
             data: { 
-            		storeId: $('#store-id').val(), 
+					storeId: $('#store-id').val(),
+					storeGuid: $('#store-guid').val(), 
             		reportId: reportId,
             		devicesIds: devicesIds, 
             		startDatetime: startDatetime.format('YYYY-MM-DD HH:mm'), 
