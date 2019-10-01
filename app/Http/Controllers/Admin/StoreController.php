@@ -894,6 +894,7 @@ class StoreController extends Controller {
 
         $devicesIds = $request->get('devicesIds');
         if($devicesIds == "") {
+            $devicesIds = [];
             $devices  = DB::table('devices')
             ->where(['store_guid' => $storeGuid])
             ->where('is_deleted', '<>',  1)
