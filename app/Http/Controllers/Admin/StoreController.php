@@ -870,6 +870,7 @@ class StoreController extends Controller {
         $error = array();
         
         $storeId = $request->get('storeId');
+        $storeGuid = $request->get('storeGuid');
         
         $planXObject = PlanXObject::where("user_id", "=", $storeId)->get()->first();
         if(empty($planXObject)) {
@@ -889,9 +890,21 @@ class StoreController extends Controller {
             $itemQuantitySQL = "sum(i.quantity)";
         }
         
-        $devicesIds = $request->get('devicesIds');
         $reportId   = $request->get('reportId');
-        
+
+        $devicesIds = $request->get('devicesIds');
+        if($devicesIds == "") {
+            $devices  = DB::table('devices')
+            ->where(['store_guid' => $storeGuid])
+            ->where('is_deleted', '<>',  1)
+            ->where('name', '<>', 'KDSRouter') // for Premiun
+            ->where('id', '<>', 0)->get();
+
+            foreach($devices as $device) { 
+                array_push($devicesIds, $device->id);
+            }
+        }
+
         $startDatetime = strtotime($request->get('startDatetime'));
         $endDatetime   = strtotime($request->get('endDatetime'));
          
