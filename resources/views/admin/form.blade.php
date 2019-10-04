@@ -469,7 +469,6 @@
                 }
             });   
 
-            
             if($('#country option:selected' ).attr('country_code') == "US")
                 $("#zipcode").mask('0000000000');
                 
