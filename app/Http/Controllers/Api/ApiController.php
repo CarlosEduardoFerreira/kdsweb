@@ -380,7 +380,7 @@ class ApiController extends Controller
                 
                 $sms_start_use_default = $storeSettings->sms_start_use_default !== null ? $storeSettings->sms_start_use_default : 0;
                 $sms_ready_use_default = $storeSettings->sms_ready_use_default !== null ? $storeSettings->sms_ready_use_default : 0;
-                $sms_done_use_default = $storeSettings->sms_done_use_default !== null ? $storeSettings->sms_done_use_default : 0;
+                $sms_done_use_default  = $storeSettings->sms_done_use_default !== null ? $storeSettings->sms_done_use_default : 0;
                 
                 if ( ($orderStatus == 'KDS_IOS.Item.BumpStatus.new' || $orderStatus == 'new' || $orderStatus == '0') && 
                     isset($storeSettings->sms_start_enable) && $storeSettings->sms_start_enable) {
@@ -721,11 +721,14 @@ class ApiController extends Controller
 
     // Check if the same serial number is activate in another store.
     public function existDeviceInAnotherStore($store_guid, $device_serial) {
-        $device = DB::table('devices')
-            ->where('serial', '=', $device_serial)
-            ->where('store_guid', '<>',  $store_guid)
-            ->where('is_deleted', '=', 0)
-            ->where('split_screen_parent_device_id', '=', 0)
+        $device = DB::table('users')
+            ->join('devices', 'users.store_guid', '=', 'devices.store_guid')
+            ->select('devices.guid')
+            ->whereNull('users.deleted_at')
+            ->where('devices.serial', '=', $device_serial)
+            ->where('devices.store_guid', '<>',  $store_guid)
+            ->where('devices.is_deleted', '=', 0)
+            ->where('devices.split_screen_parent_device_id', '=', 0)
             ->first();
 
         return isset($device);

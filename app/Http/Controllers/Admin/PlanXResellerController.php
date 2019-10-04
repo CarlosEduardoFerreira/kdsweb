@@ -13,7 +13,7 @@ class PlanXResellerController extends Controller {
         $this->middleware('auth');
     }
 
-    
+
     public function index() {
 
         $me = Auth::user();
@@ -29,5 +29,5 @@ class PlanXResellerController extends Controller {
         ]);
     }
 
-    
+
 }

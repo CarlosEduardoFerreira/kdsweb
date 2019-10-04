@@ -9,8 +9,9 @@
 <div class="row" style="min-height:900px; margin:0px;">
     <div id="report_main" style="padding-top:10px;">
     
-    		<!-- This input is necessary for the report table (file:report.js) -->
-    		<input id="store-id" type="hidden" value="{{ $store->id }}">
+    		<!-- These inputs are necessary for the report table (file:report.js) -->
+            <input id="store-id" type="hidden" value="{{ $store->id }}">
+            <input id="store-guid" type="hidden" value="{{ $store->store_guid }}">
     		
     		<div id="report_filter" style="height:60px;padding:10px;font-weight:200;color:#000;font-size:16px;">
 
