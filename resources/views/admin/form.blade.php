@@ -400,6 +400,7 @@
 
     {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
     {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
+    {{ Html::script(mix('assets/admin/js/jquery.mask.js')) }}
 
     <script>
 
@@ -452,6 +453,11 @@
 
             $("#country").change(function() {
                 updateTimezones();
+
+                if($('#country option:selected' ).attr('country_code') == "US")
+                    $("#zipcode").mask('0000000000');
+                else
+                    $("#zipcode").unmask();
             });
 
             updateTimezones();
@@ -462,7 +468,12 @@
                 }
                 }
             });   
+
+            if($('#country option:selected' ).attr('country_code') == "US")
+                $("#zipcode").mask('0000000000');
+                
         });
+        
     </script>
 @endsection
 
