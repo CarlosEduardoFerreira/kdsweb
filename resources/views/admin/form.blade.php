@@ -322,7 +322,7 @@
                         <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="username" name="username" type="text" maxlength="45" class="form-control col-md-7 col-xs-12" value="{{ $user->username }} " required>
+                        <input id="username" name="username" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->username }}" required>
                         <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
@@ -400,9 +400,17 @@
 
     {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
     {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
-    {{ Html::script(mix('assets/admin/js/jquery.mask.js')) }}
 
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
+
+// $('#username').keyup(function(event) {
+// //   var newText = event.target.value;
+// //   newText = newText.replace(/'/g, "");
+// //   $('#username').val(newText);
+
+// });
 
         $(function(){
             $('.remove-store').click(function(){
@@ -453,27 +461,21 @@
 
             $("#country").change(function() {
                 updateTimezones();
-
-                if($('#country option:selected' ).attr('country_code') == "US")
-                    $("#zipcode").mask('0000000000');
-                else
-                    $("#zipcode").unmask();
             });
 
             updateTimezones();
-            $('#username').mask('#############################################', {
+            $('#username').mask('##########', {
                 translation: {
                 '#': {
                     pattern: /[a-zA-Z0-9]/, optional: true
                 }
                 }
-            });   
+            });
+
 
             if($('#country option:selected' ).attr('country_code') == "US")
-                $("#zipcode").mask('0000000000');
-                
+                  $("#zipcode").mask('0000000000');
         });
-        
     </script>
 @endsection
 
