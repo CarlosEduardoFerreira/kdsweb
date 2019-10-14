@@ -402,15 +402,8 @@
     {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
 
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    
     <script>
-
-// $('#username').keyup(function(event) {
-// //   var newText = event.target.value;
-// //   newText = newText.replace(/'/g, "");
-// //   $('#username').val(newText);
-
-// });
 
         $(function(){
             $('.remove-store').click(function(){
