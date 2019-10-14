@@ -396,10 +396,13 @@
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
 
-    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
-    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
     {{ Html::script(mix('assets/admin/js/jquery.mask.js')) }}
 
+    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
+    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
+
+
+    
     <script>
 
         $(function(){
@@ -451,20 +454,21 @@
 
             $("#country").change(function() {
                 updateTimezones();
-
-                if($('#country option:selected' ).attr('country_code') == "US")
-                    $("#zipcode").mask('0000000000');
-                else
-                    $("#zipcode").unmask();
             });
 
             updateTimezones();
+            $('#username').mask('##########', {
+                translation: {
+                '#': {
+                    pattern: /[a-zA-Z0-9]/, optional: true
+                }
+                }
+            });
+
 
             if($('#country option:selected' ).attr('country_code') == "US")
-                $("#zipcode").mask('0000000000');
-                
+                  $("#zipcode").mask('0000000000');
         });
-        
     </script>
 @endsection
 
