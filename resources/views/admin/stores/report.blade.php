@@ -60,7 +60,7 @@
 			<input type="text" id="daterange" name="daterange" class="btn" value="" />
 			
 			<button type="button" id="showModalDevices" class="btn btn-primary" 
-            		data-toggle="modal" data-target="#modalDevices" style="float:right;font-weight:200;font-size:16px;margin-right:20px;">
+            		data-toggle="modal" data-target="#modalDevices" style="font-weight:200;font-size:16px;">
 				KDS Stations <?php if(count($devices) > 0) { echo "(All)"; } ?>
 			</button>
 			
@@ -281,8 +281,11 @@
         .report-total-tds { border:1px solid #ccc; }
         
     /* report date range */
-        #daterange { width:280px; float:right; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        #daterange { margin-right:auto !important; width:280px; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
         
+    /* filters and refresh button */
+        #report_filter { white-space: nowrap; }
+        #report-refresh-div { position:relative; }
     </style>
 @endsection
 
