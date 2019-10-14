@@ -46,23 +46,6 @@
                             {{ __('views.backend.section.navigation.menu_0_1') }}
                         </a>
                     </li>
-                    
-                    <?php if($adm || $res || $stg) { ?>
-                    	<li>
-                        <a href="{{ route('admin.settings') }}">
-                            <i class="fa fa-wrench" aria-hidden="true"></i>
-                            Settings
-                        </a>
-                    </li>
-
-                    	<li>
-                        <a href="{{ route('admin.reports') }}">
-                            <i class="fa fa-line-chart" aria-hidden="true"></i>
-                            Reports
-                        </a>
-                    </li>
-                    <?php } ?>
-                    
                 </ul>
             </div>
             

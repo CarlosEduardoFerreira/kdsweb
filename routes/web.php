@@ -55,13 +55,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
     // Admin Settings
-    Route::get('settings', 'SettingsController@index')->name('settings');
+    //Route::get('settings', 'SettingsController@index')->name('settings');
     
     // Admin Reports
-    Route::get('reports', 'ReportController@index')->name('reports');
-    Route::get('reports/costByPlan', 'ReportCostByPlanController@index')->name('reports.costByPlan');
-    Route::get('reports/costByStore', 'ReportCostByStoreController@index')->name('reports.costByStore');
-    Route::get('reports/costByStatement', 'ReportCostByStatementController@index')->name('reports.costByStatement');
+    // Route::get('reports', 'ReportController@index')->name('reports');
+    // Route::get('reports/costByPlan', 'ReportCostByPlanController@index')->name('reports.costByPlan');
+    // Route::get('reports/costByStore', 'ReportCostByStoreController@index')->name('reports.costByStore');
+    // Route::get('reports/costByStatement', 'ReportCostByStatementController@index')->name('reports.costByStatement');
     
     // Plans
     Route::get('settings/plans', 'PlanController@index')->name('settings.plans');
