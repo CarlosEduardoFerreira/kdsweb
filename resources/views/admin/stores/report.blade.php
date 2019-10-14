@@ -280,7 +280,7 @@
         .report-total-tds { border:1px solid #ccc; }
         
     /* report date range */
-        #daterange { margin-right:auto !important; width:280px; float:none; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        #daterange { margin-right:auto !important; width:280px; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
         
     /* filters and refresh button */
         #report_filter { white-space: nowrap; }
