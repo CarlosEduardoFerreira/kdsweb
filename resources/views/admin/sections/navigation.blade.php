@@ -46,6 +46,15 @@
                             {{ __('views.backend.section.navigation.menu_0_1') }}
                         </a>
                     </li>
+
+                    <?php if ($adm) { ?>
+                        <li>
+                        <a href="{{ route('admin.reports') }}">
+                            <i class="fa fa-line-chart" aria-hidden="true"></i>
+                            Reports
+                        </a>
+                    </li>
+                    <?php } ?>
                 </ul>
             </div>
             
@@ -80,7 +89,7 @@
                             </a>
                         </li>
                     <?php } ?>
-                    
+
                     <!-- 
                     	<li id="li-users" class="">
                     		<a href="{{ route('admin.users', [auth()->user()->id]) }}">
