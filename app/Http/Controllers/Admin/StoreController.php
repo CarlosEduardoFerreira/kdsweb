@@ -843,6 +843,11 @@ class StoreController extends Controller {
     
     public function report(Request $request, User $store)
     {
+        $accessDenied = Controller::canIsee(Auth::user(), $store->id);
+        if ($accessDenied) {
+            return $accessDenied;
+        }
+
         if(isset($store->store_guid) and $store->store_guid != '') {
             $devices  = DB::table('devices')
             ->where(['store_guid' => $store->store_guid])
