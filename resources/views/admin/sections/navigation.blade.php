@@ -50,8 +50,8 @@
                     <?php if ($adm) { ?>
                         <li>
                         <a href="{{ route('admin.reports') }}">
-                            <i class="fa fa-line-chart" aria-hidden="true"></i>
-                            Reports
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            Billing
                         </a>
                     </li>
                     <?php } ?>
