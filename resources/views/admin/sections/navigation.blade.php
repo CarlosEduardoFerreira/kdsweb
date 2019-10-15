@@ -49,6 +49,7 @@
                 </ul>
             </div>
             
+            <?php if (($adm) || ($res) || ($stg)) { ?>
             <div class="menu_section" id="div-store-config">
                 <h3>{{ __('views.backend.section.navigation.sub_header_1') }}</h3>
                 <ul class="nav side-menu">
@@ -80,27 +81,6 @@
                         </li>
                     <?php } ?>
                     
-                    <?php 
-                        //$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-
-                        if(auth()->user()->hasRole('store')) { ?>
-
-                            <li id="li-store-config" class="">
-                                <a href="{{ route('admin.stores.config', [auth()->user()->id, 'link' => 'store-config']) }}">
-                                    <i class="fa fa-cogs" aria-hidden="true"></i>
-                                    Configuration
-                                </a>
-                                
-                            </li>
-                            
-                            <li id="li-store-reports" class="">
-                            		<a href="{{ route('admin.stores.report', [auth()->user()->id, 'link' => 'store-reports']) }}">
-                                    <i class="fa fa-line-chart" aria-hidden="true"></i>
-                                    Reports
-                                	</a>
-                             </li>
-                             
-                    <?php } ?>
                     <!-- 
                     	<li id="li-users" class="">
                     		<a href="{{ route('admin.users', [auth()->user()->id]) }}">
@@ -119,6 +99,7 @@
                 {{-- ------------------------------- Set CSS to actual menu li --}}
                 
             </div>
+            <?php } ?>
             
             <!-- do not remove this log -->
             <div id="log">&nbsp;</div>
