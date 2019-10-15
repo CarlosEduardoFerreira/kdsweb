@@ -6,7 +6,7 @@
 
 <div id="tabs" style="margin-top:50px;">
     <ul  class="nav nav-pills">
-        	<li class="active">
+        	<li>
         		<a class="tab-a" data-id="0" href="#1a" data-toggle="tab">by Plan</a>
         	</li>
 
@@ -14,7 +14,7 @@
     			<a class="tab-a" data-id="1" href="#1a" data-toggle="tab">by Store</a>
     		</li>
     		
-    		<li>
+    		<li class="active">
     			<a class="tab-a" data-id="2" href="#1a" data-toggle="tab">by Statement</a>
     		</li>
     </ul>
@@ -57,7 +57,7 @@
         ];
 		
 		$(function(){
-			SyncPage.getContent(reports[0][1], $('#reports-container'), '');
+			SyncPage.getContent(reports[2][1], $('#reports-container'), '');
 		});
 		
     		$('.tab-a').click(function(){

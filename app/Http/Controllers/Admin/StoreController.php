@@ -903,7 +903,7 @@ class StoreController extends Controller {
             $devices  = DB::table('devices')
             ->where(['store_guid' => $storeGuid])
             ->where('is_deleted', '<>',  1)
-            ->where('name', '<>', 'KDSRouter') // for Premiun
+            ->where('name', '<>', 'KDSRouter') // for Premium
             ->where('id', '<>', 0)->get();
 
             foreach($devices as $device) { 

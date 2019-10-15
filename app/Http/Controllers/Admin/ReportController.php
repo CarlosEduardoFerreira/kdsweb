@@ -110,8 +110,10 @@ class ReportController extends Controller {
         $sheet->setCellValue('E1', 'Stations Quantity');
         $sheet->setCellValue('F1', 'Price per License');
         $sheet->setCellValue('G1', 'Total Price');
-        
-        $sheet->getStyle("A1:G1")->getFont()->setBold(true);
+        $sheet->setCellValue('H1', 'Contact Name');
+        $sheet->setCellValue('I1', 'Billing Address');
+
+        $sheet->getStyle("A1:I1")->getFont()->setBold(true);
         
         $row = 2;
         foreach($stores as $store) {
@@ -131,6 +133,9 @@ class ReportController extends Controller {
             $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('0.00');
             $sheet->setCellValue('G' . $row, number_format($licensesQuantity * $store->planCost, 2, '.', ''));
             
+            $sheet->setCellValue('H' . $row, $store->storeName);
+            $sheet->setCellValue('I' . $row, $store->storeAddress);
+
             $row++;
         }
         
@@ -141,6 +146,8 @@ class ReportController extends Controller {
         $sheet->getColumnDimension('E')->setAutoSize(true);
         $sheet->getColumnDimension('F')->setAutoSize(true);
         $sheet->getColumnDimension('G')->setAutoSize(true);
+        $sheet->getColumnDimension('H')->setAutoSize(true);
+        $sheet->getColumnDimension('I')->setAutoSize(true);
 
         $file = 'downloads/statement-list-' . time() . '.xlsx';
         
