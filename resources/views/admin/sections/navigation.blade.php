@@ -55,6 +55,24 @@
                         </a>
                     </li>
                     <?php } ?>
+
+                    <?php 
+                        if(auth()->user()->hasRole('store')) { ?>
+                            <li id="li-store-config" class="">
+                                <a href="{{ route('admin.stores.config', [auth()->user()->id, 'link' => 'store-config']) }}">
+                                    <i class="fa fa-cogs" aria-hidden="true"></i>
+                                    Configuration
+                                </a>
+                            </li>
+
+                            <li id="li-store-reports" class="">
+                                <a href="{{ route('admin.stores.report', [auth()->user()->id, 'link' => 'store-reports']) }}">
+                                    <i class="fa fa-line-chart" aria-hidden="true"></i>
+                                    Reports
+                                </a>
+                            </li>
+                    <?php } ?>
+
                 </ul>
             </div>
             
