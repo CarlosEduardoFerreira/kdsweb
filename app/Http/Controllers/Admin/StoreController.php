@@ -911,9 +911,20 @@ class StoreController extends Controller {
             }
         }
 
-        $startDatetime = strtotime($request->get('startDatetime'));
-        $endDatetime   = strtotime($request->get('endDatetime'));
-         
+        // Convert Start and End times to store's timezone      
+        $storeTimezoneValue = DB::select("SELECT timezone FROM users WHERE store_guid = '$storeGuid'")[0]->timezone;
+        $storeTimezoneObject = new DateTimeZone(isset($storeTimezoneValue) ? $storeTimezoneValue : Vars::$timezoneDefault);
+        
+        $date = new DateTime();
+        $date->setTimezone($storeTimezoneObject);
+        $date->setTimestamp(strtotime($request->get('startDatetime')));
+        $startDatetime = $date->getTimestamp();
+
+        $date = new DateTime();
+        $date->setTimezone($storeTimezoneObject);
+        $date->setTimestamp(strtotime($request->get('endDatetime')));
+        $endDatetime = $date->getTimestamp();
+
         $sql = "";
         
         // Quantity and Average Time by Order
