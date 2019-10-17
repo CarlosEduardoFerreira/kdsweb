@@ -883,14 +883,15 @@ class StoreController extends Controller {
             return response()->json($error);
         }
         
-        $plan = Plan::where("guid", "=", $planXObject->plan_guid)->get()->first();
-        $app = App::where("guid", "=", $plan->app)->get()->first();
-        
+        //$plan = Plan::where("guid", "=", $planXObject->plan_guid)->get()->first();
+        //$app = App::where("guid", "=", $store->app)->get()->first();
+        $app_guid = DB::table("store_app")->where('store_guid', '=', $storeGuid)->get()->first()->app_guid;
+
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $this->connection = env('DB_CONNECTION', 'mysql');
         
         $itemQuantitySQL = "count(distinct i.guid)";
-        if($app->name == "Premium") {
+        if($app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f") {
             $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
             $itemQuantitySQL = "sum(i.quantity)";
         }
@@ -926,7 +927,7 @@ class StoreController extends Controller {
         $endDatetime = $date->getTimestamp();
 
         $sql = "";
-        
+
         // Quantity and Average Time by Order
         if($reportId == Vars::$reportIds[0]["id"]) {
             
@@ -1067,6 +1068,7 @@ class StoreController extends Controller {
                     GROUP BY select_orders.device_name, select_orders.item_name";
             
         }
+
         return $this->DB::connection($this->connection)->select($sql);
     }
     

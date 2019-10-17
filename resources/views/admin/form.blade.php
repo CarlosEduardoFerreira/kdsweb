@@ -261,7 +261,7 @@
             	<?php if ($obj == 'store') { ?>
             		<!-- App is linked by Plan ------------------------------------------------------- -->
             		<!-- display = none -->
-                <div class="form-group" style="display:none;margin-top:30px;margin-bottom:20px;">
+                <div class="form-group" style="margin-top:30px;margin-bottom:20px;">
                 		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">
                 			App:
                 			<span class="required">*</span>
