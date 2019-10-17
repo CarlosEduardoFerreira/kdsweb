@@ -328,7 +328,7 @@ class StoreController extends Controller {
             if ($device->name <> 'KDSRouter') {
                 $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
             }
-            
+
             if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
                 array_push($sortedDevices, $device);
             }
@@ -887,15 +887,20 @@ class StoreController extends Controller {
         
         //$plan = Plan::where("guid", "=", $planXObject->plan_guid)->get()->first();
         //$app = App::where("guid", "=", $store->app)->get()->first();
-        $app_guid = DB::table("store_app")->where('store_guid', '=', $storeGuid)->get()->first()->app_guid;
+        $isAppPremium = false;
+        $app_guid_result = DB::table("store_app")->where('store_guid', '=', $storeGuid)->get()->first();
+        if (isset($app_guid_result->app_guid)) {
+            $isAppPremium = ($app_guid_result->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f");
+        }
 
         $mainDB = env('DB_DATABASE', 'kdsweb');
-        $this->connection = env('DB_CONNECTION', 'mysql');
-        
+
         $itemQuantitySQL = "count(distinct i.guid)";
-        if($app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f") {
+        if ($isAppPremium) {
             $this->connection = env('DB_CONNECTION_PREMIUM', 'mysqlPremium');
             $itemQuantitySQL = "sum(i.quantity)";
+        } else {
+            $this->connection = env('DB_CONNECTION', 'mysql');
         }
         
         $reportId   = $request->get('reportId');
