@@ -325,8 +325,10 @@ class StoreController extends Controller {
         $activeLicenses = 0;
         $sortedDevices = [];
         foreach ($devices as &$device) {
-            $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
-
+            if ($device->name <> 'KDSRouter') {
+                $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
+            }
+            
             if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
                 array_push($sortedDevices, $device);
             }
