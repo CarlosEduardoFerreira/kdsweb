@@ -325,7 +325,7 @@ class StoreController extends Controller {
         $activeLicenses = 0;
         $sortedDevices = [];
         foreach ($devices as &$device) {
-            if ($device->name <> 'KDSRouter') {
+            if ($device->function <> 'KDSRouter') {
                 $activeLicenses += $device->split_screen_parent_device_id == 0 ? 1 : 0;
             }
 
