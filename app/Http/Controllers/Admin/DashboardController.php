@@ -80,6 +80,48 @@ class DashboardController extends Controller
     }
 
 
+    // public function getLogChartData(Request $request)
+    // {
+    //     Validator::make($request->all(), [
+    //         'start' => 'required|date|before_or_equal:now',
+    //         'end' => 'required|date|after_or_equal:start',
+    //     ])->validate();
+
+    //     $start = new Carbon($request->get('start'));
+    //     $end = new Carbon($request->get('end'));
+
+    //     $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
+    //         $value = new Carbon($value);
+    //         return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
+    //     });
+
+
+    //     $levels = LogViewer::levels();
+
+    //     $data = [];
+
+    //     while ($start->diffInDays($end, false) >= 0) {
+
+    //         foreach ($levels as $level) {
+    //             $data[$level][$start->format('Y-m-d')] = 0;
+    //         }
+
+    //         if ($dates->contains($start->format('Y-m-d'))) {
+    //             /** @var  $log Log */
+    //             $logs = LogViewer::get($start->format('Y-m-d'));
+
+    //             /** @var  $log LogEntry */
+    //             foreach ($logs->entries() as $log) {
+    //                 $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
+    //             }
+    //         }
+
+    //         $start->addDay();
+    //     }
+
+    //     return response($data);
+    // }
+    
     public function getLogChartData(Request $request)
     {
         Validator::make($request->all(), [
@@ -87,19 +129,27 @@ class DashboardController extends Controller
             'end' => 'required|date|after_or_equal:start',
         ])->validate();
 
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+
         $start = new Carbon($request->get('start'));
         $end = new Carbon($request->get('end'));
 
+        $sql = "SELECT create_time, COUNT(guid)
+                FROM {$mainDB}.orders
+                WHERE is_deleted = 0
+                AND create_time BETWEEN {$start->timestamp} AND {$end->timestamp}
+                GROUP BY create_time";
+
+        $data = [];
+        $dbData = DB::select($sql);
+        if (!isset($dbData)) return $data;
+        
         $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
             $value = new Carbon($value);
             return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
         });
 
-
         $levels = LogViewer::levels();
-
-        $data = [];
-
         while ($start->diffInDays($end, false) >= 0) {
 
             foreach ($levels as $level) {
@@ -121,7 +171,6 @@ class DashboardController extends Controller
 
         return response($data);
     }
-    
 
     public function getActiveInactiveLicensesGraph()
     {
