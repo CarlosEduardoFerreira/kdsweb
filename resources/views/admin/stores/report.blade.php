@@ -51,7 +51,7 @@
 				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:26px;cursor:hand;">
 			</div>
 			
-			<div id="report-download-div" style="">
+			<div id="report-download-div">
 				<a id="report-export-excel" href="#" style="display:none;">
 					<img src="/images/cloud-download.png" title="Download" style="margin:auto;height:30px;cursor:hand;">
 				</a>
@@ -288,7 +288,7 @@
         #report-refresh-div { position:relative; }
 
     /* report download button */
-        #report-download-div { float:right; width:60px; height:36px; text-align:right;padding-top:3px; position:relative;}
+        #report-download-div { float:right; width:60px; height:36px; text-align:right; padding-top:3px; position:relative; }
     </style>
 @endsection
 
