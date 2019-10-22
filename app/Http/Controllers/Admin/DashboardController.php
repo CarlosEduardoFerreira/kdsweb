@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Auth\User\User;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -131,6 +132,9 @@ class DashboardController extends Controller
 
         $mainDB = env('DB_DATABASE', 'kdsweb');
 
+        $me = Auth::user();
+        $store = DB::table('orders')->where('store_guid', '=', $me->store_guid)->get();
+        
         $start = new Carbon($request->get('start'));
         $end = new Carbon($request->get('end'));
 
@@ -144,7 +148,7 @@ class DashboardController extends Controller
         $dbData = DB::select($sql);
         if (!isset($dbData)) return $data;
         
-        $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
+        $dates = collect(Order::dates())->filter(function ($value, $key) use ($start, $end) {
             $value = new Carbon($value);
             return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
         });
