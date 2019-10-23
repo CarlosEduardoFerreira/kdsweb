@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Auth\User\User;
+#use App\Models\Auth\User\User;
 use App\Models\Order;
+use Arcanedev\LogViewer\LogViewer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Arcanedev\LogViewer\Facades\LogViewer;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 
 class DashboardController extends Controller
 {
@@ -130,50 +132,68 @@ class DashboardController extends Controller
             'end' => 'required|date|after_or_equal:start',
         ])->validate();
 
-        $mainDB = env('DB_DATABASE', 'kdsweb');
+        // $dataArray = [];
+        // $period = CarbonPeriod::create($request->get('start'), '1 month', $request->get('end'));
+        // foreach($period as $date) {
+        //     $dataArray[$date->format("Y-m")] = ["display" => $date->format("m/Y"), "value" => 0];
+        // }
 
-        $me = Auth::user();
-        $store = DB::table('orders')->where('store_guid', '=', $me->store_guid)->get();
-        
-        $start = new Carbon($request->get('start'));
-        $end = new Carbon($request->get('end'));
+        // $orders = Order::where("is_deleted", 0)
+        //                 ->whereBetween("create_local_time", [$period->getStartDate()->timestamp, 
+        //                                                      $period->getEndDate()->timestamp])
+        //                 ->take(10)->get();
 
-        $sql = "SELECT create_time, COUNT(guid)
-                FROM {$mainDB}.orders
-                WHERE is_deleted = 0
-                AND create_time BETWEEN {$start->timestamp} AND {$end->timestamp}
-                GROUP BY create_time";
 
-        $data = [];
-        $dbData = DB::select($sql);
-        if (!isset($dbData)) return $data;
-        
-        $dates = collect(Order::dates())->filter(function ($value, $key) use ($start, $end) {
-            $value = new Carbon($value);
-            return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
-        });
+        // ksort($dataArray);
 
-        $levels = LogViewer::levels();
-        while ($start->diffInDays($end, false) >= 0) {
+        // foreach ($orders as $order) {
+        //     $create_time = Carbon::createFromTimestamp($order->create_local_time);
+        //     $dataArray[$create_time->format("Y-m")]["value"] += 1;
+        // }
 
-            foreach ($levels as $level) {
-                $data[$level][$start->format('Y-m-d')] = 0;
-            }
+        // $result = [];
+        // foreach ($dataArray as $data) {
+        //     $result[] = [$data["display"], $data["value"]];
+        // }
 
-            if ($dates->contains($start->format('Y-m-d'))) {
-                /** @var  $log Log */
-                $logs = LogViewer::get($start->format('Y-m-d'));
 
-                /** @var  $log LogEntry */
-                foreach ($logs->entries() as $log) {
-                    $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
-                }
-            }
+                    $start = new Carbon($request->get('start'));
+                    $end = new Carbon($request->get('end'));
 
-            $start->addDay();
-        }
+                    $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
+                        $value = new Carbon($value);
+                        return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
+                    });
 
-        return response($data);
+
+                    $levels = LogViewer::levels();
+
+                    $data = [];
+
+                    while ($start->diffInDays($end, false) >= 0) {
+
+                        foreach ($levels as $level) {
+                            $data[$level][$start->format('Y-m-d')] = 0;
+                        }
+
+                        if ($dates->contains($start->format('Y-m-d'))) {
+                            /** @var  $log Log */
+                            $logs = LogViewer::get($start->format('Y-m-d'));
+
+                            /** @var  $log LogEntry */
+                            foreach ($logs->entries() as $log) {
+                                $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
+                            }
+                        }
+
+                        $start->addDay();
+                    }
+
+                    return response($data);
+
+
+
+        return response($result);
     }
 
     public function getActiveInactiveLicensesGraph()
