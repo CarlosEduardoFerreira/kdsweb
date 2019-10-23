@@ -157,39 +157,44 @@ class DashboardController extends Controller
         // }
 
 
-                    $start = new Carbon($request->get('start'));
-                    $end = new Carbon($request->get('end'));
+                            Validator::make($request->all(), [
+                                'start' => 'required|date|before_or_equal:now',
+                                'end' => 'required|date|after_or_equal:start',
+                            ])->validate();
 
-                    $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
-                        $value = new Carbon($value);
-                        return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
-                    });
+                            $start = new Carbon($request->get('start'));
+                            $end = new Carbon($request->get('end'));
+
+                            $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
+                                $value = new Carbon($value);
+                                return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
+                            });
 
 
-                    $levels = LogViewer::levels();
+                            $levels = LogViewer::levels();
 
-                    $data = [];
+                            $data = [];
 
-                    while ($start->diffInDays($end, false) >= 0) {
+                            while ($start->diffInDays($end, false) >= 0) {
 
-                        foreach ($levels as $level) {
-                            $data[$level][$start->format('Y-m-d')] = 0;
-                        }
+                                foreach ($levels as $level) {
+                                    $data[$level][$start->format('Y-m-d')] = 0;
+                                }
 
-                        if ($dates->contains($start->format('Y-m-d'))) {
-                            /** @var  $log Log */
-                            $logs = LogViewer::get($start->format('Y-m-d'));
+                                if ($dates->contains($start->format('Y-m-d'))) {
+                                    /** @var  $log Log */
+                                    $logs = LogViewer::get($start->format('Y-m-d'));
 
-                            /** @var  $log LogEntry */
-                            foreach ($logs->entries() as $log) {
-                                $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
+                                    /** @var  $log LogEntry */
+                                    foreach ($logs->entries() as $log) {
+                                        $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
+                                    }
+                                }
+
+                                $start->addDay();
                             }
-                        }
 
-                        $start->addDay();
-                    }
-
-                    return response($data);
+                            return response($data);
 
 
 
