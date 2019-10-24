@@ -103,23 +103,23 @@ class DashboardController extends Controller
         if (isset($app_guid->app_guid)) {
             $isAppPremium = ($app_guid->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f");
         }
-        $this->connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
         
         // Populate data with 0
         $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
-        foreach($period as $date) $data[$date->endOfDay()->getTimestamp() * 1000] = 0;
+        foreach($period as $date) $data[strval($date->format('Y-m-d'))] = 0;
 
         if ($isAdmin) {
             // Admin: view non-deleted orders from all active stores
             $sql = "SELECT 
-                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        DATE_FORMAT(FROM_UNIXTIME(o.create_local_time), '$sqlDateFormat') AS orderDate, 
                         COUNT(1) AS total
-                    FROM orders o
+                    FROM 
+                        orders o
                     WHERE
-                        create_local_time BETWEEN ? AND ?
+                        o.create_local_time BETWEEN ? AND ?
                     AND
-                        is_deleted = 0
-                    AND
+                        o.is_deleted = 0
+                        AND
                         o.store_guid IN (SELECT store_guid 
                                             FROM {$mainDB}.users 
                                             WHERE active = 1)
@@ -128,15 +128,22 @@ class DashboardController extends Controller
 
             $params = [$period->getStartDate()->timestamp, 
                         $period->getEndDate()->timestamp];
+
+            $orders1 = DB::connection(env('DB_CONNECTION_PREMIUM', 'mysqlPremium'))->select($sql, $params);
+            $orders2 = DB::connection(env('DB_CONNECTION', 'mysql'))->select($sql, $params);
+            foreach ($orders1 as $order) $data[strval($order->orderDate)] = $order->total;
+            foreach ($orders2 as $order) $data[strval($order->orderDate)] += $order->total;
         } else {
+            $connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
             $sql = "SELECT 
-                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        DATE_FORMAT(FROM_UNIXTIME(o.create_local_time), '$sqlDateFormat') AS orderDate, 
                         COUNT(1) AS total
-                    FROM orders o
+                    FROM 
+                        orders o
                     WHERE
-                        create_local_time BETWEEN ? AND ?
+                        o.create_local_time BETWEEN ? AND ?
                     AND
-                        is_deleted = 0
+                        o.is_deleted = 0
                     AND
                         o.store_guid IN (SELECT store_guid 
                                             FROM {$mainDB}.users 
@@ -146,22 +153,18 @@ class DashboardController extends Controller
                     ORDER BY orderDate ASC";
 
             $params = [$period->getStartDate()->timestamp, 
-                $period->getEndDate()->timestamp, 
-                $me->id, 
-                $me->id];
-        }
+                        $period->getEndDate()->timestamp, 
+                        $me->id, 
+                        $me->id];
 
-        $orders = DB::connection($this->connection)->select($sql, $params);
-        
-        foreach ($orders as $order) {
-            $ms = Carbon::createFromFormat($phpDateFormat, $order->orderDate)->endOfDay()->getTimestamp() * 1000;
-            $data[$ms] = $order->total;
+            $orders = DB::connection($connection)->select($sql, $params);
+            foreach ($orders as $order) $data[strval($order->orderDate)] = $order->total;
         }
 
         ksort($data);
         $ans = [];
-        foreach ($data as $k => $v) $ans[] = [$k, $v];
-        
+        foreach ($data as $k => $v) $ans[] = [Carbon::createFromFormat("Y-m-d", $k)->endOfDay()->getTimestamp() * 1000, $v];
+       
         return response($ans);
     }
 
