@@ -78,53 +78,12 @@ class DashboardController extends Controller
         return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
     }
 
-
-    // public function getLogChartData(Request $request)
-    // {
-    //     Validator::make($request->all(), [
-    //         'start' => 'required|date|before_or_equal:now',
-    //         'end' => 'required|date|after_or_equal:start',
-    //     ])->validate();
-
-    //     $start = new Carbon($request->get('start'));
-    //     $end = new Carbon($request->get('end'));
-
-    //     $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
-    //         $value = new Carbon($value);
-    //         return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
-    //     });
-
-
-    //     $levels = LogViewer::levels();
-
-    //     $data = [];
-
-    //     while ($start->diffInDays($end, false) >= 0) {
-
-    //         foreach ($levels as $level) {
-    //             $data[$level][$start->format('Y-m-d')] = 0;
-    //         }
-
-    //         if ($dates->contains($start->format('Y-m-d'))) {
-    //             /** @var  $log Log */
-    //             $logs = LogViewer::get($start->format('Y-m-d'));
-
-    //             /** @var  $log LogEntry */
-    //             foreach ($logs->entries() as $log) {
-    //                 $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
-    //             }
-    //         }
-
-    //         $start->addDay();
-    //     }
-
-    //     return response($data);
-    // }
     
-    public function getLogChartData(Request $request)
+    public function getMainChartData(Request $request)
     {
+        $phpDateFormat = "Y-m-d";
+        $sqlDateFormat = "%Y-%m-%d";
         
-
         Validator::make($request->all(), [
             'start' => 'required|date|before_or_equal:now',
             'end' => 'required|date|after_or_equal:start',
@@ -133,37 +92,59 @@ class DashboardController extends Controller
         $data = [];
         $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
         foreach($period as $date) {
-            $data[$date->format("Y-m")] = 0;
+            $data[$date->format($phpDateFormat)] = 0;
         }
 
         $me = Auth::user();
-        $sql = "SELECT 
-                    DATE_FORMAT(FROM_UNIXTIME(create_local_time), '%Y-%m') AS yyyymm, 
-                    COUNT(1) AS total
-                FROM orders o
-                WHERE
-                    create_local_time BETWEEN ? AND ?
-                AND
-                    o.store_guid IN (
-                            SELECT store_guid 
-                            FROM kdsweb.users 
-                            WHERE (id = ? OR parent_id = ?)
-                            AND active = 1
-                        )
-                GROUP BY yyyymm
-                ORDER BY yyyymm DESC";
 
-        $params = [$period->getStartDate()->timestamp, 
-                    $period->getEndDate()->timestamp, 
-                    $me->id, 
-                    $me->id];
+        if ($me->roles[0]->id == 1) {
+            // Admin: view non-deleted orders from all active stores
+            $sql = "SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        COUNT(1) AS total
+                    FROM orders o
+                    WHERE
+                        create_local_time BETWEEN ? AND ?
+                    AND
+                        is_deleted = 0
+                    AND
+                        o.store_guid IN (SELECT store_guid 
+                                            FROM kdsweb.users 
+                                            WHERE active = 1)
+                    GROUP BY orderDate
+                    ORDER BY orderDate DESC";
+
+            $params = [$period->getStartDate()->timestamp, 
+                        $period->getEndDate()->timestamp];
+        } else {
+            $sql = "SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        COUNT(1) AS total
+                    FROM orders o
+                    WHERE
+                        create_local_time BETWEEN ? AND ?
+                    AND
+                        is_deleted = 0
+                    AND
+                        o.store_guid IN (SELECT store_guid 
+                                            FROM kdsweb.users 
+                                            WHERE (id = ? OR parent_id = ?)
+                                            AND active = 1)
+                    GROUP BY orderDate
+                    ORDER BY orderDate DESC";
+
+            $params = [$period->getStartDate()->timestamp, 
+                $period->getEndDate()->timestamp, 
+                $me->id, 
+                $me->id];
+        }
 
         $orders = DB::select($sql, $params);
 
         ksort($data);
 
         foreach ($orders as $order) {
-            $data[$order->yyyymm] = $order->total;
+            $data[$order->orderDate] = $order->total;
         }
 
         $result = ["data" => []];

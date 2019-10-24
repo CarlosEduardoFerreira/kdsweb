@@ -30,6 +30,15 @@
     background-color: #90CAF9;
 }
 
+.flot-x-axis .flot-tick-label {
+    white-space: nowrap;
+    transform: translate(0, 9px) rotate(-90deg);
+    text-indent: -100%;
+    transform-origin: top right;
+    text-align: right !important;
+    height: 40px !important;
+}
+
 .jcarousel-wrapper {
     margin: 20px auto;
     position: relative;

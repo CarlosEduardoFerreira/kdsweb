@@ -67,8 +67,8 @@
     var logActivity = {
         options: {
             date: {
-                startDate: moment().subtract(11, 'months').startOf('month'),
-                endDate: moment().endOf('month'),
+                startDate: moment().subtract(29, 'days'),
+                endDate: moment(),
                 minDate: moment().subtract(23, 'months'),
                 maxDate: moment().endOf('month'),
                 dateLimit: {
@@ -84,9 +84,11 @@
                     // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
                     // 'This Month': [moment().startOf('month'), moment().endOf('month')],
                     // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                    'Last 6 months': [moment().subtract(5, 'month').startOf('month'), moment().endOf('month')],
-                    'Last 12 months': [moment().subtract(11, 'month').startOf('month'), moment().endOf('month')],
-                    'Last 24 months': [moment().subtract(23, 'month').startOf('month'), moment().endOf('month')],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This month': [moment().startOf('month'), moment()],
+                    'Last 3 months': [moment().subtract(2, 'month').startOf('month'), moment()],
+                    'Last 6 months': [moment().subtract(5, 'month').startOf('month'), moment()],
+                    'Last 12 months': [moment().subtract(11, 'month').startOf('month'), moment()]
                 },
                 opens: 'left',
                 buttonClasses: ['btn btn-default'],
@@ -124,7 +126,7 @@
                         show: true,
                         fill: true,
                         align: "center",
-                        barWidth: 15*24*60*60*1000
+                        barWidth: 24*60*60*1000
                     },
                     shadowSize: 2
                 },
@@ -140,9 +142,8 @@
                 xaxis: {
                     tickColor: "rgba(51, 51, 51, 0.06)",
                     mode: "time",
-                    timeformat: "%b<BR>%Y",
-                    tickSize: [1, "month"],
-                    axisLabel: "Month"
+                    timeformat: "%b %d", // "%b<BR>%Y",
+                    tickSize: [7, "day"]
                 },
                 yaxis: {
                     ticks: 8,
@@ -162,7 +163,7 @@
             var self = this;
 
             $.ajax({
-                url: 'admin/dashboard/log-chart',
+                url: 'admin/dashboard/main-chart',
                 data: {start: start, end: end},
                 success: function (response) {
                 		
@@ -210,6 +211,23 @@
             });
 
             self.gteChartData($chartEl, this.options.date.startDate.format('YYYY-MM-DD'), this.options.date.endDate.format('YYYY-MM-DD'));
+
+            // Enable tooltip
+            var previousPoint = null;
+            $($el).bind("plothover", function (event, pos, item) {
+                if (item) {
+                    if (previousPoint != item.dataIndex) {
+                        previousPoint = item.dataIndex;
+                        $("#tooltip").remove();
+                        y = item.datapoint[1].toFixed(0);
+                        showTooltip(item.pageX, item.pageY, y);
+                    }
+                }
+                else {
+                    $("#tooltip").remove();
+                    previousPoint = null;
+                }
+            });
         }
     };
 
@@ -217,3 +235,15 @@
     // ----------------------------------------------------------------------------------- //
 
 })(jQuery);
+
+function showTooltip(x, y, contents) {
+    $('<div id="tooltip">' + contents + '</div>').css({
+        position: 'absolute',
+        display: 'none',
+        top: y + 5,
+        left: x + 5,
+        border: '1px solid #ddd',
+        padding: '2px',
+        'background-color': '#eef'
+    }).appendTo("body").fadeIn(200);
+}
