@@ -941,8 +941,8 @@ class StoreController extends Controller {
             $sql = "SELECT
                         select_orders.device_name AS column_0,
                         SUM(select_orders.order_count) AS column_1,
-                        SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2,
-                        case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
+                        SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2
+                        -- case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
                     FROM
                         (SELECT
                             	dn.name AS device_name,
@@ -987,8 +987,8 @@ class StoreController extends Controller {
             $sql = "SELECT 
                         	select_orders.device_name AS column_0,
                         SUM(select_orders.item_count) AS column_1,
-                        SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2, -- ***
-                        case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
+                        SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2 -- ***
+                        -- case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
                     FROM
                         	(SELECT 
                             	dn.name AS device_name,

@@ -192,14 +192,14 @@ $(function(){
     			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
     			headers[1] = ["string",  "Orders Quantity", "sum", 0, "25", "center"];
     			headers[2] = ["string",  "Order Prep. Avg. Time", "time", 0, "30", "left"];
-    			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
+    			// headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
     			
     		} else if(reportId == $('#report-1').val()) { 	// Quantity and Average Time by Item
     			
     			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
     			headers[1] = ["string",  "Items Quantity", "sum", 0, "25", "center"];
     			headers[2] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
-    			headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
+    			// headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
     			
     		} else if(reportId == $('#report-2').val()) {	// Quantity and Average Time by Item Name
     			headers[0] = ["string",  "KDS Station", "text", 0, "20", "left"];
