@@ -741,20 +741,17 @@ class ApiController extends Controller
                     $return["FIELD"] = "parent_id";
                     $return["ERROR"] = "This StoreGroup does not have a default Plan.";
                 }
-                
-                // App is linked by Plan
-//                 if (!isset($request->user_apps)) {
-//                     $return["FIELD"] = "user_apps";
-//                     $return["ERROR"] = "Please fill the \"App\" field.";
+
+                if (!isset($request->user_apps)) {
+                    $return["FIELD"] = "user_apps";
+                    $return["ERROR"] = "Please fill the \"App\" field.";
                     
-//                 } else 
-                    
-                if (!isset($request->user_envs)) {
+                } else if (!isset($request->user_envs)) {
                     
                     $return["FIELD"] = "user_envs";
                     $return["ERROR"] = "Please fill the \"Type\" field.";
                 }
-                
+
             }
             
         }
