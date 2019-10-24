@@ -159,7 +159,8 @@ class StoreController extends Controller {
         PlanXObject::create($dataPlan);
         // -------------------------------------------- Relation between Defaut Plan and Store //
         
-        // Store Environments
+        // Update App/Store Environments
+        $this->updateApp($data['store_guid'], $request->get('user_apps'));
         $this->updateEnv($data['store_guid'], $request->get('user_envs'));
 
         //return redirect()->intended(route('admin.stores.edit', [$id, 'filter' => false])); // keep on the page
