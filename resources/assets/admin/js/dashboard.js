@@ -219,8 +219,10 @@
                     if (previousPoint != item.dataIndex) {
                         previousPoint = item.dataIndex;
                         $("#tooltip").remove();
-                        y = item.datapoint[1].toFixed(0);
-                        showTooltip(item.pageX, item.pageY, y);
+                        var x = new Date(item.datapoint[0]).toLocaleDateString();
+                        var y = item.datapoint[1].toFixed(0);
+                        var content = x + ": " + y;
+                        showTooltip(item.pageX, item.pageY, content);
                     }
                 }
                 else {
