@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Auth\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Arcanedev\LogViewer\Facades\LogViewer;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -79,49 +79,91 @@ class DashboardController extends Controller
         return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
     }
 
-
-    public function getLogChartData(Request $request)
+    
+    public function getMainChartData(Request $request)
     {
+        $phpDateFormat = "Y-m-d";
+        $sqlDateFormat = "%Y-%m-%d";
+        $data = [];
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+        $me = Auth::user();
+
         Validator::make($request->all(), [
             'start' => 'required|date|before_or_equal:now',
             'end' => 'required|date|after_or_equal:start',
         ])->validate();
+        
+        // Switch environment based on Premium/Allee
+        $isAppPremium = false;
+        $isAdmin = $me->roles[0]->id == 1;
+        $store_guid = DB::table("users")->where("id", "=", $me->id)->get()->first()->store_guid;
+        if ((!$isAdmin) && (!isset($store_guid))) return response($data);
+        
+        $app_guid = DB::table("store_app")->where('store_guid', '=', $store_guid)->get()->first();     
+        if (isset($app_guid->app_guid)) {
+            $isAppPremium = ($app_guid->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f");
+        }
+        $this->connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
+        
+        // Populate data with 0
+        $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
+        foreach($period as $date) $data[$date->endOfDay()->getTimestamp() * 1000] = 0;
 
-        $start = new Carbon($request->get('start'));
-        $end = new Carbon($request->get('end'));
+        if ($isAdmin) {
+            // Admin: view non-deleted orders from all active stores
+            $sql = "SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        COUNT(1) AS total
+                    FROM orders o
+                    WHERE
+                        create_local_time BETWEEN ? AND ?
+                    AND
+                        is_deleted = 0
+                    AND
+                        o.store_guid IN (SELECT store_guid 
+                                            FROM {$mainDB}.users 
+                                            WHERE active = 1)
+                    GROUP BY orderDate
+                    ORDER BY orderDate ASC";
 
-        $dates = collect(LogViewer::dates())->filter(function ($value, $key) use ($start, $end) {
-            $value = new Carbon($value);
-            return $value->timestamp >= $start->timestamp && $value->timestamp <= $end->timestamp;
-        });
+            $params = [$period->getStartDate()->timestamp, 
+                        $period->getEndDate()->timestamp];
+        } else {
+            $sql = "SELECT 
+                        DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
+                        COUNT(1) AS total
+                    FROM orders o
+                    WHERE
+                        create_local_time BETWEEN ? AND ?
+                    AND
+                        is_deleted = 0
+                    AND
+                        o.store_guid IN (SELECT store_guid 
+                                            FROM {$mainDB}.users 
+                                            WHERE (id = ? OR parent_id = ?)
+                                            AND active = 1)
+                    GROUP BY orderDate
+                    ORDER BY orderDate ASC";
 
-
-        $levels = LogViewer::levels();
-
-        $data = [];
-
-        while ($start->diffInDays($end, false) >= 0) {
-
-            foreach ($levels as $level) {
-                $data[$level][$start->format('Y-m-d')] = 0;
-            }
-
-            if ($dates->contains($start->format('Y-m-d'))) {
-                /** @var  $log Log */
-                $logs = LogViewer::get($start->format('Y-m-d'));
-
-                /** @var  $log LogEntry */
-                foreach ($logs->entries() as $log) {
-                    $data[$log->level][$log->datetime->format($start->format('Y-m-d'))] += 1;
-                }
-            }
-
-            $start->addDay();
+            $params = [$period->getStartDate()->timestamp, 
+                $period->getEndDate()->timestamp, 
+                $me->id, 
+                $me->id];
         }
 
-        return response($data);
+        $orders = DB::connection($this->connection)->select($sql, $params);
+        
+        foreach ($orders as $order) {
+            $ms = Carbon::createFromFormat($phpDateFormat, $order->orderDate)->endOfDay()->getTimestamp() * 1000;
+            $data[$ms] = $order->total;
+        }
+
+        ksort($data);
+        $ans = [];
+        foreach ($data as $k => $v) $ans[] = [$k, $v];
+        
+        return response($ans);
     }
-    
 
     public function getActiveInactiveLicensesGraph()
     {

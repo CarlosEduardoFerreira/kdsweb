@@ -97,14 +97,14 @@
 
                 <div class="row x_title">
                     <div class="col-md-6">
-                        <h3>Devices Data</h3>
+                        <h3>Orders</h3>
                     </div>
                     <div class="col-md-6">
                         <div class="date_piker pull-right"
                              style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
                             <span class="date_piker_label">
-                                {{ \Carbon\Carbon::now()->addDays(-6)->format('F j, Y') }} - {{ \Carbon\Carbon::now()->format('F j, Y') }}
+                                {{ \Carbon\Carbon::now()->addDays(-29)->format('F Y') }} - {{ \Carbon\Carbon::now()->endOfDay()->format('F Y') }}
                             </span>
                             <b class="caret"></b>
                         </div>

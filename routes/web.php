@@ -194,7 +194,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('permissions', 'PermissionController@index')->name('permissions');
     Route::get('permissions/{user}/repeat', 'PermissionController@repeat')->name('permissions.repeat');
 
-    Route::get('dashboard/log-chart', 'DashboardController@getLogChartData')->name('dashboard.log.chart');
+    Route::get('dashboard/main-chart', 'DashboardController@getMainChartData')->name('dashboard.main.chart');
     
     Route::get('dashboard/active_inactive_licenses_graph', 'DashboardController@getActiveInactiveLicensesGraph')
             ->name('dashboard.active_inactive_licenses_graph');

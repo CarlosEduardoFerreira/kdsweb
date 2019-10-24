@@ -265,6 +265,7 @@ mix.scripts([
     'node_modules/gentelella/production/js/moment/moment.min.js',
     'node_modules/gentelella/vendors/bootstrap-daterangepicker/daterangepicker.js',
 
+    'node_modules/flot-axislabels/jquery.flot.axislabels.js',
 
     'node_modules/gentelella/vendors/Chart.js/dist/Chart.js',
     'node_modules/jcarousel/dist/jquery.jcarousel.min.js',
