@@ -68,7 +68,7 @@
         options: {
             date: {
                 startDate: moment().subtract(29, 'days'),
-                endDate: moment(),
+                endDate: moment().add(1, 'day').endOf('day'),
                 minDate: moment().subtract(23, 'months'),
                 maxDate: moment().endOf('month'),
                 dateLimit: {
@@ -80,15 +80,11 @@
                 timePickerIncrement: 1,
                 timePicker12Hour: true,
                 ranges: {
-                    // 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    // 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    // 'This Month': [moment().startOf('month'), moment().endOf('month')],
-                    // 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This month': [moment().startOf('month'), moment()],
-                    'Last 3 months': [moment().subtract(2, 'month').startOf('month'), moment()],
-                    'Last 6 months': [moment().subtract(5, 'month').startOf('month'), moment()],
-                    'Last 12 months': [moment().subtract(11, 'month').startOf('month'), moment()]
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment().endOf('day')],
+                    'This month': [moment().startOf('month'), moment().endOf('day')],
+                    'Last 3 months': [moment().subtract(2, 'month').startOf('month'), moment().endOf('day')],
+                    'Last 6 months': [moment().subtract(5, 'month').startOf('month'), moment().endOf('day')],
+                    'Last 12 months': [moment().subtract(11, 'month').startOf('month'), moment().endOf('day')]
                 },
                 opens: 'left',
                 buttonClasses: ['btn btn-default'],
@@ -159,38 +155,14 @@
                 }
             }
         },
-        gteChartData: function ($el, start, end) {
+        getChartData: function ($el, start, end) {
             var self = this;
 
             $.ajax({
                 url: 'admin/dashboard/main-chart',
                 data: {start: start, end: end},
                 success: function (response) {
-                		
-                		var data = {};
-                		var progress = {all: 0};
-
-                    $.each(response, function (k, v) {
-                        data[k] = [];
-                        progress[k] = 0;
-                        //alert(k + ":" + v)
-                        $.each(v, function (date, value) {
-                            data[k].push([new Date(date).getTime(), value]);
-                            progress.all += value;
-                            progress[k] += value;
-                        });
-                    });
-
-                    $.plot($el, [data.data], self.options.chart);
-
-                    $.each(progress, function (k, v) {
-                        var $progress = $('.progress-bar.log-' + k);
-                        if ($progress.length) {
-                            $progress.attr('data-transitiongoal', 100 / progress.all * v).progressbar();
-                        }
-                    });
-
-                    $el.UseTooltip();
+                    $.plot($el, [response], self.options.chart);
                 }
             });
         },
@@ -207,10 +179,10 @@
             });
 
             $dateEl.on('apply.daterangepicker', function (ev, picker) {
-                self.gteChartData($chartEl, picker.startDate.format('YYYY-MM-DD'), picker.endDate.format('YYYY-MM-DD'));
+                self.getChartData($chartEl, picker.startDate.format('YYYY-MM-DD'), picker.endDate.format('YYYY-MM-DD'));
             });
 
-            self.gteChartData($chartEl, this.options.date.startDate.format('YYYY-MM-DD'), this.options.date.endDate.format('YYYY-MM-DD'));
+            self.getChartData($chartEl, this.options.date.startDate.format('YYYY-MM-DD'), this.options.date.endDate.format('YYYY-MM-DD'));
 
             // Enable tooltip
             var previousPoint = null;

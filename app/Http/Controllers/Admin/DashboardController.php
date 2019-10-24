@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 
@@ -83,21 +84,32 @@ class DashboardController extends Controller
     {
         $phpDateFormat = "Y-m-d";
         $sqlDateFormat = "%Y-%m-%d";
-        
+        $data = [];
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+        $me = Auth::user();
+
         Validator::make($request->all(), [
             'start' => 'required|date|before_or_equal:now',
             'end' => 'required|date|after_or_equal:start',
         ])->validate();
-
-        $data = [];
-        $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
-        foreach($period as $date) {
-            $data[$date->format($phpDateFormat)] = 0;
+        
+        // Switch environment based on Premium/Allee
+        $isAppPremium = false;
+        $isAdmin = $me->roles[0]->id == 1;
+        $store_guid = DB::table("users")->where("id", "=", $me->id)->get()->first()->store_guid;
+        if ((!$isAdmin) && (!isset($store_guid))) return response($data);
+        
+        $app_guid = DB::table("store_app")->where('store_guid', '=', $store_guid)->get()->first();     
+        if (isset($app_guid->app_guid)) {
+            $isAppPremium = ($app_guid->app_guid == "bc68f95c-1af5-47b1-a76b-e469f151ec3f");
         }
+        $this->connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
+        
+        // Populate data with 0
+        $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
+        foreach($period as $date) $data[$date->endOfDay()->getTimestamp() * 1000] = 0;
 
-        $me = Auth::user();
-
-        if ($me->roles[0]->id == 1) {
+        if ($isAdmin) {
             // Admin: view non-deleted orders from all active stores
             $sql = "SELECT 
                         DATE_FORMAT(FROM_UNIXTIME(create_local_time), '$sqlDateFormat') AS orderDate, 
@@ -109,10 +121,10 @@ class DashboardController extends Controller
                         is_deleted = 0
                     AND
                         o.store_guid IN (SELECT store_guid 
-                                            FROM kdsweb.users 
+                                            FROM {$mainDB}.users 
                                             WHERE active = 1)
                     GROUP BY orderDate
-                    ORDER BY orderDate DESC";
+                    ORDER BY orderDate ASC";
 
             $params = [$period->getStartDate()->timestamp, 
                         $period->getEndDate()->timestamp];
@@ -127,11 +139,11 @@ class DashboardController extends Controller
                         is_deleted = 0
                     AND
                         o.store_guid IN (SELECT store_guid 
-                                            FROM kdsweb.users 
+                                            FROM {$mainDB}.users 
                                             WHERE (id = ? OR parent_id = ?)
                                             AND active = 1)
                     GROUP BY orderDate
-                    ORDER BY orderDate DESC";
+                    ORDER BY orderDate ASC";
 
             $params = [$period->getStartDate()->timestamp, 
                 $period->getEndDate()->timestamp, 
@@ -139,20 +151,18 @@ class DashboardController extends Controller
                 $me->id];
         }
 
-        $orders = DB::select($sql, $params);
+        $orders = DB::connection($this->connection)->select($sql, $params);
+        
+        foreach ($orders as $order) {
+            $ms = Carbon::createFromFormat($phpDateFormat, $order->orderDate)->endOfDay()->getTimestamp() * 1000;
+            $data[$ms] = $order->total;
+        }
 
         ksort($data);
-
-        foreach ($orders as $order) {
-            $data[$order->orderDate] = $order->total;
-        }
-
-        $result = ["data" => []];
-        foreach ($data as $key => $value) {
-            $result["data"][$key] = $value;
-        }
-
-        return response($result);
+        $ans = [];
+        foreach ($data as $k => $v) $ans[] = [$k, $v];
+        
+        return response($ans);
     }
 
     public function getActiveInactiveLicensesGraph()
