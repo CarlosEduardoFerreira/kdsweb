@@ -945,12 +945,12 @@ class StoreController extends Controller {
                         case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
                     FROM
                         (SELECT
-                            	dn.name AS device_name,
-                            	count(distinct i.order_guid) AS order_count,
-                            	$itemQuantitySQL AS item_count,
-                            
-                            	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                            		ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
+                            CONCAT(dn.id, ': ', dn.name) AS device_name,
+                            count(distinct i.order_guid) AS order_count,
+                            $itemQuantitySQL AS item_count,
+                        
+                            max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                                ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
                             
                             dn.login AS active
                             
@@ -978,7 +978,7 @@ class StoreController extends Controller {
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
-            $sql .=     "GROUP BY dn.name, dn.login, i.order_guid) select_orders
+            $sql .=     "GROUP BY device_name, dn.login, i.order_guid) select_orders
                 GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item
@@ -991,7 +991,7 @@ class StoreController extends Controller {
                         case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
                     FROM
                         	(SELECT 
-                            	dn.name AS device_name,
+                            	CONCAT(dn.id, ': ', dn.name) AS device_name,
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,
                                     
@@ -1024,7 +1024,7 @@ class StoreController extends Controller {
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
-            $sql .=     "GROUP BY dn.name, dn.login, i.order_guid) select_orders
+            $sql .=     "GROUP BY device_name, dn.login, i.order_guid) select_orders
                     GROUP BY select_orders.device_name";
         
         // Quantity and Average Time by Item Name
@@ -1037,8 +1037,8 @@ class StoreController extends Controller {
                         SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_3 -- ***
                     FROM
                         	(SELECT
-                            	dn.name AS device_name,
-                             i.name AS item_name,
+                                CONCAT(dn.id, ': ', dn.name) AS device_name,
+                                i.name AS item_name,
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,
                 
@@ -1071,7 +1071,7 @@ class StoreController extends Controller {
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
-            $sql .=     "GROUP BY dn.name, i.name, dn.login, i.order_guid) select_orders
+            $sql .=     "GROUP BY device_name, i.name, dn.login, i.order_guid) select_orders
                     GROUP BY select_orders.device_name, select_orders.item_name";
             
         }
