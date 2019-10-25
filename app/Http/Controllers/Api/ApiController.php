@@ -186,9 +186,9 @@ class ApiController extends Controller
                     store_guid,
                     business_name
                 FROM users
-                WHERE username = :user AND deleted_at IS NULL";
+                WHERE username = ? AND deleted_at IS NULL";
         
-        $result = DB::select($sql, array('user' => $username));
+        $result = DB::select($sql, [$username]);
         
         //echo "sql: " . $sql . "|";
         
