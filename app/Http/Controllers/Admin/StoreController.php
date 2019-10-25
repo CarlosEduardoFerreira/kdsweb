@@ -957,7 +957,7 @@ class StoreController extends Controller {
                             
                         FROM item_bumps ib
                         JOIN items i ON ib.guid = i.item_bump_guid 
-                        JOIN orders o ON o.guid = i.order_guid 
+                        JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
     
                         JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                         JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
@@ -1003,7 +1003,7 @@ class StoreController extends Controller {
                                 
                             FROM item_bumps ib
                             JOIN items i ON ib.guid = i.item_bump_guid
-                            JOIN orders o ON o.guid = i.order_guid 
+                            JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
                             JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                             JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
@@ -1050,7 +1050,7 @@ class StoreController extends Controller {
                 
                             FROM item_bumps ib
                             JOIN items i ON ib.guid = i.item_bump_guid
-                            JOIN orders o ON o.guid = i.order_guid 
+                            JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
                             JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                             JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
