@@ -581,7 +581,7 @@ class ApiController extends Controller
             return $response;
         }
 
-        $sql = "SELECT * FROM devices WHERE store_guid = :store_guid AND `function` <> 'KDSRouter' AND is_deleted = 0";
+        $sql = "SELECT * FROM devices WHERE store_guid = :store_guid AND `function` <> 'KDSRouter'";
 
         $min_update_time = 0;
         if (isset($request["min_update_time"])) {            
