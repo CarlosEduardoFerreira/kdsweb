@@ -288,7 +288,7 @@ class ApiController extends Controller
         $entity = $request["entity"];
 
         $appVersion = $this->resolveApostrophe($appVersion);
-        $entity = $this->resolveApostrophe($appVersion);
+        $entity = $this->resolveApostrophe($entity);
 
         $data   = $request["data"];
         
