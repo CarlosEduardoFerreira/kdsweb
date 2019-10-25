@@ -855,7 +855,7 @@ class StoreController extends Controller {
             $devices  = DB::table('devices')
             ->where(['store_guid' => $store->store_guid])
             ->where('is_deleted', '<>',  1)
-            ->where('name', '<>', 'KDSRouter')
+            ->where('function', '<>', 'KDSRouter')
             ->orderBy('license','desc')
             ->orderBy('id','asc')->paginate(50);
         }
@@ -912,7 +912,7 @@ class StoreController extends Controller {
             $devices  = DB::table('devices')
             ->where(['store_guid' => $storeGuid])
             ->where('is_deleted', '<>',  1)
-            ->where('name', '<>', 'KDSRouter') // for Premium
+            ->where('function', '<>', 'KDSRouter') // for Premium
             ->where('id', '<>', 0)->get();
 
             foreach($devices as $device) { 
@@ -943,7 +943,6 @@ class StoreController extends Controller {
                         select_orders.device_name AS column_0,
                         SUM(select_orders.order_count) AS column_1,
                         SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2
-                        -- case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
                     FROM
                         (SELECT
                             CONCAT(dn.id, ': ', dn.name) AS device_name,
@@ -988,8 +987,7 @@ class StoreController extends Controller {
             $sql = "SELECT 
                         	select_orders.device_name AS column_0,
                         SUM(select_orders.item_count) AS column_1,
-                        SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2 -- ***
-                        -- case when MAX(select_orders.active) = 1 then 'true' else 'false' end AS column_3
+                        SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2
                     FROM
                         	(SELECT 
                             	CONCAT(dn.id, ': ', dn.name) AS device_name,
