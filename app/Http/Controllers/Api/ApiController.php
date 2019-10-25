@@ -179,8 +179,6 @@ class ApiController extends Controller
         $password = $request["password"];
         $device_serial = isset($request["serial"]) ? $request["serial"] : "";
         
-        
-
         $sql = "SELECT
                     password,
                     store_guid,
@@ -290,7 +288,7 @@ class ApiController extends Controller
         $entity = $request["entity"];
 
         $appVersion = $this->resolveApostrophe($appVersion);
-        $entity = $this->resolveApostrophe($appVersion);
+        $entity = $this->resolveApostrophe($entity);
 
         $data   = $request["data"];
         
