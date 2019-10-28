@@ -1,8 +1,14 @@
 @extends('admin.layouts.admin')
-
-@section('title', "Store View")
-
+@section('title', "")
 @section('content')
+
+
+    <div class="page-title">
+    <button onclick="goBack()" type="button" class="btn button4">Back</button>   
+    <div class="title_left">
+    <h1 class="h3">Store View</h1>
+    </div>
+    </div>
     <div class="row">
         <table class="table table-striped table-hover">
             <tbody>
@@ -122,4 +128,22 @@
             </tbody>
         </table>
     </div>
+    <style>   
+   button[type=button]:hover {
+    text-decoration:underline;
+}
+.button4 {
+position: absolute;
+left;
+margin-top:-20px;   
+font-size: 11px; 
+background: #26b99a00;
+
+}
+</style>
+<script>
+    function goBack() {
+    window.history.back();
+    }
+</script>
 @endsection
