@@ -368,13 +368,15 @@ class StoreController extends Controller {
         if(isset($request->storeGuid) and $request->storeGuid != '') {
 
             $devices = DB::select("SELECT * FROM devices 
-                WHERE store_guid =  '$request->storeGuid' 
+                WHERE store_guid = ? 
                 AND is_deleted = 0
-                order by id asc , create_time asc");
+                order by id asc , create_time asc", [$request->storeGuid]);
         }
 
         $sortedDevices = [];
         foreach ($devices as &$device) {
+            if (strlen($device->name) == 0) $device->name = $device->id . " - " . $device->function;
+
             if ($device->split_screen_parent_device_id == 0 && !in_array($device, $sortedDevices)) {
                 array_push($sortedDevices, $device);
             }
@@ -945,7 +947,7 @@ class StoreController extends Controller {
                         SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2
                     FROM
                         (SELECT
-                            CONCAT(dn.id, ': ', dn.name) AS device_name,
+                            CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
                             count(distinct i.order_guid) AS order_count,
                             $itemQuantitySQL AS item_count,
                         
@@ -990,7 +992,7 @@ class StoreController extends Controller {
                         SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2
                     FROM
                         	(SELECT 
-                            	CONCAT(dn.id, ': ', dn.name) AS device_name,
+                                CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,
                                     
@@ -1036,7 +1038,7 @@ class StoreController extends Controller {
                         SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_3 -- ***
                     FROM
                         	(SELECT
-                                CONCAT(dn.id, ': ', dn.name) AS device_name,
+                                CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
                                 i.name AS item_name,
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,

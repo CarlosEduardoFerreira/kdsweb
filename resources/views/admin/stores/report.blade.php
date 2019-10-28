@@ -164,7 +164,13 @@
                                 <span class="[ glyphicon glyphicon-minus ]"></span>
                             </label>
                             <label for="{{ $device->guid }}" class="[ btn btn-default active ]">
-                                {{ $device->name }}
+                                <?php
+                                    $name = $device->name;
+                                    if (strlen($name) == 0) {
+                                        $name = $device->id . " - " . $device->function;
+                                    }
+                                    echo $name;
+                                ?>
                             </label>
                          </div>
                     </div>
