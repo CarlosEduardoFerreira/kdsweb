@@ -2,7 +2,7 @@
 
 <?php if ($obj == 'store') { ?>
     @if($user->exists)
-    		@section('title',"Edit Store" )
+    		@section('title',"" )
     @else
     		@section('title',"New Store" )
     @endif
@@ -21,6 +21,25 @@
 <?php } ?>
 
 @section('content')
+    <div class="page-title">
+    <button onclick="goBack()" type="button" class="btn button4">Back</button>   
+    <div class="title_left">
+    <h1 class="h3">Edit Store</h1>
+                </div>
+                </div>
+<style>   
+   button[type=button]:hover {
+    text-decoration:underline;
+}
+.button4 {
+position: absolute;
+left;
+margin-top:-20px;   
+font-size: 11px; 
+background: #26b99a00;
+
+}
+</style>
     <div class="row" style="min-height:1100px;">
         <div class="col-md-12 col-sm-12 col-xs-12">
         		<?php if ($obj == 'store') { ?>
@@ -404,7 +423,9 @@
 
     
     <script>
-
+        function goBack() {
+    window.history.back();
+    }
         $(function(){
             $('.remove-store').click(function(){
                 var url = "{{ route('admin.stores.removeStore') }}";
