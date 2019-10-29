@@ -87,7 +87,7 @@ class DashboardController extends Controller
         $data = [];
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $me = Auth::user();
-
+        
         Validator::make($request->all(), [
             'start' => 'required|date|before_or_equal:now',
             'end' => 'required|date|after_or_equal:start',
@@ -97,7 +97,6 @@ class DashboardController extends Controller
         $isAppPremium = false;
         $isAdmin = $me->roles[0]->id == 1;
         $store_guid = DB::table("users")->where("id", "=", $me->id)->get()->first()->store_guid;
-        if ((!$isAdmin) && (!isset($store_guid))) return response($data);
         
         $app_guid = DB::table("store_app")->where('store_guid', '=', $store_guid)->get()->first();     
         if (isset($app_guid->app_guid)) {
@@ -107,6 +106,7 @@ class DashboardController extends Controller
         // Populate data with 0
         $period = CarbonPeriod::create($request->get('start'), '1 day', $request->get('end'));
         foreach($period as $date) $data[strval($date->format('Y-m-d'))] = 0;
+        $ans = [];
 
         if ($isAdmin) {
             // Admin: view non-deleted orders from all active stores
@@ -119,7 +119,7 @@ class DashboardController extends Controller
                         o.create_local_time BETWEEN ? AND ?
                     AND
                         o.is_deleted = 0
-                        AND
+                    AND
                         o.store_guid IN (SELECT store_guid 
                                             FROM {$mainDB}.users 
                                             WHERE active = 1)
@@ -134,6 +134,15 @@ class DashboardController extends Controller
             foreach ($orders1 as $order) $data[strval($order->orderDate)] = $order->total;
             foreach ($orders2 as $order) $data[strval($order->orderDate)] += $order->total;
         } else {
+            $stores = [];
+            $users = Controller::filterUsers(null, 0, 0);
+            foreach ($users as $user) {
+                if ($user->role_id == 4) {
+                    $stores[] = $user->store_guid;
+                }
+            }
+            $question_marks = implode(',', array_fill(0, count($stores), '?'));
+
             $connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
             $sql = "SELECT 
                         DATE_FORMAT(FROM_UNIXTIME(o.create_local_time), '$sqlDateFormat') AS orderDate, 
@@ -145,25 +154,20 @@ class DashboardController extends Controller
                     AND
                         o.is_deleted = 0
                     AND
-                        o.store_guid IN (SELECT store_guid 
-                                            FROM {$mainDB}.users 
-                                            WHERE (id = ? OR parent_id = ?)
-                                            AND active = 1)
+                        o.store_guid IN ($question_marks)
                     GROUP BY orderDate
                     ORDER BY orderDate ASC";
 
             $params = [$period->getStartDate()->timestamp, 
-                        $period->getEndDate()->timestamp, 
-                        $me->id, 
-                        $me->id];
+                        $period->getEndDate()->timestamp];
+            foreach ($stores as $store) $params[] = $store;
 
             $orders = DB::connection($connection)->select($sql, $params);
             foreach ($orders as $order) $data[strval($order->orderDate)] = $order->total;
         }
 
         ksort($data);
-        $ans = [];
-        foreach ($data as $k => $v) $ans[] = [Carbon::createFromFormat("Y-m-d", $k)->endOfDay()->getTimestamp() * 1000, $v];
+        foreach ($data as $k => $v) $ans[] = [Carbon::createFromFormat($phpDateFormat, $k)->endOfDay()->getTimestamp() * 1000, $v];
        
         return response($ans);
     }
