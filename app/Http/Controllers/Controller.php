@@ -92,12 +92,11 @@ class Controller extends BaseController
         $joinApps       = "";
         if($filterRole == 4) { // 1 = admin, 2 = reseller, 3 = storegroup, 4 = store
             $selectsApps    = " , apps.name as app_name ";
-            $joinApps       = "LEFT JOIN plans_x_objects AS plans_objects ON plans_objects.user_id = stores.id
-                                LEFT JOIN plans AS plans ON plans.guid = plans_objects.plan_guid 
-                                LEFT JOIN apps AS apps ON apps.guid = plans.app ";
+            $joinApps = "LEFT JOIN store_app ON store_app.store_guid = stores.store_guid
+                            LEFT JOIN apps ON apps.guid = store_app.app_guid ";
         }
         
-        // Evironments
+        // Environments
         $selectsEnvs    = "";
         $joinEnvs       = "";
         if($filterRole == 4) {
