@@ -951,7 +951,7 @@ class StoreController extends Controller {
                             count(distinct i.order_guid) AS order_count,
                             $itemQuantitySQL AS item_count,
                         
-                            max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                            max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
                                 ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
                             
                             dn.login AS active
@@ -960,23 +960,19 @@ class StoreController extends Controller {
                         JOIN items i ON ib.guid = i.item_bump_guid 
                         JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
     
-                        JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                         JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
-                        (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                        (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                     
-                        JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                        JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                             
                         WHERE u.id = $storeId
-                        AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                        AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                               else ib.prepared_device_id end) != 0";
             
-            $sql .= " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
-                            then ib.done_local_time else ib.prepared_local_time end) >= $startDatetime
-                            AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
-                            then ib.done_local_time else ib.prepared_local_time end) <= $endDatetime)";
+            $sql .= " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
+                            then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
             
             if($devicesIds != "") {
-                $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
@@ -996,7 +992,7 @@ class StoreController extends Controller {
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,
                                     
-                            	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
+                            	max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
                             		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
                                     
                             	dn.login AS active
@@ -1005,23 +1001,19 @@ class StoreController extends Controller {
                             JOIN items i ON ib.guid = i.item_bump_guid
                             JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
-                            JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                             JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
-                            	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                            	(case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                                   
-                            JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                            JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                             
                             WHERE u.id = $storeId 
-                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                                AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
             
-            $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') 
-                                then ib.done_local_time else ib.prepared_local_time end) >= $startDatetime 
-                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') 
-                                then ib.done_local_time else ib.prepared_local_time end) <= $endDatetime)";
+            $sql .=         " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') 
+                                then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
             
             if($devicesIds != "") {
-                $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
@@ -1032,7 +1024,7 @@ class StoreController extends Controller {
         } else if($reportId == Vars::$reportIds[2]["id"]) {
             
             $sql = "SELECT
-                        	select_orders.device_name AS column_0,
+                        select_orders.device_name AS column_0,
                         select_orders.item_name AS column_1,
                         SUM(select_orders.item_count) AS column_2,
                         SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_3 -- ***
@@ -1043,7 +1035,7 @@ class StoreController extends Controller {
                             	count(distinct i.order_guid) AS order_count,
                             	$itemQuantitySQL AS item_count,
                 
-                            	max((case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                            	max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
                             		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
                 
                             	dn.login AS active
@@ -1052,23 +1044,19 @@ class StoreController extends Controller {
                             JOIN items i ON ib.guid = i.item_bump_guid
                             JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
-                            JOIN ".$mainDB.".devices d ON d.is_deleted = 0 AND d.id <> 0 AND d.store_guid = o.store_guid
                             JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
-                            	(case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                            	(case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
                 
-                            JOIN ".$mainDB.".users u ON u.store_guid = d.store_guid AND u.store_guid = dn.store_guid
+                            JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                 
                             WHERE u.id = $storeId
-                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                                AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
                             
-            $sql .=         " AND ( (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
-                                then ib.done_local_time else ib.prepared_local_time end) >= $startDatetime
-                                AND (case when (d.`function` = 'EXPEDITOR' OR d.`function` = 'BACKUP_EXPE')
-                                then ib.done_local_time else ib.prepared_local_time end) <= $endDatetime)";
+            $sql .=         " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
+                                then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
                             
             if($devicesIds != "") {
-                $sql .=     " AND d.id IN (" . implode(",", $devicesIds) . ") ";
                 $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
             }
             
