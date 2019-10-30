@@ -965,7 +965,7 @@ class StoreController extends Controller {
                     
                         JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                             
-                        WHERE u.id = $storeId
+                        WHERE u.id = $storeId AND ib.status > 0
                         AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                               else ib.prepared_device_id end) != 0";
             
@@ -1006,7 +1006,7 @@ class StoreController extends Controller {
                                   
                             JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                             
-                            WHERE u.id = $storeId 
+                            WHERE u.id = $storeId AND ib.status > 0
                                 AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
             
@@ -1049,7 +1049,7 @@ class StoreController extends Controller {
                 
                             JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                 
-                            WHERE u.id = $storeId
+                            WHERE u.id = $storeId AND ib.status > 0
                                 AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
                                   else ib.prepared_device_id end) != 0";
                             
