@@ -614,11 +614,6 @@ class ApiController extends Controller
             return $response;
         }
 
-        if (($entity !== "notification_questions") && ($entity !== "notification_answers")) {
-            $response[0]["error"] = "Unknown entity '$entity'";
-            return $response;
-        }
-
         $sql = "SELECT * FROM $entity WHERE store_guid = :store_guid";
 
         if ($min_update_time !== -1) {
