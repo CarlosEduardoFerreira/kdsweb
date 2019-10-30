@@ -102,10 +102,16 @@
 
                     <div class="col-md-3">
                         <select id="sel_store" name="sel_store" class="form-control select2 pull-right" style="width: 100%" required>
-                        <option id="0" selected>All stores</option>
-                        @foreach ($stores as $k => $v)
-                            <option id="{{ $k }}">{{ $v }}</option>
-                        @endforeach
+                        <option id="" selected>All stores</option>
+                        <?php
+                            if (isset($stores)) {
+                                foreach ($stores as $k => $v) {
+                                    ?> 
+                                        <option id="{{ $k }}">{{ $v }}</option> 
+                                    <?php
+                                }
+                            }
+                        ?>
                         </select>
                     </div>
 
