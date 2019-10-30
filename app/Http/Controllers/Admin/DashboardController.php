@@ -45,7 +45,6 @@ class DashboardController extends Controller
 
         //echo "count users: " . count($users);
 
-        $stores_ids = [];
         $resellers   = 0;
         $storegroups = 0;
         $stores      = 0;
@@ -66,10 +65,6 @@ class DashboardController extends Controller
             } else if ($user->role_id == 5) {
                 $employees++;
             }
-
-            $store_name = $user->business_name;
-            if (!isset($store_name)) $store_name = $user->username;
-            $stores_ids[$user->id] = $store_name;
         }
 
         $counts = [
@@ -81,7 +76,7 @@ class DashboardController extends Controller
             'devices'     => $devices
         ];
 
-        return view('admin.dashboard', ['counts' => $counts, 'me' => $me, 'stores' => $stores_ids]);
+        return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
     }
 
     
@@ -131,8 +126,8 @@ class DashboardController extends Controller
                     GROUP BY orderDate
                     ORDER BY orderDate ASC";
 
-            $params = [$period->getStartDate()->timestamp, 
-                        $period->getEndDate()->timestamp];
+            $params = [$period->getStartDate()->startOfDay()->timestamp, 
+                        $period->getEndDate()->endOfDay()->timestamp];
 
             $orders1 = DB::connection(env('DB_CONNECTION_PREMIUM', 'mysqlPremium'))->select($sql, $params);
             $orders2 = DB::connection(env('DB_CONNECTION', 'mysql'))->select($sql, $params);
@@ -140,13 +135,29 @@ class DashboardController extends Controller
             foreach ($orders2 as $order) $data[strval($order->orderDate)] += $order->total;
         } else {
             $stores = [];
+            
+            $me_store_guid = Auth::user()->store_guid;
             $users = Controller::filterUsers(null, 0, 0);
             foreach ($users as $user) {
                 if ($user->role_id == 4) {
                     $stores[] = $user->store_guid;
                 }
             }
-            $question_marks = implode(',', array_fill(0, count($stores), '?'));
+
+            # Include itself
+            if (isset($me_store_guid)) {
+                if (!in_array($me_store_guid, $stores)) {
+                    if (strlen($me_store_guid) > 0) {
+                        $stores[] = $me_store_guid;
+                    }
+                }
+            }
+
+            $addedCondition = "AND o.store_guid = '0'"; // Non-existent store
+            if (count($stores) > 0) {
+                $question_marks = implode(',', array_fill(0, count($stores), '?'));
+                $addedCondition = "AND o.store_guid IN ($question_marks)";
+            }
 
             $connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
             $sql = "SELECT 
@@ -158,13 +169,12 @@ class DashboardController extends Controller
                         o.create_local_time BETWEEN ? AND ?
                     AND
                         o.is_deleted = 0
-                    AND
-                        o.store_guid IN ($question_marks)
+                    $addedCondition
                     GROUP BY orderDate
                     ORDER BY orderDate ASC";
 
-            $params = [$period->getStartDate()->timestamp, 
-                        $period->getEndDate()->timestamp];
+            $params = [$period->getStartDate()->startOfDay()->timestamp, 
+                        $period->getEndDate()->modify("+1 day")->endOfDay()->timestamp];
             foreach ($stores as $store) $params[] = $store;
 
             $orders = DB::connection($connection)->select($sql, $params);
