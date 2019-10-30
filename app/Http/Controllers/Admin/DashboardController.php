@@ -45,6 +45,7 @@ class DashboardController extends Controller
 
         //echo "count users: " . count($users);
 
+        $stores_ids = [];
         $resellers   = 0;
         $storegroups = 0;
         $stores      = 0;
@@ -65,6 +66,10 @@ class DashboardController extends Controller
             } else if ($user->role_id == 5) {
                 $employees++;
             }
+
+            $store_name = $user->business_name;
+            if (!isset($store_name)) $store_name = $user->username;
+            $stores_ids[$user->id] = $store_name;
         }
 
         $counts = [
@@ -76,7 +81,7 @@ class DashboardController extends Controller
             'devices'     => $devices
         ];
 
-        return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
+        return view('admin.dashboard', ['counts' => $counts, 'me' => $me, 'stores' => $stores_ids]);
     }
 
     

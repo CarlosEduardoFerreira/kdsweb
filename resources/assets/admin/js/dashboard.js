@@ -155,12 +155,12 @@
                 }
             }
         },
-        getChartData: function ($el, start, end) {
+        getChartData: function ($el, start, end, store) {
             var self = this;
 
             $.ajax({
                 url: 'admin/dashboard/main-chart',
-                data: {start: start, end: end},
+                data: {start: start, end: end, store: store},
                 success: function (response) {
                     $.plot($el, [response], self.options.chart);
                 }
@@ -173,16 +173,26 @@
 
             var $dateEl = $el.find('.date_piker');
             var $chartEl = $el.find('.chart');
+            var $storeEl = $('#sel_store');
+            var store_id = $storeEl.children("option:selected").attr("id");
 
             $dateEl.daterangepicker(this.options.date, function (start, end) {
                 $dateEl.find('.date_piker_label').html(start.format('MMMM YYYY') + ' - ' + end.format('MMMM YYYY'));
             });
 
             $dateEl.on('apply.daterangepicker', function (ev, picker) {
-                self.getChartData($chartEl, picker.startDate.format('YYYY-MM-DD'), picker.endDate.format('YYYY-MM-DD'));
+                self.getChartData($chartEl, picker.startDate.format('YYYY-MM-DD'), picker.endDate.format('YYYY-MM-DD'), store_id);
             });
 
-            self.getChartData($chartEl, this.options.date.startDate.format('YYYY-MM-DD'), this.options.date.endDate.format('YYYY-MM-DD'));
+            $storeEl.on('change', function() {
+                store_id = $storeEl.children("option:selected").attr("id");
+                var picker = $(".date_piker").data('daterangepicker');
+                self.getChartData($chartEl, picker.startDate.format('YYYY-MM-DD'), 
+                                            picker.endDate.format('YYYY-MM-DD'), store_id);
+            });
+
+            self.getChartData($chartEl, this.options.date.startDate.format('YYYY-MM-DD'), 
+                                this.options.date.endDate.format('YYYY-MM-DD'), store_id);
 
             // Enable tooltip
             var previousPoint = null;

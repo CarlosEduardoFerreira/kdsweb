@@ -96,10 +96,20 @@
             <div id="log_activity" class="dashboard_graph x_panel tile fixed_height_320 overflow_hidden">
 
                 <div class="row x_title">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <h3>Orders</h3>
                     </div>
-                    <div class="col-md-6">
+
+                    <div class="col-md-3">
+                        <select id="sel_store" name="sel_store" class="form-control select2 pull-right" style="width: 100%" required>
+                        <option id="0" selected>All stores</option>
+                        @foreach ($stores as $k => $v)
+                            <option id="{{ $k }}">{{ $v }}</option>
+                        @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-5">
                         <div class="date_piker pull-right"
                              style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc">
                             <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
