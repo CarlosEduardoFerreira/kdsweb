@@ -168,6 +168,8 @@
                                     $name = $device->name;
                                     if (strlen($name) == 0) {
                                         $name = $device->id . " - " . $device->function;
+                                    } else {
+                                        $name = $device->id . " - " . $name;
                                     }
                                     echo $name;
                                 ?>
