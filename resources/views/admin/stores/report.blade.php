@@ -26,7 +26,10 @@
     				<input type="hidden" id="report-1" value="{{ $reports[1]['id'] }}">
     			
     			<!-- ["title" => "Quantity and Average Time by Item Name",  "id" => "quantity_and_average_time_by_item_name"] -->
-    				<input type="hidden" id="report-2" value="{{ $reports[2]['id'] }}">
+                    <input type="hidden" id="report-2" value="{{ $reports[2]['id'] }}">
+                    
+                <!-- Quantity and Average Time by Category -->
+    				<input type="hidden" id="report-3" value="{{ $reports[3]['id'] }}">
     			<!-- ------------------------------------------------------------------------------------------------- Reports by id -->
     			
             <button type="button" id="showModalChooseReport" class="btn btn-success" 

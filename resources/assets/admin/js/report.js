@@ -186,31 +186,39 @@ $(function(){
     		 *  5 = text align
     		 */
     		headers = [];
-    		
-    		if(reportId == $('#report-0').val()) { 		// Quantity and Average Time by Order
-        		
-    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
-    			headers[1] = ["string",  "Orders Quantity", "sum", 0, "25", "center"];
-    			headers[2] = ["string",  "Order Prep. Avg. Time", "time", 0, "30", "left"];
-    			// headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
-    			
-    		} else if(reportId == $('#report-1').val()) { 	// Quantity and Average Time by Item
-    			
-    			headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
-    			headers[1] = ["string",  "Items Quantity", "sum", 0, "25", "center"];
-    			headers[2] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
-    			// headers[3] = ["boolean", "Active", "active", 0, "20", "center"];
-    			
-    		} else if(reportId == $('#report-2').val()) {	// Quantity and Average Time by Item Name
-    			headers[0] = ["string",  "KDS Station", "text", 0, "20", "left"];
-    			headers[1] = ["string",  "Items Name", "text", 0, "25", "left"];
-    			headers[2] = ["string",  "Items Quantity", "sum", 0, "15", "center"];
-    			headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
-    			headers[4] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
-    		}
+			
+			switch (reportId) {
+				case $('#report-0').val():
+					headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
+					headers[1] = ["string",  "Orders Quantity", "sum", 0, "25", "center"];
+					headers[2] = ["string",  "Order Prep. Avg. Time", "time", 0, "30", "left"];
+					break;
+				
+				case $('#report-1').val():
+					headers[0] = ["string",  "KDS Station", "text", 0, "25", "left"];
+					headers[1] = ["string",  "Items Quantity", "sum", 0, "25", "center"];
+					headers[2] = ["string",  "Item Prep. Avg. Time", "time", 0, "30", "left"];
+					break;
+				
+				case $('#report-2').val():
+					headers[0] = ["string",  "KDS Station", "text", 0, "20", "left"];
+					headers[1] = ["string",  "Items Name", "text", 0, "25", "left"];
+					headers[2] = ["string",  "Items Quantity", "sum", 0, "15", "center"];
+					headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
+					headers[4] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
+					break;
+				
+				case $('#report-3').val():
+					headers[0] = ["string",  "KDS Station", "text", 0, "15", "left"];
+					headers[1] = ["string",  "Category", "text", 0, "15", "left"];
+					headers[2] = ["string",  "Items Name", "text", 0, "20", "left"];
+					headers[3] = ["string",  "Items Qty", "sum", 0, "10", "center"];
+					headers[4] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
+					headers[5] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
+					break;
+			}
     		
     		buildReport();
-    		
     	}
     	
     	
@@ -226,124 +234,122 @@ $(function(){
     		}
 		
     		$('#report_div').hide();
-        $('#report-total').hide();
-        $('#no-data').hide();
-        $('#report-export-excel').hide();
-        
-        $('#report-loading').show();
-        
-        $.ajax({
-            url: 'reportByStation',
-            data: { 
-					storeId: $('#store-id').val(),
-					storeGuid: $('#store-guid').val(), 
-            		reportId: reportId,
-            		devicesIds: devicesIds, 
-            		startDatetime: startDatetime.format('YYYY-MM-DD HH:mm'), 
-            		endDatetime: endDatetime.format('YYYY-MM-DD HH:mm') 
-            	},
-            success: function (response) {
+			$('#report-total').hide();
+			$('#no-data').hide();
+			$('#report-export-excel').hide();
+			
+			$('#report-loading').show();
+			
+			$.ajax({
+				url: 'reportByStation',
+				data: { 
+						storeId: $('#store-id').val(),
+						storeGuid: $('#store-guid').val(), 
+						reportId: reportId,
+						devicesIds: devicesIds, 
+						startDatetime: startDatetime.format('YYYY-MM-DD HH:mm'), 
+						endDatetime: endDatetime.format('YYYY-MM-DD HH:mm') 
+					},
+				success: function (response) {
 
-             	$('#report-loading').hide();
-             	
-             	if(response.length == 0) {
-                		$('#no-data').fadeIn('slow');
-                		
-             	} else if(response["error"] != undefined) {
-             		$('#no-data').fadeIn('slow');
-             		$('#modal-error').modal("show");
-             		$('#modal-error').find('.modal-body').css({'padding':'20px', 'font-size':'14px', 'font-weight':'300', 'letter-spacing':'2px',
-             			'text-align':'center', 'color':'red'});
-             		$('#modal-error').find('.modal-body').html(response["error"]["msg"]);
-
-            		} else {
-            			
-            			fillDataTable(response, dataTable);
-            			
-            			var cssClasses = {
-        		 			headerRow: 'tblHeaderClass', 
-        		 			hoverTableRow: 'tblHighlightClass',
-        		 			oddTableRow: 'odd-row-style'
-        		     	};
-            			
-            			var tableSettings = {
-        		     		'cssClassNames':cssClasses,
-        		     		allowHtml: true,
-        		    			showRowNumber: false,
-        		    			sort: reportId == $('#report-2').val() ? 'disable' : 'enable', // Quantity and Average Time by Item Name (Device Name)
-        		    			width: '100%',
-        		    			height: 'auto'
-        		     	}
-            			
-            			if(!exportReport) {
-        					tableSettings.page = 'enable';
-        					tableSettings.pageSize = perPage;
-        					tableSettings.pagingSymbols = { prev: 'prev', next: 'next' };
-        					tableSettings.pagingButtonsConfiguration = 'auto';
-            			}
-            			
-            			handleTable(exportReport, response, tableSettings, dataTable);
-            			
-            			// Export Report --------------------------------------------------------- //
-            			if(exportReport) {
-            				var id = 'KDS_'+getFilenameDatetime();
-            				
-            				var reportTable = $('#report_div table');
-            				 	reportTable.prop('id', id);
-            				 	
-            				TableExport.prototype.typeConfig.date.assert = function(value){return false;};
-            					
-            			 	var instance = new TableExport(reportTable, {
-            				    formats: ['xlsx'],
-            				    exportButtons: false,
-            				    bootstrap: true,
-            				    exportDataType: 'all'
-            				});
-            			 	
-            			 	if(instance.getExportData()[id] !== undefined) {
-            			 		xlsxExportData = instance.getExportData()[id]['xlsx'];
-            			 	}
-            				
-            			 	if(xlsxExportData !== undefined) {
-            			 		instance.export2file(
-            		 				xlsxExportData.data, 
-            		 				xlsxExportData.mimeType, 
-            		 				xlsxExportData.filename, 
-            		 				xlsxExportData.fileExtension
-            		 			);
-            			 	}
-            			 	
-            			 	buildReport();
-            			}
-            			// --------------------------------------------------------- Export Report //
-            			
-            		}
-             	
-             	// Refresh Button show
-             	$('#report-refresh-img').fadeIn('slow');
-            },
-	    		error : function (xhr, ajaxOptions, thrownError) {
-	    			if(xhr.status == 401) { // {"error":"Unauthenticated."}
-					location.href = "{{ route('admin.dashboard') }}";
-				} else if(xhr.status == 504) { // {"error":"Gateway Time-out."}
 					$('#report-loading').hide();
-					$('#no-data').fadeIn('slow');
-				}
-	    		}
-            	
-    		});
+					
+					if(response.length == 0) {
+							$('#no-data').fadeIn('slow');
+							
+					} else if(response["error"] != undefined) {
+						$('#no-data').fadeIn('slow');
+						$('#modal-error').modal("show");
+						$('#modal-error').find('.modal-body').css({'padding':'20px', 'font-size':'14px', 'font-weight':'300', 'letter-spacing':'2px',
+							'text-align':'center', 'color':'red'});
+						$('#modal-error').find('.modal-body').html(response["error"]["msg"]);
+
+						} else {
+							
+							fillDataTable(response, dataTable);
+							
+							var cssClasses = {
+								headerRow: 'tblHeaderClass', 
+								hoverTableRow: 'tblHighlightClass',
+								oddTableRow: 'odd-row-style'
+							};
+							
+							var tableSettings = {
+								'cssClassNames':cssClasses,
+								allowHtml: true,
+									showRowNumber: false,
+									sort: reportId == $('#report-2').val() ? 'disable' : 'enable', // Quantity and Average Time by Item Name (Device Name)
+									width: '100%',
+									height: 'auto'
+							}
+							
+							if(!exportReport) {
+								tableSettings.page = 'enable';
+								tableSettings.pageSize = perPage;
+								tableSettings.pagingSymbols = { prev: 'prev', next: 'next' };
+								tableSettings.pagingButtonsConfiguration = 'auto';
+							}
+							
+							handleTable(exportReport, response, tableSettings, dataTable);
+							
+							// Export Report --------------------------------------------------------- //
+							if(exportReport) {
+								var id = 'KDS_'+getFilenameDatetime();
+								
+								var reportTable = $('#report_div table');
+									reportTable.prop('id', id);
+									
+								TableExport.prototype.typeConfig.date.assert = function(value){return false;};
+									
+								var instance = new TableExport(reportTable, {
+									formats: ['xlsx'],
+									exportButtons: false,
+									bootstrap: true,
+									exportDataType: 'all'
+								});
+								
+								if(instance.getExportData()[id] !== undefined) {
+									xlsxExportData = instance.getExportData()[id]['xlsx'];
+								}
+								
+								if(xlsxExportData !== undefined) {
+									instance.export2file(
+										xlsxExportData.data, 
+										xlsxExportData.mimeType, 
+										xlsxExportData.filename, 
+										xlsxExportData.fileExtension
+									);
+								}
+								
+								buildReport();
+							}
+							// --------------------------------------------------------- Export Report //
+							
+						}
+					
+					// Refresh Button show
+					$('#report-refresh-img').fadeIn('slow');
+				},
+					error : function (xhr, ajaxOptions, thrownError) {
+						if(xhr.status == 401) { // {"error":"Unauthenticated."}
+						location.href = "{{ route('admin.dashboard') }}";
+					} else if(xhr.status == 504) { // {"error":"Gateway Time-out."}
+						$('#report-loading').hide();
+						$('#no-data').fadeIn('slow');
+					}
+					}
+					
+				});
     	}
     	
     	
     	function fillDataTable(response, dataTable) {
     		var i_row = 0;
-    		
     		var columns_count = headers.length;
-    		
-		var last_device = "";
+			var last_device = "";
+			var last_category = "";
 		
     		response.forEach(function(obj) {
-    			
     			var device = [];
     			
     			// Set columns value/text
@@ -351,23 +357,50 @@ $(function(){
     				var column_type		= headers[i_col][2];
     				var column_value 	= eval("obj.column_" + i_col);
     				
-    				// Quantity and Average Time by Item Name
-    				if(reportId == $('#report-2').val()) {
-    					
-    					if (i_col == 0) { // Device Name
-        					if (i_row % perPage != 0 && column_value == last_device)  {
-        						column_value = "";
-        					}
-        					
-    					} else if (i_col == 4) { // Total Prep. Time
-    						column_value = parseInt(obj.column_2) * parseInt(obj.column_3);
-        					
-    					}
-    					
-    				}
+    				// by Item Name
+    				if (reportId == $('#report-2').val()) {
+						switch (i_col) {
+							case 0: // Device name
+								if (i_row % perPage != 0 && column_value == last_device)  {
+									column_value = "";
+								}
+								break;
+
+							case 4:
+								column_value = parseInt(obj.column_2) * parseInt(obj.column_3);
+								break;
+						}
+					}
+					
+					// by Category
+    				if (reportId == $('#report-3').val()) {
+						switch (i_col) {
+							case 0: // Device name
+								if (i_row % perPage != 0 && column_value == last_device)  {
+									column_value = "";
+								}
+								break;
+
+							case 1: // Category
+								if (i_row % perPage != 0 && column_value == last_category)  {
+									column_value = "";
+								}
+								last_category = obj.column_1;
+								break;
+
+							case 2:
+								if (column_value == null) column_value = "<strong>Total</strong>";
+								break;
+
+							case 5:
+								column_value = parseInt(obj.column_3) * parseInt(obj.column_4);
+								break;
+						}
+
+						if (column_value == null) column_value = "";
+					}
     				
     				column_value = getValue(i_col, column_type, column_value, true);
-    				
     				device.push(column_value);
     			}
     			
@@ -504,9 +537,9 @@ $(function(){
     	    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
     	    var seconds = sec_num - (hours * 3600) - (minutes * 60);
 
-    	    hours = hours == 1 ? "1 hour" : (hours > 0 ? hours + " hours" : "");
-    	    minutes = minutes == 1 ? "1 minute" : (minutes > 0 ? minutes + " minutes" : "");
-    	    seconds = seconds == 1 ? "1 second" : (seconds > 0 ? seconds + " seconds" : "")
+    	    hours = hours == 1 ? "1 hr" : (hours > 0 ? hours + " hrs" : "");
+    	    minutes = minutes == 1 ? "1 min" : (minutes > 0 ? minutes + " mins" : "");
+    	    seconds = seconds == 1 ? "1 sec" : (seconds > 0 ? seconds + " secs" : "")
     	    
     	    return hours + " " + minutes + " " + seconds;
     	}

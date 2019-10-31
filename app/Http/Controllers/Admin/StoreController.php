@@ -922,147 +922,212 @@ class StoreController extends Controller {
             }
         }
 
-        // Convert Start and End times to store's timezone      
-        $storeTimezoneValue = DB::select("SELECT timezone FROM users WHERE store_guid = '$storeGuid'")[0]->timezone;
-        $storeTimezoneObject = new DateTimeZone(isset($storeTimezoneValue) ? $storeTimezoneValue : Vars::$timezoneDefault);
+        // // Convert Start and End times to store's timezone      
+        // $storeTimezoneValue = DB::select("SELECT timezone FROM users WHERE store_guid = '$storeGuid'")[0]->timezone;
+        // $storeTimezoneObject = new DateTimeZone(isset($storeTimezoneValue) ? $storeTimezoneValue : Vars::$timezoneDefault);
         
-        $date = new DateTime();
-        $date->setTimezone($storeTimezoneObject);
-        $date->setTimestamp(strtotime($request->get('startDatetime')));
-        $startDatetime = $date->getTimestamp();
+        // $date = new DateTime();
+        // $date->setTimezone($storeTimezoneObject);
+        // $date->setTimestamp(strtotime($request->get('startDatetime')));
+        // $startDatetime = $date->getTimestamp();
 
-        $date = new DateTime();
-        $date->setTimezone($storeTimezoneObject);
-        $date->setTimestamp(strtotime($request->get('endDatetime')));
-        $endDatetime = $date->getTimestamp();
+        // $date = new DateTime();
+        // $date->setTimezone($storeTimezoneObject);
+        // $date->setTimestamp(strtotime($request->get('endDatetime')));
+        // $endDatetime = $date->getTimestamp();
+
+        $startDatetime = strtotime($request->get('startDatetime'));
+        $endDatetime = strtotime($request->get('endDatetime'));
 
         $sql = "";
 
-        // Quantity and Average Time by Order
-        if($reportId == Vars::$reportIds[0]["id"]) {
-            
-            $sql = "SELECT
-                        select_orders.device_name AS column_0,
-                        SUM(select_orders.order_count) AS column_1,
-                        SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2
-                    FROM
-                        (SELECT
-                            CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
-                            count(distinct i.order_guid) AS order_count,
-                            $itemQuantitySQL AS item_count,
-                        
-                            max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                                ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
+        switch($reportId) {
+            case Vars::$reportIds[0]["id"]:
+                $sql = "SELECT
+                            select_orders.device_name AS column_0,
+                            SUM(select_orders.order_count) AS column_1,
+                            SUM(select_orders.order_avg_time) / SUM(select_orders.order_count) AS column_2
+                        FROM
+                            (SELECT
+                                CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
+                                count(distinct i.order_guid) AS order_count,
+                                $itemQuantitySQL AS item_count,
                             
-                            dn.login AS active
-                            
-                        FROM item_bumps ib
-                        JOIN items i ON ib.guid = i.item_bump_guid 
-                        JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
-    
-                        JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
-                        (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
-                    
-                        JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
-                            
-                        WHERE u.id = $storeId AND ib.status > 0
-                        AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
-                              else ib.prepared_device_id end) != 0";
-            
-            $sql .= " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
-                            then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
-            
-            if($devicesIds != "") {
-                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
-            }
-            
-            $sql .=     "GROUP BY device_name, dn.login, i.order_guid) select_orders
-                GROUP BY select_orders.device_name";
+                                max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                                    ib.create_local_time) / count(distinct i.order_guid) AS order_avg_time,
+                                
+                                dn.login AS active
+                                
+                            FROM item_bumps ib
+                            JOIN items i ON ib.guid = i.item_bump_guid 
+                            JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
         
-        // Quantity and Average Time by Item
-        } else if($reportId == Vars::$reportIds[1]["id"]) { 
-            
+                            JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
+                            (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                        
+                            JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
+                                
+                            WHERE u.id = $storeId AND ib.status > 0
+                            AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                                else ib.prepared_device_id end) != 0";
+                
+                $sql .= " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
+                                then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
+                
+                if($devicesIds != "") {
+                    $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
+                }
+                
+                $sql .= "GROUP BY device_name, dn.login, i.order_guid) select_orders GROUP BY select_orders.device_name";
+                break;
+
+            case Vars::$reportIds[1]["id"]:
             $sql = "SELECT 
-                        	select_orders.device_name AS column_0,
+                            select_orders.device_name AS column_0,
                         SUM(select_orders.item_count) AS column_1,
                         SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_2
                     FROM
-                        	(SELECT 
+                            (SELECT 
                                 CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
-                            	count(distinct i.order_guid) AS order_count,
-                            	$itemQuantitySQL AS item_count,
+                                count(distinct i.order_guid) AS order_count,
+                                $itemQuantitySQL AS item_count,
                                     
-                            	max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
-                            		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
+                                max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) - 
+                                    ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
                                     
-                            	dn.login AS active
+                                dn.login AS active
                                 
                             FROM item_bumps ib
                             JOIN items i ON ib.guid = i.item_bump_guid
                             JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
                             JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id = 
-                            	(case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
-                                  
+                                (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                                
                             JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
                             
                             WHERE u.id = $storeId AND ib.status > 0 
-                                AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
-                                  else ib.prepared_device_id end) != 0";
-            
-            $sql .=         " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') 
+                                
+                            AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                                else ib.prepared_device_id end) != 0
+                                
+                            AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') 
                                 then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
-            
-            if($devicesIds != "") {
-                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
-            }
-            
-            $sql .=     "GROUP BY device_name, dn.login, i.order_guid) select_orders
-                    GROUP BY select_orders.device_name";
-        
-        // Quantity and Average Time by Item Name
-        } else if($reportId == Vars::$reportIds[2]["id"]) {
-            
-            $sql = "SELECT
-                        select_orders.device_name AS column_0,
-                        select_orders.item_name AS column_1,
-                        SUM(select_orders.item_count) AS column_2,
-                        SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_3 -- ***
-                    FROM
-                        	(SELECT
-                                CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
-                                i.name AS item_name,
-                            	count(distinct i.order_guid) AS order_count,
-                            	$itemQuantitySQL AS item_count,
-                
-                            	max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
-                            		ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
-                
-                            	dn.login AS active
-                
-                            FROM item_bumps ib
-                            JOIN items i ON ib.guid = i.item_bump_guid
-                            JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
 
-                            JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
-                            	(case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
-                
-                            JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
-                
-                            WHERE u.id = $storeId AND ib.status > 0
+                if($devicesIds != "") {
+                    $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
+                }
+
+                $sql .=     "GROUP BY device_name, dn.login, i.order_guid) select_orders GROUP BY select_orders.device_name";
+                break;
+
+            case Vars::$reportIds[2]["id"]:
+                $sql = "SELECT
+                            select_orders.device_name AS column_0,
+                            select_orders.item_name AS column_1,
+                            SUM(select_orders.item_count) AS column_2,
+                            SUM(select_orders.item_avg_time) / SUM(select_orders.order_count) AS column_3 -- ***
+                        FROM
+                                (SELECT
+                                    CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
+                                    i.name AS item_name,
+                                    count(distinct i.order_guid) AS order_count,
+                                    $itemQuantitySQL AS item_count,
+                    
+                                    max((case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_local_time else ib.prepared_local_time end) -
+                                        ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
+                    
+                                    dn.login AS active
+                    
+                                FROM item_bumps ib
+                                JOIN items i ON ib.guid = i.item_bump_guid
+                                JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
+
+                                JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
+                                    (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
+                    
+                                JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
+                    
+                                WHERE u.id = $storeId AND ib.status > 0
                                 AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
-                                  else ib.prepared_device_id end) != 0";
-                            
-            $sql .=         " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
-                                then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
-                            
-            if($devicesIds != "") {
-                $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
-            }
+                                    else ib.prepared_device_id end) != 0
+                                AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
+                                    then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
+                                
+                if($devicesIds != "") {
+                    $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
+                }
+
+                $sql .=     "GROUP BY device_name, i.name, dn.login, i.order_guid) select_orders
+                                GROUP BY select_orders.device_name, select_orders.item_name";
+                break;
+
+            case Vars::$reportIds[3]["id"]:
+                if ($isAppPremium) {
+                    $sql = "SELECT 'Report not yet available for Premium' AS column_0,
+                                    '' AS column_1,
+                                    0 AS column_2,
+                                    0 AS column_3,
+                                    '' AS column_4
+                            FROM orders";
+                    break;
+                }
+
+                if($devicesIds != "") {
+                    $addedDeviceCondition = " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
+                }
+                
+                $this->DB::connection($this->connection)->statement("DROP TEMPORARY TABLE IF EXISTS tmp_select_orders;");
+                
+                $sql = "CREATE TEMPORARY TABLE tmp_select_orders AS 
+                        SELECT
+                            CONCAT(dn.id, ' - ', IF(LENGTH(dn.name) = 0, dn.function, dn.name)) AS device_name,
+                            i.name AS item_name,
+                            COUNT(distinct i.order_guid) AS order_count,
+                            $itemQuantitySQL AS item_count,
+                            MAX((CASE WHEN (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') THEN 
+                                ib.done_local_time ELSE ib.prepared_local_time END) - 
+                                ib.create_local_time) / $itemQuantitySQL AS item_avg_time,
+                            i.category
             
-            $sql .=     "GROUP BY device_name, i.name, dn.login, i.order_guid) select_orders
-                    GROUP BY select_orders.device_name, select_orders.item_name";
+                        FROM item_bumps ib
+                        JOIN items i ON ib.guid = i.item_bump_guid
+                        JOIN orders o ON o.guid = i.order_guid AND o.is_deleted = 0
+
+                        JOIN ".$mainDB.".devices dn ON dn.is_deleted = 0 AND dn.store_guid = o.store_guid AND dn.id =
+                            (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id else ib.prepared_device_id end)
             
+                        JOIN ".$mainDB.".users u ON u.store_guid = dn.store_guid
+            
+                        WHERE u.id = $storeId AND ib.status > 0
+                        AND (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') then ib.done_device_id
+                            else ib.prepared_device_id end) != 0
+                        AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
+                            then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)
+                            
+                        $addedDeviceCondition 
+                        
+                        GROUP BY device_name, i.name, i.category, i.order_guid";
+                
+                $this->DB::connection($this->connection)->statement($sql);
+
+                $sql = "SELECT * FROM (
+                            SELECT
+                                device_name column_0,
+                                category column_1,
+                                item_name column_2,
+                                SUM(item_count) AS column_3,
+                                SUM(item_avg_time) / SUM(order_count) AS column_4
+                            FROM tmp_select_orders
+                            GROUP BY device_name ASC, category ASC, item_name ASC WITH ROLLUP) result_table
+                        WHERE device_name IS NOT NULL
+                        ORDER BY column_0, column_1, column_2";
+
+                break;
+
+            default:
+                $sql = "";
+                break;
         }
 
         return $this->DB::connection($this->connection)->select($sql);
