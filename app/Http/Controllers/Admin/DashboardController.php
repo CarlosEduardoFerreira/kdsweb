@@ -45,6 +45,7 @@ class DashboardController extends Controller
 
         //echo "count users: " . count($users);
 
+        $stores_data = [];
         $resellers   = 0;
         $storegroups = 0;
         $stores      = 0;
@@ -65,6 +66,13 @@ class DashboardController extends Controller
             } else if ($user->role_id == 5) {
                 $employees++;
             }
+
+            if (isset($user->store_guid)) {
+                $store_name = isset($user->business_name) ? $user->business_name : $user->username;
+                $stores_data[$user->store_guid] = $store_name;
+            }
+
+            natcasesort($stores_data);
         }
 
         $counts = [
@@ -76,7 +84,7 @@ class DashboardController extends Controller
             'devices'     => $devices
         ];
 
-        return view('admin.dashboard', ['counts' => $counts, 'me' => $me]);
+        return view('admin.dashboard', ['counts' => $counts, 'me' => $me, 'stores' => $stores_data]);
     }
 
     
@@ -108,8 +116,23 @@ class DashboardController extends Controller
         foreach($period as $date) $data[strval($date->format('Y-m-d'))] = 0;
         $ans = [];
 
+        // Is there a store guid to filter?
+        $filter_store_guid = $request->store;
+
         if ($isAdmin) {
             // Admin: view non-deleted orders from all active stores
+            $params = [$period->getStartDate()->startOfDay()->timestamp, 
+                        $period->getEndDate()->endOfDay()->timestamp];
+
+            if (strlen($filter_store_guid) > 0) {
+                $addedCondition = " AND o.store_guid = ? ";
+                $params[] = $filter_store_guid;
+            } else {
+                $addedCondition = "AND o.store_guid IN (SELECT store_guid 
+                                    FROM {$mainDB}.users 
+                                    WHERE active = 1) ";
+            }
+
             $sql = "SELECT 
                         DATE_FORMAT(FROM_UNIXTIME(o.create_local_time), '$sqlDateFormat') AS orderDate, 
                         COUNT(1) AS total
@@ -119,15 +142,11 @@ class DashboardController extends Controller
                         o.create_local_time BETWEEN ? AND ?
                     AND
                         o.is_deleted = 0
-                    AND
-                        o.store_guid IN (SELECT store_guid 
-                                            FROM {$mainDB}.users 
-                                            WHERE active = 1)
+                    $addedCondition
                     GROUP BY orderDate
                     ORDER BY orderDate ASC";
 
-            $params = [$period->getStartDate()->timestamp, 
-                        $period->getEndDate()->timestamp];
+            
 
             $orders1 = DB::connection(env('DB_CONNECTION_PREMIUM', 'mysqlPremium'))->select($sql, $params);
             $orders2 = DB::connection(env('DB_CONNECTION', 'mysql'))->select($sql, $params);
@@ -135,13 +154,36 @@ class DashboardController extends Controller
             foreach ($orders2 as $order) $data[strval($order->orderDate)] += $order->total;
         } else {
             $stores = [];
-            $users = Controller::filterUsers(null, 0, 0);
-            foreach ($users as $user) {
-                if ($user->role_id == 4) {
-                    $stores[] = $user->store_guid;
+            $params = [$period->getStartDate()->startOfDay()->timestamp, 
+                        $period->getEndDate()->modify("+1 day")->endOfDay()->timestamp];
+
+            if (strlen($filter_store_guid) > 0) {
+                $addedCondition = " AND o.store_guid = ? ";
+                $params[] = $filter_store_guid;
+            } else {
+                $me_store_guid = Auth::user()->store_guid;
+                $users = Controller::filterUsers(null, 0, 0);
+                foreach ($users as $user) {
+                    if ($user->role_id == 4) {
+                        $stores[] = $user->store_guid;
+                    }
+                }
+    
+                # Include itself
+                if (isset($me_store_guid)) {
+                    if (!in_array($me_store_guid, $stores)) {
+                        if (strlen($me_store_guid) > 0) {
+                            $stores[] = $me_store_guid;
+                        }
+                    }
+                }
+
+                $addedCondition = "AND o.store_guid = '0'"; // Non-existent store
+                if (count($stores) > 0) {
+                    $question_marks = implode(',', array_fill(0, count($stores), '?'));
+                    $addedCondition = "AND o.store_guid IN ($question_marks)";
                 }
             }
-            $question_marks = implode(',', array_fill(0, count($stores), '?'));
 
             $connection = ($isAppPremium) ? env('DB_CONNECTION_PREMIUM', 'mysqlPremium') : env('DB_CONNECTION', 'mysql');
             $sql = "SELECT 
@@ -153,13 +195,10 @@ class DashboardController extends Controller
                         o.create_local_time BETWEEN ? AND ?
                     AND
                         o.is_deleted = 0
-                    AND
-                        o.store_guid IN ($question_marks)
+                    $addedCondition
                     GROUP BY orderDate
                     ORDER BY orderDate ASC";
 
-            $params = [$period->getStartDate()->timestamp, 
-                        $period->getEndDate()->timestamp];
             foreach ($stores as $store) $params[] = $store;
 
             $orders = DB::connection($connection)->select($sql, $params);
