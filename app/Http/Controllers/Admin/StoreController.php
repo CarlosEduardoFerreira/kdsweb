@@ -1111,17 +1111,13 @@ class StoreController extends Controller {
                 
                 $this->DB::connection($this->connection)->statement($sql);
 
-                $sql = "SELECT * FROM (
-                            SELECT
-                                device_name column_0,
-                                category column_1,
-                                item_name column_2,
-                                SUM(item_count) AS column_3,
-                                SUM(item_avg_time) / SUM(order_count) AS column_4
-                            FROM tmp_select_orders
-                            GROUP BY device_name ASC, category ASC, item_name ASC WITH ROLLUP) result_table
-                        WHERE device_name IS NOT NULL
-                        ORDER BY column_0, column_1, column_2";
+                $sql = "SELECT
+                            category column_0,
+                            item_name column_1,
+                            SUM(item_count) AS column_2,
+                            SUM(item_avg_time) / SUM(order_count) AS column_3
+                        FROM tmp_select_orders
+                        GROUP BY device_name ASC, category ASC, item_name ASC -- WITH ROLLUP";
 
                 break;
 

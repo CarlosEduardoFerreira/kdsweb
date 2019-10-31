@@ -209,12 +209,11 @@ $(function(){
 					break;
 				
 				case $('#report-3').val():
-					headers[0] = ["string",  "KDS Station", "text", 0, "15", "left"];
-					headers[1] = ["string",  "Category", "text", 0, "15", "left"];
-					headers[2] = ["string",  "Items Name", "text", 0, "20", "left"];
-					headers[3] = ["string",  "Items Qty", "sum", 0, "10", "center"];
-					headers[4] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
-					headers[5] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
+					headers[0] = ["string",  "Category", "text", 0, "25", "left"];
+					headers[1] = ["string",  "Items Name", "text", 0, "25", "left"];
+					headers[2] = ["string",  "Items Qty", "sum", 0, "15", "center"];
+					headers[3] = ["string",  "Item Prep. Avg. Time", "time", 0, "20", "left"];
+					headers[4] = ["string",  "Total Prep. Time", "time", 0, "20", "left"];
 					break;
 			}
     		
@@ -375,25 +374,19 @@ $(function(){
 					// by Category
     				if (reportId == $('#report-3').val()) {
 						switch (i_col) {
-							case 0: // Device name
-								if (i_row % perPage != 0 && column_value == last_device)  {
-									column_value = "";
-								}
-								break;
-
-							case 1: // Category
+							case 0: // Category
 								if (i_row % perPage != 0 && column_value == last_category)  {
 									column_value = "";
 								}
-								last_category = obj.column_1;
+								last_category = obj.column_0;
 								break;
 
-							case 2:
-								if (column_value == null) column_value = "<strong>Total</strong>";
-								break;
+							// case 1:
+							// 	if (column_value == null) column_value = "<strong>Total</strong>";
+							// 	break;
 
-							case 5:
-								column_value = parseInt(obj.column_3) * parseInt(obj.column_4);
+							case 4:
+								column_value = parseInt(obj.column_2) * parseInt(obj.column_3);
 								break;
 						}
 
