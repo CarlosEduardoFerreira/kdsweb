@@ -26,7 +26,10 @@
     				<input type="hidden" id="report-1" value="{{ $reports[1]['id'] }}">
     			
     			<!-- ["title" => "Quantity and Average Time by Item Name",  "id" => "quantity_and_average_time_by_item_name"] -->
-    				<input type="hidden" id="report-2" value="{{ $reports[2]['id'] }}">
+                    <input type="hidden" id="report-2" value="{{ $reports[2]['id'] }}">
+                    
+                <!-- Quantity and Average Time by Category -->
+    				<input type="hidden" id="report-3" value="{{ $reports[3]['id'] }}">
     			<!-- ------------------------------------------------------------------------------------------------- Reports by id -->
     			
             <button type="button" id="showModalChooseReport" class="btn btn-success" 
@@ -51,7 +54,7 @@
 				<img id="report-refresh-img" src="/images/refresh-static.png" title="Refresh" style="margin:auto;height:26px;cursor:hand;">
 			</div>
 			
-			<div id="report-download-div" style="float:right;width:60px;height:36px;text-align:right;padding-top:3px;">
+			<div id="report-download-div">
 				<a id="report-export-excel" href="#" style="display:none;">
 					<img src="/images/cloud-download.png" title="Download" style="margin:auto;height:30px;cursor:hand;">
 				</a>
@@ -60,7 +63,7 @@
 			<input type="text" id="daterange" name="daterange" class="btn" value="" />
 			
 			<button type="button" id="showModalDevices" class="btn btn-primary" 
-            		data-toggle="modal" data-target="#modalDevices" style="float:right;font-weight:200;font-size:16px;margin-right:20px;">
+            		data-toggle="modal" data-target="#modalDevices" style="font-weight:200;font-size:16px;">
 				KDS Stations <?php if(count($devices) > 0) { echo "(All)"; } ?>
 			</button>
 			
@@ -164,7 +167,15 @@
                                 <span class="[ glyphicon glyphicon-minus ]"></span>
                             </label>
                             <label for="{{ $device->guid }}" class="[ btn btn-default active ]">
-                                {{ $device->name }}
+                                <?php
+                                    $name = $device->name;
+                                    if (strlen($name) == 0) {
+                                        $name = $device->id . " - " . $device->function;
+                                    } else {
+                                        $name = $device->id . " - " . $name;
+                                    }
+                                    echo $name;
+                                ?>
                             </label>
                          </div>
                     </div>
@@ -281,8 +292,14 @@
         .report-total-tds { border:1px solid #ccc; }
         
     /* report date range */
-        #daterange { width:280px; float:right; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
+        #daterange { margin-right:auto !important; width:280px; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
         
+    /* filters and refresh button */
+        #report_filter { white-space: nowrap; }
+        #report-refresh-div { position:relative; }
+
+    /* report download button */
+        #report-download-div { float:right; width:60px; height:36px; text-align:right; padding-top:3px; position:relative; }
     </style>
 @endsection
 

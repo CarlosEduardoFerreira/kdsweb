@@ -50,6 +50,8 @@ class ReportCostByStatementController extends Controller {
                     allStores.resellerBName,
                     allStores.storegroupBName,
                     allStores.storeBName,
+                    allStores.storeName,
+                    allStores.storeAddress,
                     allStores.planName,
                     allStores.planCost,
                     allStores.live
@@ -59,7 +61,10 @@ class ReportCostByStatementController extends Controller {
                          resellers.business_name as resellerBName,
                          storegroups.business_name as storegroupBName,
                          stores.business_name as storeBName,
-                         
+                         stores.name as storeName,
+                         CONCAT(stores.address, ' ', IFNULL(stores.address2, ''), ' ', 
+                                stores.city, ' ', states.name, ' ',  stores.zipcode, ' ', countries.name) as storeAddress,
+
                          (case when '$role' = 'storegroup' then plansStG.name
                          else
                             case when '$role' = 'reseller' then plansRes.name
@@ -94,6 +99,9 @@ class ReportCostByStatementController extends Controller {
                         LEFT JOIN users_roles ON users_roles.user_id = stores.id AND users_roles.role_id = 4
                         LEFT JOIN store_environment ON store_environment.store_guid = stores.store_guid
                         
+                        JOIN states ON states.id = stores.state
+                        JOIN countries ON countries.id = states.country_id
+
                     WHERE
                          (stores.deleted_at IS NULL OR stores.deleted_at = '') $whereParentId
                     GROUP BY
@@ -101,6 +109,8 @@ class ReportCostByStatementController extends Controller {
                         resellers.business_name,
                         storegroups.business_name,
                         stores.business_name,
+                        storeName,
+                        storeAddress,
                         
                         (case when '$role' = 'storegroup' then plansStG.name
                          else

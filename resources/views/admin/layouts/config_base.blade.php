@@ -21,11 +21,10 @@
                 		</div>
                 	
                     <div class="page-title" style="background:#ffffff;">
-                    
+                    <button onclick="goBack()" type="button" class="btn button2">Back</button>
                          <div style="padding-top:10px;padding-left:20px;font-size:20px;">
                         		<?=$store->business_name?>
                         	</div>
-
                         <div class="title_left" style="margin-left:20px;">
                             <h1 class="h3">&nbsp;</h1>
                         </div>
@@ -110,7 +109,14 @@
     {{ Html::style(mix('assets/admin/css/admin.css')) }}
     <style>
         .nav-tabs li { margin-right:10px; margin-top:3px; }
-        .tab-icons { font-size:18px; }
+        .tab-icons { font-size:18px; } 
+   button[type=button]:hover {
+    text-decoration:underline;
+}
+.button2 {
+  font-size: 11px; 
+  background: #26b99a00; 
+}
     </style>
 @endsection
 
@@ -118,7 +124,11 @@
     {{ Html::script(mix('assets/admin/js/admin.js')) }}
 
     <script type="text/javascript">
-
+        function goBack() {
+    window.history.back();
+    window.history.back();
+    }
+        
         $(document).ready(function(){
 
             $('.active a').css('background-color','#f7f7f7');

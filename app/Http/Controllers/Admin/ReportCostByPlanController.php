@@ -51,7 +51,7 @@ class ReportCostByPlanController extends Controller {
                             end
                          end) as planCost,
                          
-                         SUM(settings.licenses_quantity) as licensesTotal,
+                         MAX(settings.licenses_quantity) as licensesTotal,
     
                         (case when store_environment.environment_guid = '$liveStoreGuid' then true else false end) as live
     

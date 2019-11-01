@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Settings\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 
@@ -39,9 +40,10 @@ class ApiController extends Controller
         $this->request = json_decode($this->request, true);
         
         // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
-        if (!isset($this->request[0]["tok"]) || $this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
+        if (!isset($this->request[0]["tok"])) {
             $this->requestError  = "Your application has no permission to do this!";
-            
+        } else if ($this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
+            $this->requestError  = "Your application has no permission to do this!";
         } else {
             $this->request = $this->request[1];
         }
@@ -50,7 +52,12 @@ class ApiController extends Controller
         /** // Request
          *  req = Resquest/Function
          */
-        $this->method = $this->request["req"];
+        if (!isset($this->request["req"])) {
+            $this->requestError  = "Your application has no permission to do this!";
+            $this->method = "";
+        } else {
+            $this->method = $this->request["req"];
+        }
     }
     
     
@@ -104,37 +111,51 @@ class ApiController extends Controller
         }
         
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            
-            if ($this->method == "LOGIN") {
-                $this->response = $this->login($this->request, $this->response);
-                
-            } else if ($this->method == "SYNC") {
-                $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
+            switch (strtoupper($this->method)) {
+                case "LOGIN":
+                    $this->response = $this->login($this->request, $this->response);
+                    break;
 
-            } else if ($this->method == "GET_SETTINGS") {
-                $this->response = $this->getSettings($this->request, $this->response);
-                
-            } else if ($this->method == "GET_DEVICES") {
-                $this->response = $this->getDevices($this->request, $this->response);
-                
-            } else if ($this->method == "DEVICE_ONLINE") {
-                $this->response = $this->setDeviceOnline($this->request, $this->response);
-                
-            } else if ($this->method == 'REGISTER_VALIDATION') {
-                $this->response = $this->registerValidation($this->request);
-                
-            } else if ($this->method == 'SMS_ORDER') {
-                $this->response = $this->smsOrder($this->request, $this->response);
+                case "SYNC":
+                    $this->response = $this->insertOrUpdateEntityWeb($this->request, $this->response);
+                    break;
 
-            } else if ($this->method == "GET_ENTITY") {
-                $this->response = $this->getEntities($this->request, $this->response);
+                case "GET_SETTINGS":
+                    $this->response = $this->getSettings($this->request, $this->response);
+                    break;
 
-            } else if ($this->method == "GET_SERVER_TIME") {
-                $this->response = $this->getServerTime($this->request, $this->response);
+                case "GET_DEVICES":
+                    $this->response = $this->getDevices($this->request, $this->response);
+                    break;
                 
-            } else if ($this->method == "DEVICE_REPLACE") {
-                $this->response = $this->deviceReplace($this->request, $this->response);
+                case "DEVICE_ONLINE":
+                    $this->response = $this->setDeviceOnline($this->request, $this->response);
+                    break;
+
+                case "REGISTER_VALIDATION":
+                    $this->response = $this->registerValidation($this->request);
+                    break;
+
+                case "SMS_ORDER":
+                    $this->response = $this->smsOrder($this->request, $this->response);
+                    break;
+
+                case "GET_ENTITY":
+                    $this->response = $this->getEntities($this->request, $this->response);
+                    break;
+
+                case "GET_SERVER_TIME":
+                    $this->response = $this->getServerTime($this->request, $this->response);
+                    break;
                 
+                case "DEVICE_REPLACE":
+                    $this->response = $this->deviceReplace($this->request, $this->response);
+                    break;
+                
+                default:
+                    $this->response[0]["error"] = "Unknown method '{$this->method}'";
+                    return response()->json($this->response);
+                    break;
             }
 
             return response()->json($this->response);
@@ -142,9 +163,18 @@ class ApiController extends Controller
         
     }
     
-    
     public function login(array $request, array $response) {
         
+        if (!isset($request["username"])) {
+            $response[0]["error"]  = "Undefined username.";
+            return $response;
+        }
+
+        if (!isset($request["password"])) {
+            $response[0]["error"]  = "Undefined password.";
+            return $response;
+        }
+
         $username = $request["username"];
         $password = $request["password"];
         $device_serial = isset($request["serial"]) ? $request["serial"] : "";
@@ -154,9 +184,9 @@ class ApiController extends Controller
                     store_guid,
                     business_name
                 FROM users
-                WHERE username = '$username' AND deleted_at IS NULL";
+                WHERE username = ? AND deleted_at IS NULL";
         
-        $result = DB::select($sql);
+        $result = DB::select($sql, [$username]);
         
         //echo "sql: " . $sql . "|";
         
@@ -209,23 +239,37 @@ class ApiController extends Controller
         
         $response[0]["error"] = "";
 
+        if (!isset($request["store_guid"])) {
+            $response[0]["error"]  = "Undefined store GUID.";
+            return $response;
+        }
+
+        if (!isset($request["device_guid"])) {
+            $response[0]["error"]  = "Undefined device GUID.";
+            return $response;
+        }
+
+        if (!isset($request["device_serial"])) {
+            $response[0]["error"]  = "Undefined device serial.";
+            return $response;
+        }
+
         $store_guid     = $request["store_guid"];
         $device_guid    = $request["device_guid"];
         $device_serial  = $request["device_serial"];
         
         $device = DB::table('devices')->where(['guid' => $device_guid])->first();
         if (isset($device)) {
-            
             if ($this->existDeviceInAnotherStore($store_guid, $device_serial)) {
                 $response[0]["error"] = $this->error_exist_device_in_another_store;
                 
             } else {
-                $sql = "UPDATE devices SET serial = '$device_serial' WHERE guid = '$device_guid'";
+                $sql = "UPDATE devices SET serial = :device_serial WHERE guid = :device_guid";
     
-                $result = DB::statement($sql);
+                $result = DB::update($sql, array("device_serial" => $device_serial, "device_guid" => $device_guid));
                 
                 if (!$result) {
-                    $response[0]["error"]  = "Error to update device.";
+                    $response[0]["error"]  = "Error while updating device.";
                 }
             }
 
@@ -241,8 +285,11 @@ class ApiController extends Controller
     public function insertOrUpdateEntityWeb(array $request, array $response) {
         
         $appVersion = isset($request["appVersion"]) ? $request["appVersion"] : 0;
-        
         $entity = $request["entity"];
+
+        $appVersion = $this->resolveApostrophe($appVersion);
+        $entity = $this->resolveApostrophe($entity);
+
         $data   = $request["data"];
         
         $objGuidArray = array();
@@ -485,6 +532,11 @@ class ApiController extends Controller
     
     
     public function getSettings(array $request, array $response) {
+        if (!isset($request["store_guid"])) {
+            $response[0]["error"] = "Undefined store GUID";
+            return $response;
+        }
+        
         $sql = DB::table('settings')->where(['store_guid' => $request["store_guid"]]);
 
         if (isset($request["min_update_time"])) {
@@ -524,36 +576,62 @@ class ApiController extends Controller
     
     
     public function getDevices(array $request, array $response) {
-        
-        $sql = "SELECT * FROM devices WHERE store_guid = '" . $request["store_guid"] . "'";
-
-        if (isset($request["min_update_time"])) {
-            $sql .= " AND update_time > " . $request["min_update_time"];
-
+        if (!isset($request["store_guid"])) {
+            $response[0]["error"] = "Undefined store GUID";
+            return $response;
         }
 
-        return DB::select($sql);
-        
+        $sql = "SELECT * FROM devices WHERE store_guid = :store_guid";
+
+        $min_update_time = 0;
+        if (isset($request["min_update_time"])) {            
+            $sql .= " AND update_time > :min_update_time";
+            $min_update_time = $request["min_update_time"];
+            return DB::select($sql, array("store_guid" => $request["store_guid"], "min_update_time" => $min_update_time));
+        } else {
+            return DB::select($sql, array("store_guid" => $request["store_guid"]));
+        }
     }
 
 
     public function getEntities(array $request, array $response) {
+        if (!isset($request["store_guid"])) {
+            $response[0]["error"] = "Undefined store GUID";
+            return $response;
+        }
 
-        $sql = "SELECT * FROM ". $request["entity"] ." WHERE store_guid = '" . $request["store_guid"] . "'";
+        if (!isset($request["entity"])) {
+            $response[0]["error"] = "Undefined entity";
+            return $response;
+        }
 
-        if (isset($request["min_update_time"])) {
-            $sql .= " AND update_time > " . $request["min_update_time"];
-            
+        $entity = $request["entity"];
+        $store_guid = $request["store_guid"];
+        $min_update_time = isset($request["min_update_time"]) ? $request["min_update_time"] : -1;
+        
+        if (Schema::hasTable($entity) === false) {
+            $response[0]["error"] = "Unknown entity '$entity'";
+            return $response;
+        }
+
+        $sql = "SELECT * FROM $entity WHERE store_guid = :store_guid";
+
+        if ($min_update_time !== -1) {
+            $sql .= " AND update_time > :min_update_time";
         } else {
             $sql .= " AND is_deleted != 1";
         }
 
-        $result = DB::select($sql);
+        $params = [];
+        $params["store_guid"] = $store_guid;
+        if ($min_update_time !== -1) $params["min_update_time"] = $min_update_time;
 
-        if (count($result) == 0 && !isset($request["min_update_time"])) {
+        $result = DB::select($sql, $params);
+        
+        if (count($result) == 0 && !isset($min_update_time)) {
             $created_at = time();
 
-            if ($request["entity"] == "notification_questions") {
+            if ($entity == "notification_questions") {
                 $defaultQuestionSQL = "SELECT title, message FROM notification_questions WHERE store_guid = '' limit 1";
                 $questionsDefault = DB::select($defaultQuestionSQL);
                 
@@ -572,19 +650,18 @@ class ApiController extends Controller
                     'message'     => $defaultQuestion->message,
                     'create_time' => $created_at,
                     'update_time' => $created_at,
-                    'store_guid'  => $request["store_guid"]
+                    'store_guid'  => $store_guid
                 ];
 
                 $question->insert($data);
+                $result = DB::select($sql, $params);
 
-                $result = DB::select($sql);
-
-            } else if ($request["entity"] == "notification_answers") {
+            } else if ($entity == "notification_answers") {
                 $defaultAnswersSQL = "SELECT title, message FROM notification_answers WHERE store_guid = ''";
                 $AnswersDefault = DB::select($defaultAnswersSQL);
 
-                $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = '" . $request["store_guid"] . "' limit 1";
-                $questionsDefault   = DB::select($questionSQL);
+                $questionSQL = "SELECT guid FROM notification_questions WHERE store_guid = :store_guid limit 1";
+                $questionsDefault   = DB::select($questionSQL, array("store_guid" => $store_guid));
                 
                 if(count($questionsDefault) == 0 || count($AnswersDefault) == 0) {
                     $response[0]["error"]  = "System Default Notifications not configured.";
@@ -602,14 +679,14 @@ class ApiController extends Controller
                         'message'       => $answer->message,
                         'create_time'   => $created_at,
                         'update_time'   => $created_at,
-                        'store_guid'    => $request["store_guid"],
+                        'store_guid'    => $store_guid,
                         'question_guid' => $questionGuid
                     ];
 
                     $answersDB->insert($data);
                 }
 
-                $result = DB::select($sql);
+                $result = DB::select($sql, $params);
             }
         }
 
@@ -620,7 +697,7 @@ class ApiController extends Controller
     
     public function registerValidation(Request $request) {
         $return = array();
-        
+                
         // -- Email ----------------------------------------------------------------------------------------------------- -- //
         $user = DB::table('users')->where('id', '<>', $request->id)->where('email', '=', $request->email)->first();
         
@@ -657,20 +734,17 @@ class ApiController extends Controller
                     $return["FIELD"] = "parent_id";
                     $return["ERROR"] = "This StoreGroup does not have a default Plan.";
                 }
-                
-                // App is linked by Plan
-//                 if (!isset($request->user_apps)) {
-//                     $return["FIELD"] = "user_apps";
-//                     $return["ERROR"] = "Please fill the \"App\" field.";
+
+                if (!isset($request->user_apps)) {
+                    $return["FIELD"] = "user_apps";
+                    $return["ERROR"] = "Please fill the \"App\" field.";
                     
-//                 } else 
-                    
-                if (!isset($request->user_envs)) {
+                } else if (!isset($request->user_envs)) {
                     
                     $return["FIELD"] = "user_envs";
                     $return["ERROR"] = "Please fill the \"Type\" field.";
                 }
-                
+
             }
             
         }
@@ -682,17 +756,31 @@ class ApiController extends Controller
     public function setDeviceOnline(array $request, array $response) {
         $deviceUpdated = array();
         
+        if (!isset($request["store_guid"])) {
+            $response[0]["error"] = "Undefined store GUID";
+            return $response;
+        }
+
+        if (!isset($request["last_connection_time"])) {
+            $response[0]["error"] = "Undefined last_connection_time";
+            return $response;
+        }
+
         $storeGuid = $request["store_guid"];
         $lastConnectionTime = $request["last_connection_time"];
+        if (!is_numeric($lastConnectionTime)) {
+            $deviceUpdated[0]["error"]  = "Number expected for last_connection_time";
+            return $deviceUpdated;
+        }
         
         $device = DB::table('settings')->where('store_guid', '=', $storeGuid)->first();
         if (isset($device)) {
             $update_time = time();
-            $sql = "update settings set last_connection_time = $lastConnectionTime, update_time = $update_time where store_guid = '$storeGuid'";
-            $result = DB::statement($sql);
+            $sql = "update settings set last_connection_time = :last_connection_time, update_time = :update_time where store_guid = :store_guid";
+            $result = DB::update($sql, array("last_connection_time" => $lastConnectionTime, "update_time" => $update_time, "store_guid" => $storeGuid));
             
             if ($result) {
-                $deviceUpdated = DB::select("SELECT * FROM settings WHERE store_guid = '$storeGuid'");
+                $deviceUpdated = DB::select("SELECT * FROM settings WHERE store_guid = :store_guid", array("store_guid" => $storeGuid));
             } else {
                 $deviceUpdated[0]["error"]  = "Error trying update device. sql: $sql";
             }

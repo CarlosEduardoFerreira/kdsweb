@@ -2,7 +2,7 @@
 
 <?php if ($obj == 'store') { ?>
     @if($user->exists)
-    		@section('title',"Edit Store" )
+    		@section('title',"" )
     @else
     		@section('title',"New Store" )
     @endif
@@ -21,6 +21,25 @@
 <?php } ?>
 
 @section('content')
+    <div class="page-title">
+    <button onclick="goBack()" type="button" class="btn button4">Back</button>   
+    <div class="title_left">
+    <h1 class="h3">Edit Store</h1>
+                </div>
+                </div>
+<style>   
+   button[type=button]:hover {
+    text-decoration:underline;
+}
+.button4 {
+position: absolute;
+left;
+margin-top:-20px;   
+font-size: 11px; 
+background: #26b99a00;
+
+}
+</style>
     <div class="row" style="min-height:1100px;">
         <div class="col-md-12 col-sm-12 col-xs-12">
         		<?php if ($obj == 'store') { ?>
@@ -261,7 +280,7 @@
             	<?php if ($obj == 'store') { ?>
             		<!-- App is linked by Plan ------------------------------------------------------- -->
             		<!-- display = none -->
-                <div class="form-group" style="display:none;margin-top:30px;margin-bottom:20px;">
+                <div class="form-group" style="margin-top:30px;margin-bottom:20px;">
                 		<label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_apps">
                 			App:
                 			<span class="required">*</span>
@@ -322,7 +341,7 @@
                         <span class="required">*</span>
                     </label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <input id="username" name="username" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->username }}" required>
+                        <input id="username" name="username" type="text" maxlength="45" class="form-control col-md-7 col-xs-12" value="{{ $user->username }}" required>
                         <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                     </div>
                 </div>
@@ -396,12 +415,17 @@
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
 
-    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
-    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
     {{ Html::script(mix('assets/admin/js/jquery.mask.js')) }}
 
-    <script>
+    {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
+    {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
 
+
+    
+    <script>
+        function goBack() {
+    window.history.back();
+    }
         $(function(){
             $('.remove-store').click(function(){
                 var url = "{{ route('admin.stores.removeStore') }}";
@@ -451,20 +475,21 @@
 
             $("#country").change(function() {
                 updateTimezones();
-
-                if($('#country option:selected' ).attr('country_code') == "US")
-                    $("#zipcode").mask('0000000000');
-                else
-                    $("#zipcode").unmask();
             });
 
             updateTimezones();
+            $('#username').mask('#############################################', {
+                translation: {
+                '#': {
+                    pattern: /[a-zA-Z0-9]/, optional: true
+                }
+                }
+            });
+
 
             if($('#country option:selected' ).attr('country_code') == "US")
-                $("#zipcode").mask('0000000000');
-                
+                  $("#zipcode").mask('0000000000');
         });
-        
     </script>
 @endsection
 
