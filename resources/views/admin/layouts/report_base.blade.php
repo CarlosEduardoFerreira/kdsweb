@@ -13,7 +13,7 @@
             @yield('left-sidebar')
 
             <div class="right_col" role="main">
- 
+            <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
                 <div style="height:100px;">
 
                     <div class="page-title" style="background:#ffffff;height:100px;">
@@ -25,7 +25,20 @@
                     </div>
 
                 </div>
-                
+<style>   
+button[type=button]:hover {
+    text-decoration:underline;
+}
+#back-button {
+font-size: 11px; 
+background: #26b99a00;
+}
+</style>
+<script>
+    function goBack() {
+    window.history.back();
+    }
+</script>
                 @yield('report')
 
             </div>

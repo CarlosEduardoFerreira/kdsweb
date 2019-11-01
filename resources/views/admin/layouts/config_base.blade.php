@@ -126,7 +126,6 @@
     <script type="text/javascript">
         function goBack() {
     window.history.back();
-    window.history.back();
     }
         
         $(document).ready(function(){

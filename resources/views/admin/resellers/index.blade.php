@@ -3,6 +3,35 @@
 @section('title', "Resellers")
 
 @section('content')
+<div id="back-button-div" style="width:100%;">
+    <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
+</div>
+<style>   
+#back-button-div {
+    float:left;
+    margin-top:-80px;
+    font-size: 11px; 
+    background: #26b99a00;
+}
+#back-button {font-size: 11px;  background:none; }
+#back-button:hover { 
+    text-decoration:underline;
+}
+.page-title { padding-top:80px; }
+
+.page-title .title_left{
+	padding-top:0px;
+}
+.h3 {
+	padding-top:2.5px;
+}
+#store-filters #search-input {
+	margin-top:-20px;
+}
+#btn-search.btn.btn-info{
+	margin-top:-20px;
+}
+</style>
     <div class="row" style="min-height:700px;">
     
     		<div style="text-align:right;padding:10px;">
@@ -90,6 +119,9 @@
 	@parent
 
     <script>
+        function goBack() {
+    window.history.back();
+    }
 		$(function(){
 			const searchInput = $('#search-input');
 			var getUrlParameter = function getUrlParameter(sParam) {

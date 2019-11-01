@@ -2,7 +2,8 @@
 
 <?php if ($obj == 'store') { ?>
     @if($user->exists)
-    		@section('title',"" )
+            @section('title',"Edit Store" )
+            
     @else
     		@section('title',"New Store" )
     @endif
@@ -21,24 +22,23 @@
 <?php } ?>
 
 @section('content')
-    <div class="page-title">
-    <button onclick="goBack()" type="button" class="btn button4">Back</button>   
-    <div class="title_left">
-    <h1 class="h3">Edit Store</h1>
-                </div>
-                </div>
+
+<div id="back-button-div" style="width:100%;">
+    <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
+</div>
+       
 <style>   
-   button[type=button]:hover {
+#back-button-div {
+    float:left;
+    margin-top:-80px;
+    font-size: 11px; 
+    background: #26b99a00;
+}
+#back-button {font-size: 11px;  background:none; }
+#back-button:hover { 
     text-decoration:underline;
 }
-.button4 {
-position: absolute;
-left;
-margin-top:-20px;   
-font-size: 11px; 
-background: #26b99a00;
-
-}
+.page-title { padding-top:90px; }
 </style>
     <div class="row" style="min-height:1100px;">
         <div class="col-md-12 col-sm-12 col-xs-12">
