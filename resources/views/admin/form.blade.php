@@ -305,7 +305,15 @@
                 			<span class="required">*</span>
                 		</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="user_envs" name="user_envs" class="selectpicker">
+
+                        <?php
+                            $disabled = "";
+                            if ($me->roles[0]->id == 4) {
+                               s $disabled = "disabled=\"false\"";
+                            }
+                        ?>
+                        <select id="user_envs" name="user_envs" class="selectpicker" <?=$disabled?>>
+                
                         		<option></option>
                         		<?php 
                         		foreach ($envs as $env) {
