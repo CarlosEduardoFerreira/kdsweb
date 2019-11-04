@@ -286,7 +286,15 @@
                 			<span class="required">*</span>
                 		</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <select id="user_apps" name="user_apps" class="selectpicker">
+
+                    <!--disable app depending on role-->
+                    <?php
+                            $disabled = "";
+                            if ($me->roles[0]->id == 4) {
+                                $disabled = "disabled=\"false\"";
+                            }
+                        ?>
+                        <select id="user_apps" name="user_apps" class="selectpicker" <?=$disabled?>>
                         		<option></option>
                         		<?php
                         		foreach ($apps as $app) {
@@ -305,7 +313,7 @@
                 			<span class="required">*</span>
                 		</label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-
+                    <!--disable type depending on role-->
                         <?php
                             $disabled = "";
                             if ($me->roles[0]->id == 4) {
