@@ -309,7 +309,7 @@
                         <?php
                             $disabled = "";
                             if ($me->roles[0]->id == 4) {
-                               s $disabled = "disabled=\"false\"";
+                                $disabled = "disabled=\"false\"";
                             }
                         ?>
                         <select id="user_envs" name="user_envs" class="selectpicker" <?=$disabled?>>
