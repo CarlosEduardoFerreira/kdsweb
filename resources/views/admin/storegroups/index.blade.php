@@ -9,6 +9,7 @@
 <style>   
 #back-button-div {
     float:left;
+	margin-left:-15px;
     margin-top:-80px;
     font-size: 11px; 
     background: #26b99a00;

@@ -22,6 +22,7 @@
 #back-button-div {
     float:left;
     margin-top:-80px;
+	margin-left:-15px;
     font-size: 11px; 
     background: #26b99a00;
 }
