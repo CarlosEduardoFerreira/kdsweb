@@ -20,7 +20,7 @@
         	
         	<div class="store-settings-toggle" id="store-settings-bump-toggle">
             	<a data-toggle="collapse" data-parent="#store-settings-container" href="#store-settings-bump">
-            		Automatic Bump
+            		 Automatic Clear All Orders
             	</a>
             	<span class="glyphicon"></span>
         	</div>
