@@ -729,17 +729,8 @@ class ApiController extends Controller
             
             if ($request->obj == 'store') {
                 
-                $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $request->parent_id], ['default', '=', 1]])->get()->first();
-                if(empty($defaultPlan)) {
-                    $return["FIELD"] = "parent_id";
-                    $return["ERROR"] = "This StoreGroup does not have a default Plan.";
-                }
-
-                if (!isset($request->user_apps)) {
-                    $return["FIELD"] = "user_apps";
-                    $return["ERROR"] = "Please fill the \"App\" field.";
-                    
-                } else if (!isset($request->user_envs)) {
+                
+                 if (!isset($request->user_envs)) {
                     
                     $return["FIELD"] = "user_envs";
                     $return["ERROR"] = "Please fill the \"Type\" field.";
