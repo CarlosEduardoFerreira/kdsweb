@@ -3,9 +3,13 @@
 @section('title', "Stores")
 
 @section('content')
+<div id="back-button-div" style="width:100%;">
+    <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
+</div>
+
     <div class="row" style="min-height:800px;">
     
-    		<div style="text-align:right;padding:10px;">
+    		<div style="text-align:right;padding:0px;">
     			<a class="btn btn-success" type="button" href="{{ route('admin.stores.new', ['filter' => false]) }}">New</a>
     		</div>
     		
@@ -13,7 +17,34 @@
         		<input type="text" id="search-input" class="btn">
         		<a id="btn-search" class="btn btn-info">Go</a>
     		</div> 
-    
+           
+<style>   
+#back-button-div {
+    float:left;
+    margin-top:-80px;
+	margin-left:-15px;
+    font-size: 11px; 
+    background: #26b99a00;
+}
+#back-button {font-size: 11px;  background:none; }
+#back-button:hover { 
+    text-decoration:underline;
+}
+.page-title { padding-top:80px; }
+
+.page-title .title_left{
+	padding-top:0px;
+}
+.h3 {
+	padding-top:2.5px;
+}
+#store-filters #search-input {
+	margin-top:-20px;
+}
+#btn-search.btn.btn-info{
+	margin-top:-20px;
+}
+</style>
         <table class="table table-striped table-bordered dt-responsive nowrap">
         
             <thead>
@@ -111,6 +142,9 @@
 	@parent
 
     <script>
+		   function goBack() {
+    window.history.back();
+    }
 		$(function(){
 			const searchInput = $('#search-input');
 

@@ -3,6 +3,23 @@
 @section('title', "Store Group View")
 
 @section('content')
+<div id="back-button-div" style="width:100%;">
+    <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
+</div>
+       
+<style>   
+#back-button-div {
+    float:left;
+    margin-top:-80px;
+    font-size: 11px; 
+    background: #26b99a00;
+}
+#back-button {font-size: 11px;  background:none; }
+#back-button:hover { 
+    text-decoration:underline;
+}
+.page-title { padding-top:90px; }
+</style>
     <div class="row">
         <table class="table table-striped table-hover">
             <tbody>
@@ -111,4 +128,9 @@
             </tbody>
         </table>
     </div>
+    <script>
+        function goBack() {
+    window.history.back();
+    }
+        </script>
 @endsection
