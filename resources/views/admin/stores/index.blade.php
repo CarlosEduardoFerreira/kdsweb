@@ -36,7 +36,7 @@
 	padding-top:0px;
 }
 .h3 {
-	padding-top:2.5px;
+	padding-top:0px;
 }
 #store-filters #search-input {
 	margin-top:-20px;
