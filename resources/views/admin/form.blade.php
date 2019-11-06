@@ -290,7 +290,7 @@
                     <!--disable app depending on role-->
                     <?php
                             $disabled = "";
-                            if ($me->roles[0]->id == 4) {
+                            if ($me->roles[0]->id == 4 || $me->roles[0]->id == 3) {
                                 $disabled = "disabled=\"false\"";
                             }
                         ?>
@@ -316,7 +316,7 @@
                     <!--disable type depending on role-->
                         <?php
                             $disabled = "";
-                            if ($me->roles[0]->id == 4) {
+                            if ($me->roles[0]->id == 4 || $me->roles[0]->id == 3) {
                                 $disabled = "disabled=\"false\"";
                             }
                         ?>
