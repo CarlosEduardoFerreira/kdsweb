@@ -60,13 +60,14 @@
 				</a>
 			</div>
 			
-			<input type="text" id="daterange" name="daterange" class="btn" value="" />
 			
 			<button type="button" id="showModalDevices" class="btn btn-primary" 
             		data-toggle="modal" data-target="#modalDevices" style="font-weight:200;font-size:16px;">
 				KDS Stations <?php if(count($devices) > 0) { echo "(All)"; } ?>
 			</button>
 			
+            <input type="text" id="daterange" name="daterange" class="btn" value="" />
+
     		</div>
     		
     		<!-- Report Table -->
@@ -293,7 +294,10 @@
         
     /* report date range */
         #daterange { margin-right:auto !important; width:280px; text-align:center; border:1px solid #ddd; font-size:16px; font-weight:200; color:#333; }
-        
+
+    /* KDS Station button */
+    #showModalDevices {margin-left:4%}
+
     /* filters and refresh button */
         #report_filter { white-space: nowrap; }
         #report-refresh-div { position:relative; }
