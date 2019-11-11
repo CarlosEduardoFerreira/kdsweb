@@ -48,8 +48,24 @@ class ResellerController extends Controller {
         $reseller->country = 231;   // United States
         
         $countries = DB::select("select * from countries order by name");
-        
-        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller , 'countries' => $countries, 'me' => Auth::user()]);
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+
+        $sql_app_prices = "SELECT b1.user_id, b1.app_guid, a.`name`, b1.hardware, b1.price
+                            FROM $mainDB.billing b1
+                            INNER JOIN $mainDB.apps a
+                            ON b1.app_guid = a.guid
+                            WHERE b1.create_time = (SELECT MAX(b2.create_time) 
+                                                    FROM billing b2 
+                                                    WHERE b2.user_id = b1.user_id
+                                                    AND b2.app_guid = b2.app_guid 
+                                                    AND b2.hardware = b1.hardware)
+                            AND b1.user_id = 1
+                            ORDER BY b1.app_guid ASC";
+
+        $app_prices = DB::select($sql_app_prices);
+
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 'countries' => $countries, 
+                        'me' => Auth::user(), 'app_prices' => $app_prices]);
     }
     
     public function insert(Request $request)
@@ -82,6 +98,28 @@ class ResellerController extends Controller {
         $id = $usersTable->insertGetId($data);
         DB::table('users_roles')->insert(['user_id' => $id, 'role_id' => 2]);
         
+        // Insert prices
+        $me_id = Auth::user()->id;
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+
+        foreach($request->all() as $param => $value) {
+            if (substr($param, 0, 6) === "price_") {
+                $hw = substr($param, -2) === "hw" ? 1 : 0;
+                $app_guid = $hw === 1 ? substr($param, 6, -2) : substr($param, 6);
+                
+                # Only numeric values between (0, 100,000) allowed
+                if (!is_numeric($value)) continue;
+                $price = 1.0 * $value;
+                if ($price < 0) continue;
+                if ($price > 100000) continue;
+
+                DB::statement("INSERT INTO $mainDB.billing 
+                                    (user_id, app_guid, hardware, price, create_time, create_user_id)
+                                VALUES ({$id}, ?, $hw, ?, UNIX_TIMESTAMP(), $me_id)", 
+                                [$app_guid, $price]);
+            }
+        }
+
         // Link default plans
         $plans = Plan::where([['delete_time', '=', 0], ['default', '=', 1], ['owner_id', '=', 0]])->get();
         foreach($plans as $plan) {
@@ -148,12 +186,38 @@ class ResellerController extends Controller {
             $states     = DB::select("select * from states where country_id = $reseller->country order by name");
         }
         
-//         $cities = [];
-//         if (isset($reseller->state) && $reseller->state != "") {
-//             $cities     = DB::select("select * from cities where state_id = $reseller->state order by name");
-//         }
+        # max 3 different apps/hardware
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+        $sql_app_prices = "SELECT b1.user_id, b1.app_guid, a.`name`, b1.hardware, b1.price
+                            FROM $mainDB.billing b1
+                            INNER JOIN $mainDB.apps a
+                            ON b1.app_guid = a.guid
+                            WHERE b1.create_time = (SELECT MAX(b2.create_time) 
+                                                    FROM billing b2 
+                                                    WHERE b2.user_id = b1.user_id
+                                                    AND b2.app_guid = b2.app_guid 
+                                                    AND b2.hardware = b1.hardware)
+                            AND b1.user_id = {$reseller->id}
+
+                            UNION ALL (
+                                SELECT b1.user_id, b1.app_guid, a.`name`, b1.hardware, b1.price
+                                FROM $mainDB.billing b1
+                                INNER JOIN $mainDB.apps a
+                                ON b1.app_guid = a.guid
+                                WHERE b1.create_time = (SELECT MAX(b2.create_time) 
+                                                        FROM billing b2 
+                                                        WHERE b2.user_id = b1.user_id
+                                                        AND b2.app_guid = b2.app_guid 
+                                                        AND b2.hardware = b1.hardware)
+                                AND b1.user_id = 1
+                            )
+
+                            ORDER BY user_id DESC, app_guid ASC
+                            LIMIT 3";
+
+        $app_prices = DB::select($sql_app_prices);
         
-        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 'app_prices' => $app_prices, 
             'countries' => $countries, 'states' => $states, 'me' => Auth::user()]);
     }
 
@@ -203,6 +267,28 @@ class ResellerController extends Controller {
             }
         }
         
+        // Update prices
+        $me_id = Auth::user()->id;
+        $mainDB = env('DB_DATABASE', 'kdsweb');
+
+        foreach($request->all() as $param => $value) {
+            if (substr($param, 0, 6) === "price_") {
+                $hw = substr($param, -2) === "hw" ? 1 : 0;
+                $app_guid = $hw === 1 ? substr($param, 6, -2) : substr($param, 6);
+                
+                # Only numeric values between (0, 100,000) allowed
+                if (!is_numeric($value)) continue;
+                $price = 1.0 * $value;
+                if ($price < 0) continue;
+                if ($price > 100000) continue;
+
+                DB::statement("INSERT INTO $mainDB.billing 
+                                    (user_id, app_guid, hardware, price, create_time, create_user_id)
+                                VALUES ({$reseller->id}, ?, $hw, ?, UNIX_TIMESTAMP(), $me_id)", 
+                                [$app_guid, $price]);
+            }
+        }
+
         if ($reseller->id == Auth::user()->id) {
             return redirect()->intended(route('admin.dashboard'));
         }
