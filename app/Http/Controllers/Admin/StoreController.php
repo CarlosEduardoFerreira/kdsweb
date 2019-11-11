@@ -1063,15 +1063,7 @@ class StoreController extends Controller {
                 break;
 
             case Vars::$reportIds[3]["id"]:
-                if ($isAppPremium) {
-                    $sql = "SELECT 'Report not yet available for Premium' AS column_0,
-                                    '' AS column_1,
-                                    0 AS column_2,
-                                    0 AS column_3,
-                                    '' AS column_4
-                            FROM orders";
-                    break;
-                }
+                
 
                 if($devicesIds != "") {
                     $addedDeviceCondition = " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
