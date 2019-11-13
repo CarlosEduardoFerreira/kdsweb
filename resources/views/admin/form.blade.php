@@ -23,6 +23,12 @@
 
 @section('content')
 
+<?php
+if(!isset($app_prices))
+{
+    $app_prices=[];
+}
+?>
 <div id="back-button-div" style="width:100%;">
     <button onclick="goBack()" type="button" id="back-button" class="btn">Back</button>
 </div>
