@@ -31,11 +31,26 @@ class Controller extends BaseController
     
     
     function canIsee(User $me, $objectId) {
-        
         $validObj   = $objectId != 0 && $me->id != $objectId;
         $notAdmin   = $me->roles[0]->name != 'administrator';
         $permission = $this->checkPermission($me, $objectId);
         
+        // Check for user's agreement acceptance (if reseller)
+        $accepted_at = DB::select("SELECT accepted_at 
+                                    FROM agreement_acceptance 
+                                    WHERE email = ? 
+                                    ORDER BY accepted_at DESC 
+                                    LIMIT 1", [$me->email]);
+
+        $agreement_accepted = false;
+        if (count($accepted_at) > 0) {
+            $agreement_accepted = $accepted_at[0]->accepted_at > 0;
+        }
+
+        if ($agreement_accepted === false && $me->roles[0]->weight == 900) {
+            return response()->view('admin.agreement');
+        }
+
         if ($validObj && !$permission && $notAdmin) {
             return response()->view('admin.forbidden');
         }
