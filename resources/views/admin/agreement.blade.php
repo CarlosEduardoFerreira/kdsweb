@@ -59,7 +59,3 @@
         }
     ?>
 @endsection
-
-<script>
-
-</script>

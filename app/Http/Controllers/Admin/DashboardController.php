@@ -40,10 +40,11 @@ class DashboardController extends Controller
     public function index()
     {
         $me = Auth::user();
-        
         $users = Controller::filterUsers(null, 0, 0);
 
-        //echo "count users: " . count($users);
+        if (!Controller::checkResellerAgreement(Auth::user())) {
+            return view('admin.agreement');
+        }
 
         $stores_data = [];
         $resellers   = 0;
