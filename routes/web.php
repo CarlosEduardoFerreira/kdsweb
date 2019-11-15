@@ -107,6 +107,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
     // Delete Action
     Route::delete('resellers/{reseller}', 'ResellerController@destroy')->name('resellers.destroy');
+    // View Agreement
+    Route::get('resellers/{reseller}/agreement', 'ResellerController@showAgreement')->name('resellers.agreement');
+    // Confirm Agreement
+    Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
     // ------------------------------------------------------------------------------ Resellers //
 
     // Store Groups --------------------------------------------------------------------------- //
