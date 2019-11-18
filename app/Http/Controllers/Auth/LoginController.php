@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LoginController extends Controller
 {
@@ -76,6 +77,10 @@ class LoginController extends Controller
     {
         $errors = [$this->username() => __('auth.failed')];
 
+        $ip = \Request::ip();
+        DB::statement("INSERT INTO login_history (email, login_time, ip, success)
+                        VALUES (?, UNIX_TIMESTAMP(), '$ip', 0)", [$request->email]);
+
         if ($request->expectsJson()) {
             return response()->json($errors, 422);
         }
@@ -103,6 +108,12 @@ class LoginController extends Controller
         if (!$user->active) {
             $errors = [$this->username() => __('auth.active')];
         }
+
+        // Store login history
+        $hasErrors = $errors ? 0 : 1;
+        $ip = \Request::ip();
+        DB::statement("INSERT INTO login_history (email, login_time, ip, success)
+                        VALUES (?, UNIX_TIMESTAMP(), '$ip', $hasErrors)", [$request->email]);
 
         if ($errors) {
             auth()->logout();  //logout

@@ -19,6 +19,7 @@
         "php": ">=7.0",
         "albertcht/invisible-recaptcha": "^1.4",
         "arcanedev/log-viewer": "~4.0",
+        "codedge/laravel-fpdf": "^1.5",
         "creativeorange/gravatar": "~1.0",
         "davejamesmiller/laravel-breadcrumbs": "^3.0",
         "kyslik/column-sortable": "^5.4",
@@ -27,7 +28,9 @@
         "laravel/socialite": "^3.0",
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "5.5.*",
-        "phpoffice/phpspreadsheet": "^1.8"
+        "phpoffice/phpspreadsheet": "^1.8",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
