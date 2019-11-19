@@ -55,7 +55,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
     // Admin Settings
-    //Route::get('settings', 'SettingsController@index')->name('settings');
+                    Route::get('settings', 'SettingsController@index')->name('settings');
     
     // Admin Reports
     Route::get('reports', 'ReportController@index')->name('reports');
@@ -87,8 +87,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Plans X Stores
     Route::get('settings/plansXstores', 'PlanXStoreController@index')->name('settings.plansXstores');
     
-    
-    
     //      url will show                function on controller              how to call
     // Route::get('storegroups/0/form', 'StoreGroupController@create')->name('resellers.new');
     
@@ -111,6 +109,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('resellers/{reseller}/agreement', 'ResellerController@showAgreement')->name('resellers.agreement');
     // Confirm Agreement
     Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
+
     // ------------------------------------------------------------------------------ Resellers //
 
     // Store Groups --------------------------------------------------------------------------- //
@@ -211,11 +210,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
 });
 
-
 Route::get('/', 'HomeController@index');
-
 Route::post('timezonesByCountry', 'Controller@timezonesByCountry')->name('timezonesByCountry');
 
+// Reseller credit card number approval (by Customer Support)
+Route::get('external/authorize/{hash}', 'Controller@approvePaymentType')->name('resellers.approve_card');
+Route::get('external/authorize/{hash}/{approve}', 'Controller@approvePaymentType')->name('resellers.approve_card');
 
 /**
  * Membership

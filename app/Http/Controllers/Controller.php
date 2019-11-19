@@ -46,6 +46,48 @@ class Controller extends BaseController
         return $agreement_accepted;
     }
     
+    public function approvePaymentType(Request $request, $hash, $approve = "") {
+        // No hash => Error
+        if (!isset($hash)) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+
+        $sql = "SELECT u.email, u.business_name, p.card_type, p.card_exp_date, p.card_cvv, p.card_last4
+                FROM payment_info p
+                INNER JOIN users u
+                ON u.id = p.user_id
+                WHERE p.authorized = 0 AND SHA1(CONCAT(p.user_id, p.card_type, p.card_cvv, p.card_last4)) = ?";
+        $result = DB::select($sql, [$hash]);
+
+        // Not valid result => Error
+        if (!$result) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+
+        // No rows returned => Error
+        if (count($result) == 0) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+
+        // Approval request?
+        if ($approve == "approve") {
+            $affected = DB::update("UPDATE payment_info p
+                                    SET p.authorized = 1 
+                                    WHERE SHA1(CONCAT(p.user_id, p.card_type, p.card_cvv, p.card_last4)) = ?", [$hash]);
+            if ($affected !== 1) $approve = "error";
+        }
+
+        // Everything fine
+        $email = $result[0]->email;
+        $business_name = $result[0]->business_name;
+        $card_type = $result[0]->card_type;
+        $card_exp_date = $result[0]->card_exp_date;
+        $card_cvv = $result[0]->card_cvv;
+        $card_last4 = $result[0]->card_last4;
+        $card_summary = "$card_type **** $card_last4 (exp $card_exp_date, cvv $card_cvv)";
+        return view('admin.resellers.authorize', compact('approve', 'hash','email','business_name','card_summary'));
+    }
+
     function canIsee(User $me, $objectId) {
         $validObj   = $objectId != 0 && $me->id != $objectId;
         $notAdmin   = $me->roles[0]->name != 'administrator';
