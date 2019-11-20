@@ -858,14 +858,14 @@ class ApiController extends Controller
         $device_model = $this->resolveApostrophe(isset($request["device_model"]) ? $request["device_model"] : "");
 
         $sql  = "INSERT INTO kdsticket_users VALUES (
-            $name,
-            $business_name,
-            $email,
-            $zipcode,
-            $phone_number,
-            $device_os,
-            $device_model,
-            $app_version,
+            '$name',
+            '$business_name',
+            '$email',
+            '$zipcode',
+            '$phone_number',
+            '$device_os',
+            '$device_model',
+            '$app_version',
             time()
         )";
         
