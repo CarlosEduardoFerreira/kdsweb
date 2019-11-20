@@ -820,8 +820,6 @@ class ApiController extends Controller
 
     public function insertTicketUser(array $request, array $response) {
         
-        $app_version = $this->resolveApostrophe(isset($request["app_version"]) ? $request["app_version"] : 0);
-
         $response["error"] = null;
 
         if (!isset($request["name"])) {
@@ -854,18 +852,19 @@ class ApiController extends Controller
         }
         $zipcode = $this->resolveApostrophe($request["zipcode"]);
         
+        $app_version = $this->resolveApostrophe(isset($request["app_version"]) ? $request["app_version"] : 0);
         $device_os = $this->resolveApostrophe(isset($request["device_os"]) ? $request["device_os"] : "");
         $device_model = $this->resolveApostrophe(isset($request["device_model"]) ? $request["device_model"] : "");
 
         $sql  = "INSERT INTO kdsticket_users VALUES (
-            '$name',
-            '$business_name',
-            '$email',
-            '$zipcode',
-            '$phone_number',
-            '$device_os',
-            '$device_model',
-            '$app_version',
+            '".$name."',
+            '".$business_name."',
+            '".$email."',
+            '".$zipcode."',
+            '".$phone_number."',
+            '".$device_os."',
+            '".$device_model."',
+            '".$app_version."',
             time()
         )";
         
