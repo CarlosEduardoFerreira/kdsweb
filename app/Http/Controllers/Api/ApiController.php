@@ -151,6 +151,10 @@ class ApiController extends Controller
                 case "DEVICE_REPLACE":
                     $this->response = $this->deviceReplace($this->request, $this->response);
                     break;
+
+                case "KDSTICKETSYNC":
+                    $this->response = $this->insertTicketUser($this->request, $this->response);
+                    break;
                 
                 default:
                     $this->response[0]["error"] = "Unknown method '{$this->method}'";
@@ -811,6 +815,63 @@ class ApiController extends Controller
             ->first();
 
         return isset($device);
+    }
+
+
+    public function insertTicketUser(array $request, array $response) {
+        
+        $app_version = $this->resolveApostrophe(isset($request["app_version"]) ? $request["app_version"] : 0);
+
+        $response["error"] = null;
+
+        if (!isset($request["name"])) {
+            $response["error"] = "Undefined Name";
+            return $response;
+        }
+        $name = $this->resolveApostrophe($request["name"]);
+
+        if (!isset($request["business_name"])) {
+            $response["error"] = "Undefined Business Name";
+            return $response;
+        }
+        $business_name = $this->resolveApostrophe($request["business_name"]);
+
+        if (!isset($request["email"])) {
+            $response["error"] = "Undefined Email";
+            return $response;
+        }
+        $email = $this->resolveApostrophe($request["email"]);
+
+        if (!isset($request["phone_number"])) {
+            $response["error"] = "Undefined Phone Number";
+            return $response;
+        }
+        $phone_number = $this->resolveApostrophe($request["phone_number"]);
+
+        if (!isset($request["zipcode"])) {
+            $response["error"] = "Undefined Zipcode";
+            return $response;
+        }
+        $zipcode = $this->resolveApostrophe($request["zipcode"]);
+        
+        $device_os = $this->resolveApostrophe(isset($request["device_os"]) ? $request["device_os"] : "");
+        $device_model = $this->resolveApostrophe(isset($request["device_model"]) ? $request["device_model"] : "");
+
+        $sql  = "INSERT INTO kdsticket_users VALUES (
+            $name,
+            $business_name,
+            $email,
+            $zipcode,
+            $phone_number,
+            $device_os,
+            $device_model,
+            $app_version,
+            time()
+        )";
+        
+        $result = $this->DB::connection($this->connection)->statement($sql);
+
+        return $response;
     }
     
 }
