@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Settings\Plan;
+use App\Models\TicketUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -826,49 +827,50 @@ class ApiController extends Controller
             $response["error"] = "Undefined Name";
             return $response;
         }
-        $name = $this->resolveApostrophe($request["name"]);
+        $name = $request["name"];
 
         if (!isset($request["business_name"])) {
             $response["error"] = "Undefined Business Name";
             return $response;
         }
-        $business_name = $this->resolveApostrophe($request["business_name"]);
+        $business_name = $request["business_name"];
 
         if (!isset($request["email"])) {
             $response["error"] = "Undefined Email";
             return $response;
         }
-        $email = $this->resolveApostrophe($request["email"]);
+        $email = $request["email"];
 
         if (!isset($request["phone_number"])) {
             $response["error"] = "Undefined Phone Number";
             return $response;
         }
-        $phone_number = $this->resolveApostrophe($request["phone_number"]);
+        $phone_number = $request["phone_number"];
 
         if (!isset($request["zipcode"])) {
             $response["error"] = "Undefined Zipcode";
             return $response;
         }
-        $zipcode = $this->resolveApostrophe($request["zipcode"]);
+        $zipcode = $request["zipcode"];
         
-        $app_version = $this->resolveApostrophe(isset($request["app_version"]) ? $request["app_version"] : 0);
-        $device_os = $this->resolveApostrophe(isset($request["device_os"]) ? $request["device_os"] : "");
-        $device_model = $this->resolveApostrophe(isset($request["device_model"]) ? $request["device_model"] : "");
+        $app_version = isset($request["app_version"]) ? $request["app_version"] : 0;
+        $device_os = isset($request["device_os"]) ? $request["device_os"] : "";
+        $device_model = isset($request["device_model"]) ? $request["device_model"] : "";
 
-        $sql  = "INSERT INTO kdsticket_users VALUES (
-            '".$name."',
-            '".$business_name."',
-            '".$email."',
-            '".$zipcode."',
-            '".$phone_number."',
-            '".$device_os."',
-            '".$device_model."',
-            '".$app_version."',
-            time()
-        )";
-        
-        $result = $this->DB::connection($this->connection)->statement($sql);
+
+        $data = [
+            'name'          => $name,
+            'business_name' => $business_name,
+            'email'         => $email,
+            'zipcode'       => $zipcode,
+            'phone_number'  => $phone_number,
+            'device_os'     => $device_os,
+            'device_model'  => $device_model,
+            'app_version'   => $app_version,
+            'create_time'   => time()
+        ];
+
+        TicketUser::insert($data);
 
         return $response;
     }
