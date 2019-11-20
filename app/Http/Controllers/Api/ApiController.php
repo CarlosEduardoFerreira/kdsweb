@@ -857,7 +857,6 @@ class ApiController extends Controller
         $device_os = isset($request["device_os"]) ? $request["device_os"] : "";
         $device_model = isset($request["device_model"]) ? $request["device_model"] : "";
 
-
         $data = [
             'name'          => $name,
             'business_name' => $business_name,
