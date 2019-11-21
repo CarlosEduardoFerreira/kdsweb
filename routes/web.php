@@ -102,7 +102,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Show View
     Route::get('resellers/{reseller}/show', 'ResellerController@show')->name('resellers.show');
     // Insert Action
-    Route::put('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
+    Route::post('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
     // Update Action
     Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
     // Delete Action
@@ -111,6 +111,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('resellers/{reseller}/agreement', 'ResellerController@showAgreement')->name('resellers.agreement');
     // Confirm Agreement
     Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
+    // View Plans List / Add Plan
+    Route::get('resellers/0/plans', 'ResellerController@getPlans')->name('resellers.plans');
+    Route::get('resellers/0/add_plan', 'ResellerController@addPlan')->name('resellers.add_plan');
     // ------------------------------------------------------------------------------ Resellers //
 
     // Store Groups --------------------------------------------------------------------------- //
