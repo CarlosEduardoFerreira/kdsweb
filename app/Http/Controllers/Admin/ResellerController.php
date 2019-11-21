@@ -16,6 +16,7 @@ use App\PDFWriter\PDFWriter;
 use App\PDFWriter\PDFWriter\PDFWriter as AppPDFWriter;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Facades\URL;
+use App\Models\Parameters;
 use DateTime;
 use DateTimeZone;
 
@@ -124,6 +125,13 @@ class ResellerController extends Controller {
         $plan_premium = $request->plan_premium;
         $plan_premium_hardware = $request->plan_premium_hardware;
 
+        $data = ["%ID%" => $id,
+                "%BUSINESS_NAME%" => $business_name,
+                "%DBA%" => strlen($dba) > 0 ? " dba. $dba" : "",
+                "%FIRST_NAME%" => $contact_first_name,
+                "%LAST_NAME%" => $contact_last_name,
+                "%EMAIL%" => $email];
+        
         // Check if the reseller is already registered
         $registered = DB::select("SELECT COUNT(1) AS cnt FROM users WHERE email = ?", [$email])[0]->cnt > 0;
         if ($registered) {
@@ -152,7 +160,7 @@ class ResellerController extends Controller {
         }
 
         // Create & Send form link
-        $link_sent = $this->create_and_send_link($reseller_id, $email, $contact_first_name, $contact_last_name, $business_name, $dba);
+        $link_sent = $this->create_and_send_link($reseller_id, $email, $data);
         
         if (!$link_sent) {
             // Create/Send link error
@@ -162,7 +170,7 @@ class ResellerController extends Controller {
         return redirect()->intended(route('admin.resellers', [0, 'filter' => false]));
     }
 
-    function create_and_send_link($reseller_id, $email, $contact_first_name, $contact_last_name, $business_name, $dba) {
+    function create_and_send_link($reseller_id, $email, $data) {
         $hash = sha1(time() . $reseller_id . $email);
         $inserted = DB::insert("INSERT INTO forms_links (`user_id`, `link_hash`, `created_at`) VALUES (?, ?, ?)",
                                 [$reseller_id, $hash, time()]);
@@ -170,28 +178,30 @@ class ResellerController extends Controller {
             return false;
         }
 
-        if (strlen($dba) > 0) {
-            $dba = " dba " . $dba;
-        }
-
-        $url = URL::to("./forms/$hash");
-
-        $subject = "";
-
-        $headers = "From: KitchenGo System <system@kdsgo.com>\r\n";
-        $headers .= "Reply-To: Do Not Reply <donotreply@kdsgo.com>\r\n";
+        $headers = "From: " . Parameters::getValue("@reseller_link_email_from", "system@kdsgo.com") . "\r\n";
+        $headers .= "Reply-To: " . Parameters::getValue("@reseller_link_email_reply_to", "do-not-reply@kdsgo.com") . "\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-        $message = file_get_contents("assets/includes/email_new_reseller.html");
-        $message = str_replace("%FIRST_NAME%", $contact_first_name, $message);
-        $message = str_replace("%LAST_NAME%", $contact_last_name, $message);
-        $message = str_replace("%BUSINESS_NAME%", $business_name, $message);
-        $message = str_replace("%DBA%", $dba, $message);
-        $message = str_replace("%URL%", $url, $message);
-        $message = str_replace("%EXPIRATION%", date('m d, y h:i A', time() + 48 * 3600), $message);
+        $subject = Parameters::getValue("@reseller_link_email_subject", "KitchenGo: Action needed until %EXPIRATION%");
+        $message = file_get_contents(Parameters::getValue("@reseller_link_email_body_html_file", "assets/includes/email_new_reseller.html"));
+        
+        $data["%URL%"] = URL::to("./forms/$hash");;
+        $data["%EXPIRATION%"] = date('m/d/Y h:i A', time() + 48 * 3600);
+
+        $this->replaceResellerData($subject, $data);
+        $this->replaceResellerData($message, $data);
 
         return mail($email, $subject, $message, $headers);
+    }
+
+    // data: key will be replaced by its value. e.g. ["%URL%" => "www..."]
+    function replaceResellerData(&$string, $data) {
+        if (count($data) > 0) {
+            foreach ($data as $key => $value) {
+                $string = str_replace($key, $value, $string);
+            }
+        }
     }
 
     /**
