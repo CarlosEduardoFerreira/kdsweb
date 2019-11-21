@@ -44,7 +44,7 @@
             <?php
                 print_text_field("business_name", "Business Name", $user->business_name);
                 print_text_field("dba", "Doing Business As", $user->dba, false);
-                print_text_field("name", "Contact Name", $user->name);
+                print_text_field("name", "Contact First Name", $user->name);
                 print_text_field("last_name", "Contact Last Name", $user->last_name);
                 print_text_field("email", "E-Mail", $user->email);
             ?>

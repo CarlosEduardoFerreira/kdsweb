@@ -269,36 +269,6 @@ if(!isset($app_prices))
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
-            
-            <?php if ($obj == 'reseller') { ?>
-            <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-3" for="div-apps" >
-                    App Prices: <span class="required">*</span>
-                </label>
-
-                <div class="col-md-6 col-sm-6 col-xs-9">
-                    @foreach ($app_prices as $app_price)
-                    <div class="input-group col-lg-12 col-mg-12 col-sm-12" style="display: inline-block;">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <?php
-                                    $app_guid_hw = $app_price->app_guid . ($app_price->hardware === 1 ? "hw" : "");
-                                    if ($app_price->hardware === 1) {
-                                        echo $app_price->name . " + Hardware";
-                                    } else {
-                                        echo $app_price->name;
-                                    }
-                                ?>
-                            </span> 
-                        </div>
-  
-                        <input id="price_{{$app_guid_hw}}" name="price_{{$app_guid_hw}}" type="text" 
-                                class="form-control" value="{{$app_price->price}}" placeholder="Price" required>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            <?php } ?>
 
             <?php if ($obj == 'store') { ?>
             <div class="form-group">
@@ -471,17 +441,6 @@ if(!isset($app_prices))
 
     {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
     {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
-
-    <script>
-        $(document).ready(function() {
-            <?php foreach ($app_prices as $app_price) { 
-                $app_guid_hw = $app_price->app_guid . ($app_price->hardware === 1 ? "hw" : "");
-            ?>
-                $("#price_<?= $app_guid_hw ?>").mask('#######0.00', {reverse: true});
-                $("#price_<?= $app_guid_hw ?>").val(parseFloat($("#price_<?= $app_guid_hw ?>").val()).toFixed(2));
-            <?php } ?>
-        });
-    </script>
     
     <script>
         function goBack() {
