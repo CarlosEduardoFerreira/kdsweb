@@ -151,6 +151,7 @@ class ResellerController extends Controller {
                         ->header('Content-Type', 'application/json');
         }
 
+        // Insert new reseller into User's table
         $inserted = DB::insert("INSERT INTO users (`parent_id`, `name`, `last_name`, `email`, `active`, `created_at`, 
                                         `updated_at`, `business_name`, `dba`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                 [$id, $contact_first_name, $contact_last_name, $email, 1, $created_at, 
@@ -169,6 +170,18 @@ class ResellerController extends Controller {
                         [$plan_allee, $reseller_id, $plan_premium, $reseller_id, $plan_premium_hardware, $reseller_id]);
 
         if ((!$inserted) || ($reseller_id === 0)) {
+            // DB insert error
+            return response('{"success": false, "error": "An error ocurred while saving the new reseller\'s plans."}', 200)
+                        ->header('Content-Type', 'application/json');
+        }
+
+        // Set up payment info
+        $extended_support = isset($request->check_extended_support) ? 1 : 0;
+        $onsite_training = isset($request->check_onsite_training) ? 1 : 0;
+        $inserted = DB::insert("INSERT INTO payment_info (`user_id`, `extended_support`, `onsite_training`, `authorized`) VALUES (?, ?, ?, 0)",
+                        [$reseller_id, $extended_support, $onsite_training]);
+
+        if (!$inserted) {
             // DB insert error
             return response('{"success": false, "error": "An error ocurred while saving the new reseller\'s plans."}', 200)
                         ->header('Content-Type', 'application/json');

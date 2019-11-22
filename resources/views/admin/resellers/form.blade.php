@@ -49,6 +49,23 @@
                 print_text_field("email", "E-Mail", $user->email);
             ?>
 
+            <!-- Optional Add-ons -->
+            <div class='form-group'>
+                <label class='control-label col-md-3 col-sm-3 col-xs-12'>
+                    Extra Support:
+                </label>
+                <div class='col-md-6 col-sm-6 col-xs-12' style='margin-top: 7px;'>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input big-checkbox" id="check_extended_support" name="check_extended_support" value="1">
+                        <label class="form-check-label label-checkbox" for="check_extended_support">Extended Support Package (Extra $10/mo)</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input big-checkbox" id="check_onsite_training" name="check_onsite_training" value="1">
+                        <label class="form-check-label label-checkbox" for="check_onsite_training">On-site training/implementation (Prices range)</label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Plans -->
             <div class='form-group'>
                 <label class='control-label col-md-3 col-sm-3 col-xs-12'>
@@ -113,6 +130,8 @@
         }
         .page-title { padding-top:90px; }
         label { margin-top: 7px; }
+        .label-checkbox {font-weight:400;}
+        .big-checkbox {width:20px; height:15px;}
     </style>
 @endsection
 
