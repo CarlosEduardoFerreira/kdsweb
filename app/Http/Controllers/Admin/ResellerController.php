@@ -129,7 +129,8 @@ class ResellerController extends Controller {
         $plan_premium_hardware = $request->plan_premium_hardware;
 
         if (($plan_allee == "add_new") || ($plan_premium == "add_new") || ($plan_premium_hardware == "add_new")) {
-            return redirect()->intended(route('admin.resellers.new', ["error" => "One or more plans were not selected. Please try again."]));
+            return response('{"success": false, "error": "One or more plans were not selected. Please try again."}', 200)
+                        ->header('Content-Type', 'application/json');
         }
 
         $plan_premium = $request->plan_premium;
@@ -145,7 +146,8 @@ class ResellerController extends Controller {
         // Check if the reseller is already registered
         $registered = DB::select("SELECT COUNT(1) AS cnt FROM users WHERE email = ?", [$email])[0]->cnt > 0;
         if ($registered) {
-            return redirect()->intended(route('admin.resellers.new', ["error" => "Reseller is already registered with e-mail '$email'"]));
+            return response('{"success": false, "error": "There is already a reseller registered with the e-mail \'' . $email . '\'"}', 200)
+                        ->header('Content-Type', 'application/json');
         }
 
         $inserted = DB::insert("INSERT INTO users (`parent_id`, `name`, `last_name`, `email`, `active`, `created_at`, 
@@ -157,7 +159,8 @@ class ResellerController extends Controller {
 
         if ((!$inserted) || ($reseller_id === 0)) {
             // DB insert error
-            return redirect()->intended(route('admin.resellers.new', ["error" => "An error ocurred while saving the new reseller."]));
+            return response('{"success": false, "error": "An error ocurred while saving the new reseller."}', 200)
+                        ->header('Content-Type', 'application/json');
         }
 
         // Set up the 3 plans
@@ -166,7 +169,8 @@ class ResellerController extends Controller {
 
         if ((!$inserted) || ($reseller_id === 0)) {
             // DB insert error
-            return redirect()->intended(route('admin.resellers.new', ["error" => "An error ocurred while saving the new reseller's plans."]));
+            return response('{"success": false, "error": "An error ocurred while saving the new reseller\'s plans."}', 200)
+                        ->header('Content-Type', 'application/json');
         }
 
         // Create & Send form link
@@ -174,13 +178,16 @@ class ResellerController extends Controller {
         
         if (!$link_sent) {
             // Create/Send link error
-            return redirect()->intended(route('admin.resellers.new', ["error" => "An error ocurred while creating the link."]));
+            return response('{"success": false, "error": "An error ocurred while creating the link."}', 200)
+                        ->header('Content-Type', 'application/json');
         }
 
-        return redirect()->intended(route('admin.resellers', [0, 'filter' => false]));
+        return response('{"success": true}', 200)->header('Content-Type', 'application/json');
     }
 
     function create_and_send_link($reseller_id, $email, $data) {
+        $expiration_date = strtotime(date('Y-m-d 23:59:59', time() + 48 * 3600));
+        
         $hash = sha1(time() . $reseller_id . $email);
         $inserted = DB::insert("INSERT INTO forms_links (`user_id`, `link_hash`, `created_at`) VALUES (?, ?, ?)",
                                 [$reseller_id, $hash, time()]);
@@ -196,8 +203,8 @@ class ResellerController extends Controller {
         $subject = Parameters::getValue("@reseller_link_email_subject", "KitchenGo: Action needed until %EXPIRATION%");
         $message = file_get_contents(Parameters::getValue("@reseller_link_email_body_html_file", "assets/includes/email_new_reseller.html"));
         
-        $data["%URL%"] = URL::to("./forms/$hash");;
-        $data["%EXPIRATION%"] = date('m/d/Y h:i A', time() + 48 * 3600);
+        $data["%URL%"] = url(Parameters::getValue("@reseller_link_form_prepend", "forms")) . "/" . $hash;
+        $data["%EXPIRATION%"] = date('m/d/Y', $expiration_date);
 
         $this->replaceResellerData($subject, $data);
         $this->replaceResellerData($message, $data);

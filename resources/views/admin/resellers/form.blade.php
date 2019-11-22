@@ -38,7 +38,7 @@
  
     <div class="row" style="min-height:600px">
         <div class="col-12">
-            <form class='form-horizontal form-label-left' id='main-form' method='POST' action="{{ route('admin.resellers.insert') }}">
+            <form class='form-horizontal form-label-left' id='main-form' onsubmit="return newReseller()">
             {{ csrf_field() }}
 
             <?php
@@ -170,15 +170,45 @@
                             populateSelects(response.id);
                             $("#modal-new").modal("hide");
                         } else {
-                            alert("Error: " + response.error);
+                            $("#modal-error-body").html(response.error);
+                            $("#modal-error").modal("show");
                         }
                     }).fail(function(jqXHR, textStatus, errorThrown) {
                         // Show unknown error message
-                        alert("An unknown error occurred while creating the plan");
+                        $("#modal-error-body").html("An unknown error occurred while creating the plan");
+                        $("#modal-error").modal("show");
                     });
             } else {
-                alert("Please fill all the required fields.")
+                $("#modal-error-body").html("Please fill out all the required fields.");
+                $("#modal-error").modal("show");
             }
+        });
+
+        function newReseller(e) {
+            var data = $("#main-form").serialize();
+            $.ajax({url: './insert', 
+                        data: data,
+                        type: "POST"
+                    }).done(function(response, textStatus, jqXHR) {
+                        if (response.success) {
+                            $("#modal-success-title").html("Success");
+                            $("#modal-success-body").html("Thank you! The reseller shall soon receive the link.<BR>" + 
+                                                            "You will be redirected to the reseller's page in a few seconds.");
+                            $("#modal-success").modal("show");
+                        } else {
+                            $("#modal-error-body").html(response.error);
+                            $("#modal-error").modal("show");
+                        }
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        // Show unknown error message
+                        $("#modal-error-body").html("An unknown error occurred while creating the reseller");
+                        $("#modal-error").modal("show");
+                    });
+            return false;
+        }
+
+        $("#modal-success-button-ok").click(function() {
+            location.href = "./?filter=0";
         });
 
         function populateSelects(selection = "") {

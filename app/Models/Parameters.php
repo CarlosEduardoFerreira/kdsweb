@@ -17,7 +17,11 @@ class Parameters extends Model {
 
     public static function getValue($param, $default = null) {
         try {
-            return Parameters::where('param', $param)->first()->value;
+            $result = Parameters::where('param', $param)->first();
+            if (!isset($result)) {
+                return $default;
+            } 
+            return $result->value;
         } catch (Exception $e) {
             return $default;
         }
