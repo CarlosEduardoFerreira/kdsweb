@@ -25,11 +25,12 @@
         </div>
     </div>
     
-<?php include "assets/includes/modal.default.php"; ?>
-
-<?php include "assets/includes/modal.delete.php"; ?>
-
-<?php include "assets/includes/modal.error.php"; ?>
+<?php 
+    include "assets/includes/modal.default.php";
+    include "assets/includes/modal.success.php";
+    include "assets/includes/modal.delete.php";
+    include "assets/includes/modal.error.php"; 
+?>
 
 @stop
 
