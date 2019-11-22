@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Input;
 use App\Models\Auth\User\User;
 use App\Models\Settings\Plan;
 use App\Models\Settings\PlanXObject;
-
+use App\PDFWriter\PDFWriter;
 
 class Controller extends BaseController
 {
