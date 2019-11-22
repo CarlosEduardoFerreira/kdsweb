@@ -218,11 +218,11 @@ Route::get('/', 'HomeController@index');
 Route::post('timezonesByCountry', 'Controller@timezonesByCountry')->name('timezonesByCountry');
 
 // Reseller fillable form / agreement view [POST] / agreement acceptance [POST]
-Route::get('external/form/{hash}', 'Controller@resellerShowForm')->name('resellers.show_form');
-Route::get('external/form/{hash}/pdf', 'Controller@resellerShowAgreementPDF')->name('resellers.show_agreement_pdf');
-Route::post('external/form/{hash}/update', 'Controller@resellerUpdateInfo')->name('resellers.update_info');
-Route::get('external/form/{hash}/agreement', 'Controller@resellerDisplayAgreement')->name('resellers.show_agreement');
-Route::post('external/form/{hash}/accept', 'Controller@resellerAcceptAgreement')->name('resellers.accept_agreement');
+Route::get('external/form/{hash}', 'ExternalUserController@resellerShowForm')->name('external.show_reseller_form');
+Route::post('external/form/{hash}/update', 'ExternalUserController@resellerUpdateInfo')->name('resellers.update_info');
+Route::get('external/form/{hash}/pdf', 'ExternalUserController@resellerAgreementPDF')->name('resellers.agreement_pdf');
+Route::get('external/form/{hash}/agreement', 'ExternalUserController@resellerDisplayAgreement')->name('resellers.show_agreement');
+Route::post('external/form/{hash}/accept', 'ExternalUserController@resellerAcceptAgreement')->name('resellers.accept_agreement');
 
 // Reseller credit card number approval (by Customer Support)
 Route::get('external/authorize/{hash}', 'Controller@approvePaymentType')->name('resellers.approve_card');
