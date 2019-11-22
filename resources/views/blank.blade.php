@@ -21,7 +21,7 @@
         @tojs
     </head>
     <body>
-        <div class="col m-3">
+        <div id='div_content' class="col m-3">
             @yield('content')
         </div>
 
