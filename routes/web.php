@@ -217,7 +217,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 Route::get('/', 'HomeController@index');
 Route::post('timezonesByCountry', 'Controller@timezonesByCountry')->name('timezonesByCountry');
 
-// Reseller fillable form / agreement view [POST] / agreement acceptance [POST]
+// Reseller fillable form / agreement view / agreement acceptance
 Route::get('external/form/{hash}', 'ExternalUserController@resellerShowForm')->name('external.show_reseller_form');
 Route::post('external/form/{hash}/update', 'ExternalUserController@resellerUpdateInfo')->name('resellers.update_info');
 Route::get('external/form/{hash}/pdf', 'ExternalUserController@resellerAgreementPDF')->name('resellers.agreement_pdf');
@@ -225,12 +225,12 @@ Route::get('external/form/{hash}/agreement', 'ExternalUserController@resellerDis
 Route::post('external/form/{hash}/accept', 'ExternalUserController@resellerAcceptAgreement')->name('resellers.accept_agreement');
 
 // Reseller credit card number approval (by Customer Support)
-Route::get('external/authorize/{hash}', 'Controller@approvePaymentType')->name('resellers.approve_card');
-Route::get('external/authorize/{hash}/{approve}', 'Controller@approvePaymentType')->name('resellers.approve_card');
+Route::get('external/authorize/{hash}', 'ExternalUserController@approvePaymentType')->name('resellers.approve_card');
+Route::get('external/authorize/{hash}/{approve}', 'ExternalUserController@approvePaymentType')->name('resellers.approve_card');
 
 // Reseller new username/password
-Route::get('external/user/{hash}', 'Controller@resellerNewUser')->name('resellers.new_username');
-Route::post('external/user/{hash}/set', 'Controller@resellerSetPassword')->name('resellers.set_password');
+Route::get('external/user/{hash}', 'ExternalUserController@resellerNewUser')->name('resellers.new_username');
+Route::post('external/user/{hash}/set', 'ExternalUserController@resellerSetPassword')->name('resellers.set_password');
 
 /**
  * Membership

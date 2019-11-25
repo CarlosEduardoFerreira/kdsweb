@@ -42,10 +42,6 @@ class DashboardController extends Controller
         $me = Auth::user();
         $users = Controller::filterUsers(null, 0, 0);
 
-        if (!Controller::checkResellerAgreement(Auth::user())) {
-            return view('admin.agreement');
-        }
-
         $stores_data = [];
         $resellers   = 0;
         $storegroups = 0;

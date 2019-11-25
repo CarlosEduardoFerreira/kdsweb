@@ -69,14 +69,31 @@
         
         <div class="ml-5">
             <div class="group-title">License Fees</div>
-            <table class='table' style='width:300px;'>
+            <table class='table' style='width:400px;'>
                 <tbody>
                 <?php 
+                    $price_extended = "US$" . number_format(\App\Models\Parameters::getValue("@reseller_external_support_price", 10), 2);
+
                     foreach ($plans as $plan) {
+                        $payment_frequency = $plan->payment_freq;
+                        $longevity_months = $plan->longevity_months;
+                        switch (strtoupper($plan->payment_freq)) {
+                            case "ONE-TIME":
+                                $payment_frequency = "";
+                                break;
+
+                            case "YEARLY":
+                                $payment_frequency = "/Year";
+                                break;
+
+                            default:
+                                $payment_frequency = "/Month";
+                                break;
+                        }
                         echo "<tr><td class='thin-text p-1 border-0' style='max-width:150px;'>" . $plan->app_name . 
                                         ($plan->hardware === 1 ? " + Hardware" : "") . "</td>";
-                        echo "<td class='thin-text p-1 border-0' style='max-width:150px;'>US$" . 
-                                        number_format($plan->cost, 2) . "/station</td></tr>";      
+                        echo "<td class='thin-text p-1 border-0' style='max-width:250px;'>US$" . 
+                                        number_format($plan->cost, 2) . "/station$payment_frequency ($longevity_months mo.)</td></tr>";  
                     }
                 ?>
                 </tbody>
@@ -87,7 +104,7 @@
                 <tbody>
                     <tr>
                         <td class='p-1 border-0' style='max-width:150px;'>{{ $basic->extended_support == "1" ? "INCLUDED" : "NOT INCLUDED" }}</td>
-                        <td class='thin-text p-1 border-0' style='max-width:350px;'>Extended Support Package (extra $10/Month)</td>
+                        <td class='thin-text p-1 border-0' style='max-width:350px;'>Extended Support Package (extra <?= $price_extended ?>/Month)</td>
                     </tr>
                     <tr>
                         <td class='p-1 border-0' style='max-width:150px;'>{{ $basic->onsite_training == "1" ? "INCLUDED" : "NOT INCLUDED" }}</td>
@@ -169,11 +186,11 @@
                 Brand:
                 <span class="required">*</span>
             </label>
-            <select id="card_type" name="card_type" required>
-                <option id="MASTERCARD" selected>Mastercard</option>
-                <option id="VISA">Visa</option>
-                <option id="AMEX">American Express</option>
-                <option id="DISCOVER">Discover</option>
+            <select id="card_brand" name="card_brand" required>
+                <option value="MASTERCARD" selected>Mastercard</option>
+                <option value="VISA">Visa</option>
+                <option value="AMEX">American Express</option>
+                <option value="DISCOVER">Discover</option>
             </select>
         </div>
 
