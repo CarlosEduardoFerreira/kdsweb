@@ -135,7 +135,7 @@ class ExternalUserController extends BaseController
     public function resellerUpdateInfo(Request $request, $hash) {
         // Get User Id
         $reseller = $this->getResellerUser($hash);
-
+        
         // Not valid result => Expired/Not available
         if ($reseller === false) {
             return view('external.resellers.agreement', ["error" => "The page you are trying to access has expired or is not available."]);
@@ -171,26 +171,27 @@ class ExternalUserController extends BaseController
                                             $user_id]);
 
         // Add shipping contact information, if any
-        if (isset($request->chk_shipping)) {
+        if (!isset($request->chk_shipping)) {
             // Make sure that (initially) there is only one SHIPPING/BILLING address
             DB::delete("DELETE FROM contact_info WHERE user_id = ? AND address_type = 'SHIPPING'", [$user_id]);
             $sql = "INSERT INTO contact_info(user_id, address_type, care_of, address_1, address_2, 
                                                 city, state, country, zipcode, email, phone, updated_at, updated_by)
-                    VALUES(?, 'SHIPPING', ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(), 0)";
+                    VALUES(?, 'SHIPPING', ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(), ?)";
             DB::insert($sql, [$user_id, 
                                 $request->shipping_careof, 
                                 $request->shipping_address1,
                                 $request->shipping_address2,
                                 $request->shipping_city,
                                 $request->shipping_state,
-                                $request->shipping_zipcode,
                                 $request->shipping_country,
+                                $request->shipping_zipcode,
                                 $request->shipping_email,
-                                $request->shipping_phone]);
+                                $request->shipping_phone,
+                                $user_id]);
         }
 
         // Add billing contact information, if any
-        if (isset($request->chk_billing)) {
+        if (!isset($request->chk_billing)) {
             // Make sure that (initially) there is only one SHIPPING/BILLING address
             DB::delete("DELETE FROM contact_info WHERE user_id = ? AND address_type = 'BILLING'", [$user_id]);
             $sql = "INSERT INTO contact_info(user_id, address_type, care_of, address_1, address_2, 
@@ -575,7 +576,7 @@ class ExternalUserController extends BaseController
         $reseller_prices = $this->getResellerPriceAgreement($id);
         $contact_info = $this->getResellerContactInfo($id);
        
-        if (($user === false) || ($payment === false) || ($reseller_prices === false)) {
+        if (($user === false) || ($payment === false) || ($reseller_prices === false) || ($contact_info === false)) {
             return false;
         }
 
@@ -828,8 +829,8 @@ class ExternalUserController extends BaseController
             return false;
         } 
         
-        foreach ($result as $info) {
-            $answer[strtolower($info->address_type)] = $info;
+        foreach ($result as $row) {
+            $answer[strtolower($row->address_type)] = $row;
         }
         return $answer;
     }

@@ -175,6 +175,15 @@ class ResellerController extends Controller {
                         ->header('Content-Type', 'application/json');
         }
 
+        // Set up user role
+        $inserted = DB::insert("INSERT INTO users_roles (user_id, role_id) VALUES (?, 2)", [$reseller_id]);
+
+        if (!$inserted) {
+            // DB insert error
+            return response('{"success": false, "error": "An error ocurred while saving the new reseller\'s plans."}', 200)
+                        ->header('Content-Type', 'application/json');
+        }
+
         // Set up payment info
         $extended_support = isset($request->check_extended_support) ? 1 : 0;
         $onsite_training = isset($request->check_onsite_training) ? 1 : 0;
