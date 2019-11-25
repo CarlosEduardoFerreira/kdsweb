@@ -177,7 +177,6 @@ class ResellerController extends Controller {
 
         // Set up user role
         $inserted = DB::insert("INSERT INTO users_roles (user_id, role_id) VALUES (?, 2)", [$reseller_id]);
-
         if (!$inserted) {
             // DB insert error
             return response('{"success": false, "error": "An error ocurred while saving the new reseller\'s plans."}', 200)
@@ -291,14 +290,7 @@ class ResellerController extends Controller {
         }
         
         $countries  = DB::select("select * from countries order by name");
-        
-        $states     = [];
-        if (isset($reseller->country) && $reseller->country != "") {
-            $states     = DB::select("select * from states where country_id = $reseller->country order by name");
-        }
-        
-        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 
-            'countries' => $countries, 'states' => $states, 'me' => Auth::user()]);
+        return view('admin.form', ['obj' => 'reseller', 'user' => $reseller, 'countries' => $countries, 'me' => Auth::user()]);
     }
 
     /**
