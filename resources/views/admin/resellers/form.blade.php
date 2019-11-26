@@ -204,6 +204,15 @@
         });
 
         function newReseller(e) {
+            // At least 1 plan selected?
+            if (($("#plan_allee").val() == "n_a_allee") && 
+                ($("#plan_premium").val() == "n_a_premium") && 
+                ($("#plan_premium_hardware").val() == "n_a_premium_hardware")) {
+                    $("#modal-error-body").html("Plase select at least one plan.");
+                    $("#modal-error").modal("show");
+                    return false;
+            }
+            
             var data = $("#main-form").serialize();
             $.ajax({url: './insert', 
                         data: data,
@@ -246,6 +255,10 @@
             $("#plan_allee").append('<option value="add_new">Create new plan...</option>');
             $("#plan_premium").append('<option value="add_new">Create new plan...</option>');
             $("#plan_premium_hardware").append('<option value="add_new">Create new plan...</option>');
+
+            $("#plan_allee").append('<option value="n_a_allee">No plan (N/A)</option>');
+            $("#plan_premium").append('<option value="n_a_premium">No plan (N/A)</option>');
+            $("#plan_premium_hardware").append('<option value="n_a_premium_hardware">No plan (N/A)</option>');
 
             $.ajax({
                 url: './plans'

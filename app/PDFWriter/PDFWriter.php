@@ -7,7 +7,7 @@ use setasign\Fpdi\Fpdi;
 class PDFWriter {
     private $pdf;
     private $pages = 0;
-    private $outputTexts = [], $outputBoxes = [], $outputSignature = [];
+    private $outputs = [], $outputSignature = [];
 
     public function setFile($file) {
         if (file_exists($file)) {
@@ -21,11 +21,11 @@ class PDFWriter {
     }
 
     public function writeAt($pageNumber, $x, $y, $text, $fontSize) {
-        $this->outputTexts["page" . $pageNumber][] = ["x" => $x, "y" => $y, "text" => $text, "size" => $fontSize];
+        $this->outputs["page" . $pageNumber][] = ["cmd" => "write", "x" => $x, "y" => $y, "text" => $text, "size" => $fontSize];
     }
 
     public function box($pageNumber, $x, $y, $w, $h, $rgb = [0,0,0], $borderWidth = 0, $borderRGB = [0,0,0]) {
-        $this->outputBoxes["page" . $pageNumber][] = ["x" => $x, "y" => $y, "w" => $w, "h" => $h, "rgb" => $rgb, 
+        $this->outputs["page" . $pageNumber][] = ["cmd" => "box", "x" => $x, "y" => $y, "w" => $w, "h" => $h, "rgb" => $rgb, 
                                                         "borderWidth" => $borderWidth, "borderRGB" => $borderRGB];
     }
     
@@ -53,22 +53,19 @@ class PDFWriter {
             $pageId = $this->pdf->importPage($pageNo + 1);
             $this->pdf->useImportedPage($pageId, 0, 0, $width);
 
-            // Output boxes (behind texts)
-            if (array_key_exists("page" . ($pageNo + 1), $this->outputBoxes)) {
-                $pageBoxes = $this->outputBoxes["page" . ($pageNo + 1)];
-                for ($index = 0; $index < count($pageBoxes); $index++) {
-                    $this->intBox($pageBoxes[$index]["x"], $pageBoxes[$index]["y"], 
-                                    $pageBoxes[$index]["w"], $pageBoxes[$index]["h"], $pageBoxes[$index]["rgb"], 
-                                    $pageBoxes[$index]["borderWidth"], $pageBoxes[$index]["borderRGB"]);
-                }
-            }
-
-            // Output texts
-            if (array_key_exists("page" . ($pageNo + 1), $this->outputTexts)) {
-                $pageOutput = $this->outputTexts["page" . ($pageNo + 1)];
-                for ($index = 0; $index < count($pageOutput); $index++) {
-                    $this->intWriteText($pageOutput[$index]["x"], $pageOutput[$index]["y"], 
-                                        $pageOutput[$index]["size"], $pageOutput[$index]["text"]);
+            // Output
+            if (array_key_exists("page" . ($pageNo + 1), $this->outputs)) {
+                $pageOutput = $this->outputs["page" . ($pageNo + 1)];
+                foreach ($pageOutput as $out) {
+                    switch ($out["cmd"]) {
+                        case "write":
+                            $this->intWriteText($out["x"], $out["y"], $out["size"], $out["text"]);
+                            break;
+                        
+                        case "box":
+                            $this->intBox($out["x"], $out["y"], $out["w"], $out["h"], $out["rgb"], $out["borderWidth"], $out["borderRGB"]);
+                            break;
+                    }
                 }
             }
 
