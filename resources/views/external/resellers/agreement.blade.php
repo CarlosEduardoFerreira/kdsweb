@@ -38,7 +38,8 @@
     ?>
         <span class='group-subtitle'>
             Thank you for accepting the agreement.<BR>
-            Our team will soon contact you to obtain the full credit card's details and perform the card authorization.
+            Our team will soon contact you to obtain the full credit card's details and perform the card authorization.<BR><BR>
+            <a href=<?= URL::to("./agreements/$sig.pdf") ?> download>You may click here to download your electronically-signed agreement</a>
         </span>
     <?php
         } else {
@@ -52,8 +53,8 @@
             <form action="./accept" method='POST'>
                 {{ csrf_field() }}
                 <div class="form-group">
-                    <input type="checkbox" id="agree" name="agree" value="ok">
-                    &nbsp; By checking this box, you agree with the Reseller Subscription Agreement.
+                    <input type="checkbox" id="agree" name="agree" value="ok">&nbsp;
+                    <label for=agree>By checking this box, you agree with the Reseller Subscription Agreement.</label>
                 </div>
                 <BR>
                 <button type='submit' class="btn btn-success" id="continue">Continue</button>

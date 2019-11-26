@@ -21,7 +21,16 @@ use App\Models\Parameters;
 
 class ExternalUserController extends BaseController
 {
+    /**
+     * Display a pre-filled form to reseller to fill out
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return view (webpage)
+     */ 
     public function resellerShowForm(Request $request, $hash) {
+        // If user has already agreed on the reseller's agreement, the page should not be displayed
         $sql = "SELECT 
                     f.created_at,
                     u.id, u.email, u.dba, u.business_name, u.name, u.last_name, 
@@ -31,7 +40,7 @@ class ExternalUserController extends BaseController
                 ON f.user_id = u.id
                 INNER JOIN payment_info p
                 ON u.id = p.user_id
-                WHERE f.link_hash = ?";
+                WHERE f.link_hash = ? AND (SELECT COUNT(1) FROM agreement_acceptance WHERE email = u.email) = 0";
         $result = DB::select($sql, [$hash]);
 
         // Not valid result => Expired/Not available
@@ -75,13 +84,23 @@ class ExternalUserController extends BaseController
         return view('external.resellers.fill', compact('basic', 'plans', 'hash'));
     }
 
+
+
+    /**
+     * Display the reseller's agreement PDF filled out
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return PDF
+     */ 
     public function resellerAgreementPDF(Request $request, $hash) {
-        $reseller = $this->getReseller($hash);
+        $reseller = $this->getResellerUser($hash);
         if (!$reseller) {
             return view('external.resellers.agreement', ["error" => "An error occurred while creating your agreement. Please try again later."]);
         }
 
-        $pdf = $this->createAgreement($reseller["id"]);
+        $pdf = $this->createAgreement($reseller->id);
         if (!$pdf) {
             return view('external.resellers.agreement', ["error" => "An error occurred while creating your agreement. Please try again later."]);
         } else { 
@@ -89,19 +108,39 @@ class ExternalUserController extends BaseController
         }
     }
 
+
+
+    /**
+     * Display the reseller's agreement page (PDF + Agreement checkbox)
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return PDF
+     */ 
     public function resellerDisplayAgreement(Request $request, $hash) {
         return view('external.resellers.agreement', compact('hash'));
     }
 
+
+
+    /**
+     * Updates the reseller information from the filled-out form
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return view (webpage) - Either showing error or the Agreement
+     */ 
     public function resellerUpdateInfo(Request $request, $hash) {
         // Get User Id
-        $reseller = $this->getReseller($hash);
-
+        $reseller = $this->getResellerUser($hash);
+        
         // Not valid result => Expired/Not available
         if ($reseller === false) {
             return view('external.resellers.agreement', ["error" => "The page you are trying to access has expired or is not available."]);
         }
-        $user_id = $reseller["id"];
+        $user_id = $reseller->id;
 
         // Update Reseller Information
         $sql = "UPDATE users
@@ -118,7 +157,7 @@ class ExternalUserController extends BaseController
                     phone_number = ?
                 WHERE id = ?";
 
-        $updated_rows = DB::update($sql, [$request->company_business_name,
+        $updated_rows = DB::update($sql, [$request->business_name,
                                             $request->company_dba,
                                             $request->company_first_name,
                                             $request->company_last_name,
@@ -132,26 +171,27 @@ class ExternalUserController extends BaseController
                                             $user_id]);
 
         // Add shipping contact information, if any
-        if (isset($request->chk_shipping)) {
+        if (!isset($request->chk_shipping)) {
             // Make sure that (initially) there is only one SHIPPING/BILLING address
             DB::delete("DELETE FROM contact_info WHERE user_id = ? AND address_type = 'SHIPPING'", [$user_id]);
             $sql = "INSERT INTO contact_info(user_id, address_type, care_of, address_1, address_2, 
                                                 city, state, country, zipcode, email, phone, updated_at, updated_by)
-                    VALUES(?, 'SHIPPING', ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(), 0)";
+                    VALUES(?, 'SHIPPING', ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(), ?)";
             DB::insert($sql, [$user_id, 
                                 $request->shipping_careof, 
                                 $request->shipping_address1,
                                 $request->shipping_address2,
                                 $request->shipping_city,
                                 $request->shipping_state,
-                                $request->shipping_zipcode,
                                 $request->shipping_country,
+                                $request->shipping_zipcode,
                                 $request->shipping_email,
-                                $request->shipping_phone]);
+                                $request->shipping_phone,
+                                $user_id]);
         }
 
         // Add billing contact information, if any
-        if (isset($request->chk_billing)) {
+        if (!isset($request->chk_billing)) {
             // Make sure that (initially) there is only one SHIPPING/BILLING address
             DB::delete("DELETE FROM contact_info WHERE user_id = ? AND address_type = 'BILLING'", [$user_id]);
             $sql = "INSERT INTO contact_info(user_id, address_type, care_of, address_1, address_2, 
@@ -170,14 +210,14 @@ class ExternalUserController extends BaseController
         }
 
         // Add credit card information, making sure that (initially) there is only one credit card information
-        DB::delete("DELETE FROM payment_info WHERE user_id = ?", [$user_id]);
-        $sql = "INSERT INTO payment_info(user_id, card_type, card_exp_date, card_cvv, card_last4, authorized) 
-                VALUES(?, ?, ?, ?, ?, 0)";
-        $added_rows = DB::insert($sql, [$user_id, 
-                                        $request->card_brand, 
+        $sql = "UPDATE payment_info
+                SET card_type = ?, card_exp_date = ?, card_cvv = ?, card_last4 = ?, authorized = 0 
+                WHERE user_id = ?";
+        $added_rows = DB::insert($sql, [$request->card_brand, 
                                         $request->card_expiration_month . "/" . $request->card_expiration_year,
                                         $request->card_cvv,
-                                        $request->card_last4]);
+                                        $request->card_last4,
+                                        $user_id]);
 
         if ($added_rows === 0) {
             return view('external.resellers.agreement', ["error" => "An error occurred while updating your data. Please try again later."]);
@@ -186,6 +226,16 @@ class ExternalUserController extends BaseController
         return redirect(route('resellers.show_agreement', [$hash]));
     }
 
+
+
+    /**
+     * Updates reseller's agreement and save PDF
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return view (webpage) with an OK or any Error explaining what might have gone wrong
+     */ 
     public function resellerAcceptAgreement(Request $request, $hash) {
         $reseller = $this->getResellerUser($hash);
         if (!$reseller) {
@@ -193,6 +243,19 @@ class ExternalUserController extends BaseController
         }
         
         if ($request->agree === "ok") {
+            // Is the user reloading the page?
+            $already_accepted = DB::select("SELECT * FROM agreement_acceptance WHERE email = ? ORDER BY accepted_at DESC", [$reseller->email]);
+            if ($already_accepted) {
+                if (count($already_accepted) > 0) {
+                    $page = 10;
+                    $ip = $already_accepted[0]->ip;
+                    $time = $already_accepted[0]->accepted_at;
+                    $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $time);
+                    return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
+                }
+            }         
+
+            // Or is it the first time accepting the agreement?
             $now = time();
 
             // Save to database
@@ -205,13 +268,31 @@ class ExternalUserController extends BaseController
 
             // Create PDF, stamp the electronic signature and save as file
             $pdf = $this->createAgreement($reseller->id, $now);
-            $filename = "./agreements/%HASH%.pdf";
+            $filename = "./agreements/%AGREEMENT%.pdf";
+            $page = 10;
+            $ip = $_SERVER["REMOTE_ADDR"];
+            $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $now);
 
-            if (!$pdf->output($filename, "%HASH%")) {
+            if (!$pdf->output($filename, "%AGREEMENT%")) {
                 return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
             } else {
                 $data = [];
-                $data["%HASH%"] = $hash;
+
+                // For security purposes (clients not trying to guess the authorization address and approve by theirselves)
+                // a new hash is created, based on credit card information. This is the hash sent to Customer Support for
+                // approval.
+                $result = DB::select("SELECT SHA1(CONCAT(p.user_id, p.card_type, p.card_cvv, p.card_last4)) AS hash
+                                        FROM payment_info AS p
+                                        WHERE p.user_id = ?", [$reseller->id]);
+                if (!$result) {
+                    return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
+                }
+
+                if (count($result) == 0) {
+                    return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
+                }
+                
+                $data["%HASH%"] = $result[0]->hash;;
                 $data["%ID%"] = $reseller->id;
                 $data["%NAME%"] = $reseller->name;
                 $data["%LAST_NAME%"] = $reseller->last_name;
@@ -229,7 +310,7 @@ class ExternalUserController extends BaseController
                 if (!$this->sendEmailToCustomerService($data)) {
                     return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
                 }
-                return view('external.resellers.agreement', ["accepted" => true]);
+                return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
             }
         } else {
             return view('external.resellers.agreement', ["error" => "We're sorry, but you need to accept the agreement to use our services."]);
@@ -237,10 +318,197 @@ class ExternalUserController extends BaseController
     }
 
 
+
+    /**
+     * Used by customer support to approve the payment type after authorizing the credit card's
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * @param $approve  If not set, it means to show reseller's information before approval
+     *                  If set, it means that customer support has approved (update database and send email)
+     * 
+     * @return view (webpage)
+     */ 
+    public function approvePaymentType(Request $request, $hash, $approve = "") {
+        // No hash => Error
+        if (!isset($hash)) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+        $sql = "SELECT u.email, u.business_name, u.name, u.last_name, u.dba, f.link_hash, 
+                                            p.card_type, p.card_exp_date, p.card_cvv, p.card_last4
+                FROM payment_info p
+                INNER JOIN users u
+                ON u.id = p.user_id
+                INNER JOIN forms_links f
+                ON f.user_id = p.user_id
+                WHERE p.authorized = 0 AND SHA1(CONCAT(p.user_id, p.card_type, p.card_cvv, p.card_last4)) = ?";
+        $result = DB::select($sql, [$hash]);
+
+        // Not valid result => Error
+        if (!$result) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+        // No rows returned => Error
+        if (count($result) == 0) {
+            return view('admin.resellers.authorize', ["error" => true]);
+        }
+        // Result is OK
+        $email = $result[0]->email;
+        $business_name = $result[0]->business_name;
+        $card_type = $result[0]->card_type;
+        $card_exp_date = $result[0]->card_exp_date;
+        $card_cvv = $result[0]->card_cvv;
+        $card_last4 = $result[0]->card_last4;
+        $card_summary = "$card_type **** $card_last4 (exp $card_exp_date, cvv $card_cvv)";
+
+        // Approval request?
+        if ($approve == "approve") {
+            $affected = DB::update("UPDATE payment_info p
+                                    SET p.authorized = 1 
+                                    WHERE SHA1(CONCAT(p.user_id, p.card_type, p.card_cvv, p.card_last4)) = ?", [$hash]);
+            if ($affected !== 1) {
+                $approve = "error";
+            } else {
+                $data["%EMAIL%"] = $email;
+                $data["%BUSINESS_NAME%"] = $business_name;
+                $data["%FIRST_NAME%"] = $result[0]->name;
+                $data["%LAST_NAME%"] = $result[0]->last_name;
+                $data["%DBA%"] = (strlen($result[0]->dba) > 0 ? " dba " . $result[0]->dba : "");
+                $data["%HASH%"] = $result[0]->link_hash;
+                
+                $approve = $this->sendEmailToClientSetPassword($email, $data);
+            }
+        }
+        // Everything fine
+        
+        return view('admin.resellers.authorize', compact('approve', 'hash','email','business_name','card_summary'));
+    }
+
+
+
+    /**
+     * Display a page where the resellers can set up their password
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return view (webpage)
+     */ 
+    public function resellerNewUser(Request $request, $hash) {
+        // Get User Id (link valid for 14 days)
+        $reseller = $this->getResellerUser($hash);
+
+        // Not valid result => Expired/Not available
+        if ($reseller === false) {
+            return view('admin.resellers.newuser', ["error" => "The page you are trying to access has expired or is not available."]);
+        }
+
+        // Check if the user is authorized (credit card)
+        $result = DB::select("SELECT COUNT(1) AS count
+                                FROM payment_info 
+                                WHERE user_id = ? 
+                                AND authorized = 1", [$reseller->id]);
+        if (!$result) {
+            return view('admin.resellers.newuser', ["error" => "The page you are trying to access has expired or is not available."]);
+        }
+       
+        if ($result[0]->count == 0) {
+            return view('admin.resellers.newuser', ["error" => "Your card has not yet been authorized. Please try again later."]);
+        } else {
+            $email = $reseller->email;
+            $fullname = $reseller->name . ' ' . $reseller->last_name;
+            return view('admin.resellers.newuser', compact('hash', 'email', 'fullname'));
+        } 
+    }
+
+    /**
+     * Updates reseller's password and redirects to login (if successful) or display an error
+     *
+     * @param $request  HTTP Request
+     * @param $hash     Link Hash (sent via email)
+     * 
+     * @return view (webpage)
+     */ 
+    public function resellerSetPassword(Request $request, $hash) {
+        // Get User Id (link valid for 14 days)
+        $reseller = $this->getResellerUser($hash);
+
+        // Not valid result => Expired/Not available
+        if ($reseller === false) {
+            return view('admin.resellers.newuser', ["error" => "The page you are trying to access has expired or is not available."]);
+        }
+        
+        // Re-check inputs
+        if (!isset($request->password) || !isset($request->password2)) {
+            return view('admin.resellers.newuser', ["error" => "Invalid request. Please try again later."]);
+        }
+        if (strlen($request->password) < 6) {
+            return view('admin.resellers.newuser', ["error" => "Password must be at least 6 characters long. Please try again."]);
+        }
+        if ($request->password !== $request->password2) {
+            return view('admin.resellers.newuser', ["error" => "Passwords must match. Please try again."]);
+        }
+        if (!isset($request->email)) {
+            return view('admin.resellers.newuser', ["error" => "No e-mail found. Please contact our customer support."]);
+        }
+        if (strlen($request->email) == 0) {
+            return view('admin.resellers.newuser', ["error" => "No e-mail found. Please contact our customer support."]);
+        }
+
+        // All inputs OK: hash & save password
+        $password_hash = bcrypt($request->password);
+        $sql = "UPDATE users
+                SET password = ?, updated_at = NOW()
+                WHERE id = ?";
+
+        $affected_rows = DB::update($sql, [$password_hash, $reseller->id]);
+        if ($affected_rows == 0) {
+            return view('admin.resellers.newuser', ["error" => "An error occurred while setting your password. Please try again later."]);
+        } else {
+            return view('admin.resellers.newuser', ["success" => true]);
+        }
+    }
+
+
+
     //
     // Support functions
     //
+    /**
+     * Sends an e-mail to the reseller, after payment approval, asking to set up their password
+     *
+     * @param $email    Reseller's email
+     * @param $data     Reseller's information in form of %variable_name%. E.g. $data["%BUSINESS_NAME%"]
+     * 
+     * @return boolean  Whether the mail was sent or not
+     */ 
+    private function sendEmailToClientSetPassword($email, $data) {
+        $headers = "From: " . Parameters::getValue("@reseller_link_email_from", "system@kdsgo.com") . "\r\n";
+        $headers .= "Reply-To: " . Parameters::getValue("@reseller_link_email_reply_to", "do-not-reply@kdsgo.com") . "\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        $subject = Parameters::getValue("@reseller_set_password_email_subject", "KitchenGo: Set your password");
+        $message = file_get_contents(Parameters::getValue("@reseller_set_password_email_body_html_file", 
+                                                          "assets/includes/email_set_password.html"));
+        
+        $data["%URL%"] = url(Parameters::getValue("@reseller_set_password_email_link_prepend", "authorize")) . "/" . $data["%HASH%"];
+
+        $this->replaceParamData($subject, $data);
+        $this->replaceParamData($message, $data);
+
+        return mail($email, $subject, $message, $headers);
+    }
     
+
+
+    /**
+     * Sends an e-mail to the customer support, after reseller fills out the form
+     * 
+     * @param $data     Reseller's information in form of %variable_name%. E.g. $data["%BUSINESS_NAME%"]
+     * 
+     * @return boolean  Whether the mail was sent or not
+     */ 
     private function sendEmailToCustomerService($data) {
         $to = Parameters::getValue("@reseller_form_email_customer_support", "");
         if ($to == "") {
@@ -264,7 +532,19 @@ class ExternalUserController extends BaseController
         return mail($to, $subject, $message, $headers);
     }
 
-    // data: key will be replaced by its value. e.g. ["%URL%" => "www..."]
+
+
+    /**
+     * Support function to replace array keys inside a string to its array value.
+     * E.g. $string = "Hello, %NAME%" 
+     *      $data = ["%NAME%" => "world!"]
+     * After calling the function:
+     *      $string = "Hello, world!"
+     *
+     * @param $string   Pre-filled string
+     * @param $data     Reseller's information in form of %variable_name%. E.g. $data["%BUSINESS_NAME%"]
+     * 
+     */ 
     function replaceParamData(&$string, $data) {
         if (count($data) > 0) {
             foreach ($data as $key => $value) {
@@ -273,9 +553,17 @@ class ExternalUserController extends BaseController
         }
     }
 
+
+
     /**
+     * Fills out the PDF with reseller's information
+     * 
+     * @param $id                   Reseller's user id
+     * @param $signature_timestamp  If set, it will stamp the signature and save the file.
+     *                              If not set, it will not create a file.
+     * 
      * @return App\PDFWriter\PDFWriter\PDFWriter
-     */
+     */ 
     private function createAgreement($id, $signature_timestamp = 0) {
         $fsNormal = 11;
         $fsSmall = 9;
@@ -287,8 +575,8 @@ class ExternalUserController extends BaseController
         $payment = $this->getResellerPaymentInfo($id);
         $reseller_prices = $this->getResellerPriceAgreement($id);
         $contact_info = $this->getResellerContactInfo($id);
-
-        if (($user === false) || ($payment === false) || ($reseller_prices === false)) {
+       
+        if (($user === false) || ($payment === false) || ($reseller_prices === false) || ($contact_info === false)) {
             return false;
         }
 
@@ -367,7 +655,7 @@ class ExternalUserController extends BaseController
         $extendedSupportAgreementPrice = number_format(Parameters::getValue("@reseller_external_support_price", 10), 2);
         $pdf->box(1, 53.5, 59.2, 100, 3.5, $color_white);
         $pdf->writeAt(1, 53.9, 59.2 + 1.9, "Extended Support Package - Extra US$" . $extendedSupportAgreementPrice . "/Month", $fsNormal);
-        if ($payment->extended_support) {
+        if ($payment->extended_support == 1) {
             $pdf->box(1, 40, 59.7, 3, 3, $color_black);
         }
         
@@ -381,7 +669,7 @@ class ExternalUserController extends BaseController
 
         // 2. SITE INFORMATION
         $userFullName = $user->name . " " . $user->last_name;
-        $pdf->writeAt(1, 58, 145 + 0.5, "BN" . $user->business_name, $fsNormal);
+        $pdf->writeAt(1, 58, 145 + 0.5, $user->business_name, $fsNormal);
         $pdf->writeAt(1, 58, 152 + 0.5, $company["address1"], $fsNormal);
         $pdf->writeAt(1, 58, 157 + 0.5, $company["address2"], $fsNormal);
         $pdf->writeAt(1, 58, 161.5 + 1, $company["city"], $fsNormal);
@@ -479,12 +767,24 @@ class ExternalUserController extends BaseController
         $pdf->writeAt(10, 20, 178.5, date("d F Y"), $fsNormal);
         $pdf->writeAt(10, 120, 178.5, date("d F Y"), $fsNormal);
 
+        // AGREEMENT page 10
+        $pdf->box(10, 29, 154, 60, 8, [150, 200, 255], 0.2, [0, 0, 0]);
+        $pdf->writeAt(10, 32, 158, ($signature_timestamp > 0 ? "SIGNED ELECTRONICALLY" : "TO BE SIGNED ELECTRONICALLY"), $fsSmall);
         $title = $signature_timestamp > 0 ? "DOCUMENT SIGNED ELECTRONICALLY" : "";
         $pdf->stampElectronicSignature($id, $signature_timestamp, 10, 8, 200, $title);
 
         return $pdf;
     }
 
+
+
+    /**
+     * Gets data from table payment_info
+     * 
+     * @param $id       Reseller's user id
+     * 
+     * @return Boolean FALSE if not found/error, or DB Result
+     */ 
     private function getResellerPaymentInfo($id) {
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $result = DB::select("SELECT * FROM $mainDB.payment_info WHERE user_id = ?", [$id]);
@@ -495,6 +795,15 @@ class ExternalUserController extends BaseController
         }
     }
 
+
+
+    /**
+     * Gets data from table users
+     * 
+     * @param $id       Reseller's user id
+     * 
+     * @return Boolean FALSE if not found/error, or DB Result
+     */ 
     private function getResellerUserInfo($id) {
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $result = DB::select("SELECT * FROM $mainDB.users u WHERE u.id = ?", [$id]);
@@ -506,11 +815,12 @@ class ExternalUserController extends BaseController
     }
 
     /**
-     * Gets contact info for Company, Shipping and/or Billing
-     * Returns array ["billing"], ["shipping"] and ["company"]
-     *
-     * @return Array
-     */
+     * Gets contact information from tables contact_info
+     * 
+     * @param $id       Reseller's user id
+     * 
+     * @return Array or Boolean FALSE if not found/error, or array with DB Result, address_type as key ["billing"], ["shipping"] and ["company"]
+     */ 
     private function getResellerContactInfo($id) {
         $answer = [];
         $mainDB = env('DB_DATABASE', 'kdsweb');
@@ -519,12 +829,21 @@ class ExternalUserController extends BaseController
             return false;
         } 
         
-        foreach ($result as $info) {
-            $answer[strtolower($info->address_type)] = $info;
+        foreach ($result as $row) {
+            $answer[strtolower($row->address_type)] = $row;
         }
         return $answer;
     }
 
+
+
+    /**
+     * Gets reseller's price agreement (plans)
+     * 
+     * @param $id       Reseller's user id
+     * 
+     * @return Boolean FALSE if not found/error, or DB Result with the plans
+     */ 
     private function getResellerPriceAgreement($id) {
         $mainDB = env('DB_DATABASE', 'kdsweb');
 
@@ -547,17 +866,15 @@ class ExternalUserController extends BaseController
         return $result;
     }
 
-    public function getReseller($hash) {
-        $sql = "SELECT u.id, u.email 
-                FROM forms_links f 
-                INNER JOIN users u 
-                ON f.user_id = u.id 
-                WHERE link_hash = ?";
-        $result = DB::select($sql, [$hash]);
-        if (!$result) return false;
-        return ["id" => $result[0]->id, "email" => $result[0]->email];
-    }
 
+
+    /**
+     * Gets reseller's user information
+     * 
+     * @param $hash       Reseller's hash to fill out form
+     * 
+     * @return Boolean FALSE if not found/error, or DB Result with the information
+     */ 
     public function getResellerUser($hash) {
         $sql = "SELECT u.* 
                 FROM users u 

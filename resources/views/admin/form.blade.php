@@ -225,17 +225,7 @@ if(!isset($app_prices))
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                		<input type="hidden" id="state-edit" value="{{$user->state}}">
-                    <select name="state" id="state" class="form-control" style="width:350px" required>
-                    <?php if(isset($states)) { ?>
-                        @foreach($states as $state)
-                        		<?php 
-                        		$selected = $user->state == $state->id ? "selected" : "";
-                        		?>
-                        		<option value="{{$state->id}}" <?=$selected ?>> {{$state->name}}</option>
-                        @endforeach
-                    <?php } ?>
-                    </select>
+                    <input id="state" name="state" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->state }}" required>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
@@ -257,15 +247,7 @@ if(!isset($app_prices))
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select id="country" name="country" class="form-control" style="width:350px;" required>
-                        <option></option>
-                        @foreach($countries as $country)
-                    		<?php 
-                    		$selected = $user->country == $country->id ? "selected" : "";
-                    		?>
-                    		<option value="{{$country->id}}" country_code="{{$country->sortname}}" <?=$selected ?>>{{$country->name}}</option>
-                        @endforeach
-                    </select>
+                    <input id="country" name="country" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->country }}" required>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
@@ -341,7 +323,7 @@ if(!isset($app_prices))
                 
             <?php } ?>
 			
-			@if($user->exists)
+			@if(($user->exists) && ($me->roles[0]->weight == 1000))
                 <div class="form-group" >
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="active" >
                         {{ __('views.admin.users.edit.active') }}
