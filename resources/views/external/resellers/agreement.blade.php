@@ -50,7 +50,7 @@
         </div> 
         <BR> 
         <div class="col-12 text-center">
-            <form action="./accept" method='POST'>
+            <form action="./accept" method='POST' onsubmit="return validateForm()">
                 {{ csrf_field() }}
                 <div class="form-group">
                     <input type="checkbox" id="agree" name="agree" value="ok">&nbsp;
@@ -61,4 +61,15 @@
             </form>
         </div>
     <?php } ?>
+
+    <script>
+        function validateForm() {
+            var isChecked = $("#agree").is(":checked");
+            if (!isChecked) {
+                $("#modal-error-body").html("We're sorry, but you need to accept the agreement to use our services.");
+                $("#modal-error").modal("show");
+            }
+            return isChecked;
+        }
+    </script>
 @endsection

@@ -60,7 +60,7 @@
     ?>
 
     <BR>
-    <form class="col-9" method="POST" action="./{{ $hash }}/update">
+    <form class="col-9" method="POST" action="./{{ $hash }}/update" onsubmit="return validateForm()">
         {{ csrf_field() }}
 
         <!-- Subcription Info -->
@@ -221,7 +221,7 @@
                 Last 4 numbers:
                 <span class="required">*</span>
             </label>
-            <input id="card_last4" name="card_last4" type="text" maxlength=4 class="form-control col-md-7 col-xs-12" value="" required>
+            <input id="card_last4" name="card_last4" type="text" minlength=4 maxlength=4 class="form-control col-md-7 col-xs-12" value="" required>
         </div>
 
         <div class="form-group form-inline">
@@ -229,7 +229,7 @@
                 Security Code (CVV):
                 <span class="required">*</span>
             </label>
-            <input id="card_cvv" name="card_cvv" type="text" maxlength=3 class="form-control col-md-7 col-xs-12" value="" required>
+            <input id="card_cvv" name="card_cvv" type="text" minlength=3 maxlength=4 class="form-control col-md-7 col-xs-12" value="" required>
         </div>
 
         <BR>
@@ -297,6 +297,20 @@
         $('#' + $(this).data('form')).slideToggle();
         $("." + $(this).data('form') + "_req").prop('required', $(this).is(":checked") == false);
     });
+
+    function validateForm() {
+        // Check if expiration date is > current month
+        var date_exp = new Date($("#card_expiration_year").val(), $('#card_expiration_month').val(), 0); // Last day of month
+        var now = new Date();
+        var ans = now.getTime() < date_exp.getTime();
+
+        if (!ans) {
+            $("#modal-error-body").html("You card expiration is invalid. Please check.");
+            $("#modal-error").modal("show");
+        }
+
+        return ans;
+    }
 </script>
 @endsection
 

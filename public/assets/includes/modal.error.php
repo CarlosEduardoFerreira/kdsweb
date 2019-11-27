@@ -3,12 +3,12 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         	<div class="modal-content">
         		<div class="modal-header" style="background-color:#fee;">
-        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            			<span aria-hidden="true">&times;</span>
-            		</button>
         			<h5 class="modal-title" id="modal-error-title">
 						Error
 					</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            			<span aria-hidden="true">&times;</span>
+            		</button>
         		</div>
         		<div class="modal-body" id="modal-error-body">
         			
@@ -21,6 +21,6 @@
 </div>
 
 <style>
-    #modal-error-title { letter-spacing:2px; font-size:18px; font-weight:300; color:#a55}
+    #modal-error-title { letter-spacing:2px; font-size:18px; font-weight:300; color:#a55; display:inline; align:left }
 	#modal-error-body { letter-spacing:1px; font-size:14px; font-weight:300; color:#222}
 </style>

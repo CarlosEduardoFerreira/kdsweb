@@ -2,19 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use DateTimeZone;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
-use App\Models\Auth\User\User;
-use App\Models\Settings\Plan;
-use App\Models\Settings\PlanXObject;
 use App\PDFWriter\PDFWriter;
 use App\Models\Parameters;
 
@@ -40,7 +31,7 @@ class ExternalUserController extends BaseController
                 ON f.user_id = u.id
                 INNER JOIN payment_info p
                 ON u.id = p.user_id
-                WHERE f.link_hash = ? AND (SELECT COUNT(1) FROM agreement_acceptance WHERE email = u.email) = 0";
+                WHERE f.link_hash = ?";
         $result = DB::select($sql, [$hash]);
 
         // Not valid result => Expired/Not available
@@ -170,6 +161,11 @@ class ExternalUserController extends BaseController
                                             $request->company_phone,
                                             $user_id]);
 
+        // Could not update
+        if ($updated_rows === 0) {
+            return view('external.resellers.agreement', ["error" => "An error occurred while saving your data."]);
+        }
+
         // Add shipping contact information, if any
         if (!isset($request->chk_shipping)) {
             // Make sure that (initially) there is only one SHIPPING/BILLING address
@@ -243,15 +239,17 @@ class ExternalUserController extends BaseController
         }
         
         if ($request->agree === "ok") {
-            // Is the user reloading the page?
-            $already_accepted = DB::select("SELECT * FROM agreement_acceptance WHERE email = ? ORDER BY accepted_at DESC", [$reseller->email]);
+            // Is the user just reloading the page (1h limit)?
+            $already_accepted = DB::select("SELECT ip, accepted_at FROM agreement_acceptance WHERE email = ? ORDER BY accepted_at DESC", [$reseller->email]);
             if ($already_accepted) {
                 if (count($already_accepted) > 0) {
-                    $page = 10;
-                    $ip = $already_accepted[0]->ip;
-                    $time = $already_accepted[0]->accepted_at;
-                    $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $time);
-                    return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
+                    if (time() - $already_accepted[0]->accepted_at < 3600 * 1000) {
+                        $page = 10;
+                        $ip = $already_accepted[0]->ip;
+                        $time = $already_accepted[0]->accepted_at;
+                        $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $time);
+                        return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
+                    }
                 }
             }         
 
@@ -272,6 +270,10 @@ class ExternalUserController extends BaseController
             $page = 10;
             $ip = $_SERVER["REMOTE_ADDR"];
             $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $now);
+
+            if ($pdf === false) {
+                return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
+            }
 
             if (!$pdf->output($filename, "%AGREEMENT%")) {
                 return view('external.resellers.agreement', ["error" => "An error occurred while saving your agreement. Please try again later."]);
@@ -371,12 +373,33 @@ class ExternalUserController extends BaseController
             } else {
                 $data["%EMAIL%"] = $email;
                 $data["%BUSINESS_NAME%"] = $business_name;
+                $data["%NAME%"] = $result[0]->name;
                 $data["%FIRST_NAME%"] = $result[0]->name;
                 $data["%LAST_NAME%"] = $result[0]->last_name;
                 $data["%DBA%"] = (strlen($result[0]->dba) > 0 ? " dba " . $result[0]->dba : "");
                 $data["%HASH%"] = $result[0]->link_hash;
+
+                $user_agreement_info = DB::select("SELECT u.id, aa.ip, aa.accepted_at 
+                                                    FROM kdsweb.agreement_acceptance aa
+                                                    INNER JOIN users u
+                                                    ON u.email = aa.email
+                                                    WHERE aa.email = ? 
+                                                    ORDER BY aa.accepted_at DESC 
+                                                    LIMIT 1", [$email]);
+                if (!$user_agreement_info) {
+                    return view('admin.resellers.authorize', ["error" => true]);
+                }
+                if (count($user_agreement_info) == 0) {
+                    return view('admin.resellers.authorize', ["error" => true]);
+                }
+
+                $page = 10;
+                $sig = sprintf("%08d", $user_agreement_info[0]->id) . sprintf("%04d", $page) . 
+                            md5($user_agreement_info[0]->id . $user_agreement_info[0]->ip . $page . $user_agreement_info[0]->accepted_at);
+                $data["%SIGNATURE_HASH%"] = $sig;
+                $data["%LINK_PDF%"] = URL::to("./agreements/$sig.pdf");
                 
-                $approve = $this->sendEmailToClientSetPassword($email, $data);
+                $approve = $this->sendEmailToClientSetPasswordAndAccounting($email, $data);
             }
         }
         // Everything fine
@@ -482,22 +505,26 @@ class ExternalUserController extends BaseController
      * 
      * @return boolean  Whether the mail was sent or not
      */ 
-    private function sendEmailToClientSetPassword($email, $data) {
-        $headers = "From: " . Parameters::getValue("@reseller_link_email_from", "system@kdsgo.com") . "\r\n";
-        $headers .= "Reply-To: " . Parameters::getValue("@reseller_link_email_reply_to", "do-not-reply@kdsgo.com") . "\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-
-        $subject = Parameters::getValue("@reseller_set_password_email_subject", "KitchenGo: Set your password");
-        $message = file_get_contents(Parameters::getValue("@reseller_set_password_email_body_html_file", 
-                                                          "assets/includes/email_set_password.html"));
-        
+    private function sendEmailToClientSetPasswordAndAccounting($email, $data) {       
         $data["%URL%"] = url(Parameters::getValue("@reseller_set_password_email_link_prepend", "authorize")) . "/" . $data["%HASH%"];
 
-        $this->replaceParamData($subject, $data);
-        $this->replaceParamData($message, $data);
-
-        return mail($email, $subject, $message, $headers);
+        // E-mail to the accounting
+        $this->sendEmail(Parameters::getValue("@email_system_from", "system@kdsgo.com"), 
+                            Parameters::getValue("@email_system_reply_to", "do-not-reply@kdsgo.com"),
+                            Parameters::getValue("@email_accounting", "do-not-reply@kdsgo.com"),
+                            Parameters::getValue("@accounting_new_reseller_email_subject", "KitchenGo: New Reseller"),
+                            Parameters::getValue("@accounting_new_reseller_email_body_html_file", 
+                                                        "assets/includes/email_accounting_new_reseller.html"), 
+                            $data);
+        
+        // E-mail to the client. Returns it to ensures that at least the client receives it
+        return $this->sendEmail(Parameters::getValue("@email_system_from", "system@kdsgo.com"), 
+                                Parameters::getValue("@email_system_reply_to", "do-not-reply@kdsgo.com"),
+                                $email,
+                                Parameters::getValue("@reseller_set_password_email_subject", "KitchenGo: Set your password"),
+                                Parameters::getValue("@reseller_set_password_email_body_html_file", 
+                                                          "assets/includes/email_set_password.html"), 
+                                $data);
     }
     
 
@@ -510,28 +537,52 @@ class ExternalUserController extends BaseController
      * @return boolean  Whether the mail was sent or not
      */ 
     private function sendEmailToCustomerService($data) {
-        $to = Parameters::getValue("@reseller_form_email_customer_support", "");
+        $data["%URL%"] = url(Parameters::getValue("@reseller_form_email_customer_link_authorize_prepend", "authorize")) . "/" . $data["%HASH%"];
+        return $this->sendEmail(Parameters::getValue("@email_system_from", "system@kdsgo.com"), 
+                                Parameters::getValue("@email_system_reply_to", "do-not-reply@kdsgo.com"),
+                                Parameters::getValue("@email_customer_support", ""),
+                                Parameters::getValue("@reseller_form_email_customer_support_subject", "KitchenGo: Action needed"),
+                                Parameters::getValue("@reseller_form_email_customer_support_body_html_file", 
+                                                    "assets/includes/email_approve_reseller.html"), 
+                                $data);
+    }
+
+
+    /**
+     * Sends an e-mail
+     * 
+     * @param $from         From
+     * @param $reply_to     Reply-to (optional)
+     * @param $to           To
+     * @param $subject      Subject
+     * @param $body_file    HTML file path for e-mail's body
+     * @param $data         Data to be replaced (optional)
+     * 
+     * @return boolean      Whether the mail was sent or not
+     */ 
+    private function sendEmail($from, $reply_to = "", $to, $subject, $body_file, $data) {
         if ($to == "") {
             return false;
         }
         
-        $headers = "From: " . Parameters::getValue("@reseller_link_email_from", "system@kdsgo.com") . "\r\n";
-        $headers .= "Reply-To: " . Parameters::getValue("@reseller_link_email_reply_to", "do-not-reply@kdsgo.com") . "\r\n";
+        $headers = "From: $from\r\n";
+        if (strlen($reply_to) > 0) $headers .= "Reply-To: $reply_to\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-        $subject = Parameters::getValue("@reseller_form_email_customer_support_subject", "KitchenGo: Action needed");
-        $message = file_get_contents(Parameters::getValue("@reseller_form_email_customer_support_body_html_file", 
-                                                          "assets/includes/email_approve_reseller.html"));
-        
-        $data["%URL%"] = url(Parameters::getValue("@reseller_form_email_customer_link_authorize_prepend", "authorize")) . "/" . $data["%HASH%"];
+        if (!file_exists($body_file)) return false;
 
-        $this->replaceParamData($subject, $data);
-        $this->replaceParamData($message, $data);
+        $message = file_get_contents($body_file);
+        
+        if (isset($data)) {
+            if (count($data) > 0) {
+                $this->replaceParamData($subject, $data);
+                $this->replaceParamData($message, $data);
+            }
+        }
 
         return mail($to, $subject, $message, $headers);
     }
-
 
 
     /**
@@ -606,6 +657,12 @@ class ExternalUserController extends BaseController
         }
         
         // 1. SUBSCRIPTION: Price agreement
+        $pdf->box(1, 130, 44.5, 50, 3.2, $color_white);
+        $pdf->box(1, 130, 48.7, 50, 3.8, $color_white);
+        $pdf->box(1, 70, 48.7, 42, 3.8, $color_white);
+        $pdf->writeAt(1, 130, 44.2 + 2, "N/A", $fsNormal);
+        $pdf->writeAt(1, 130, 49.2 + 2, "N/A", $fsNormal);
+        $pdf->writeAt(1, 70, 49.2 + 2, "N/A", $fsNormal);
         $payment_frequency = "";
         $longevity_months = 0;
         foreach ($reseller_prices as $plan) {
@@ -616,11 +673,11 @@ class ExternalUserController extends BaseController
                     break;
 
                 case "YEARLY":
-                    $payment_frequency = "/Year";
+                    $payment_frequency = "/Station/Year";
                     break;
 
                 case "MONTHLY":
-                    $payment_frequency = "/Month";
+                    $payment_frequency = "/Station/Month";
                     break;
 
                 default:
@@ -628,23 +685,26 @@ class ExternalUserController extends BaseController
                     break;
             }
 
-            $price = "$" . number_format($plan->cost, 2) . "/Station" . $payment_frequency;
-
+            $price = "$" . number_format($plan->cost, 2) . $payment_frequency;
+            
             switch ($plan->app . "-" . $plan->hardware) {
                 // Allee
                 case "0fbaafa7-7194-4ce7-b45d-3ffc69b2486f-0":
+                    $pdf->box(1, 124, 44.5, 3.8, 3.8, $color_black);
                     $pdf->box(1, 130, 44.5, 50, 3.2, $color_white);
                     $pdf->writeAt(1, 130, 44.2 + 2, $price, $fsNormal);
                     break;
 
                 // Premium
                 case "bc68f95c-1af5-47b1-a76b-e469f151ec3f-0":
+                    $pdf->box(1, 124, 49.5, 3.8, 3.8, $color_black);
                     $pdf->box(1, 130, 48.7, 50, 3.8, $color_white);
                     $pdf->writeAt(1, 130, 49.2 + 2, $price, $fsNormal);
                     break;
                 
                 // Premium + Hardware
                 case "bc68f95c-1af5-47b1-a76b-e469f151ec3f-1":
+                    $pdf->box(1, 64, 49.5, 3.8, 3.8, $color_black);
                     $pdf->box(1, 70, 48.7, 42, 3.8, $color_white);
                     $pdf->writeAt(1, 70, 49.2 + 2, $price, $fsNormal);
                     break;
@@ -653,8 +713,8 @@ class ExternalUserController extends BaseController
         
         // 1. SUBSCRIPTION: Extended Support Agreement
         $extendedSupportAgreementPrice = number_format(Parameters::getValue("@reseller_external_support_price", 10), 2);
-        $pdf->box(1, 53.5, 59.2, 100, 3.5, $color_white);
-        $pdf->writeAt(1, 53.9, 59.2 + 1.9, "Extended Support Package - Extra US$" . $extendedSupportAgreementPrice . "/Month", $fsNormal);
+        $pdf->box(1, 53.5, 59, 100, 3.5, $color_white);
+        $pdf->writeAt(1, 53.9, 59 + 2.1, "Extended Support Package - Extra US$" . $extendedSupportAgreementPrice . "/Month", $fsNormal);
         if ($payment->extended_support == 1) {
             $pdf->box(1, 40, 59.7, 3, 3, $color_black);
         }
@@ -726,7 +786,7 @@ class ExternalUserController extends BaseController
         $pdf->writeAt(2, 89, 67, "**** **** **** " . $payment->card_last4, $fsNormal); // Last 4 digits
         
         // 3. CREDIT CARD - Frequency
-        if ($payment_frequency == "ONE-TIME") {
+        if ($payment_frequency == "") {
             $pdf->box(2, 87, 73, 3, 3, $color_black);
         } else {
             $pdf->box(2, 151, 73, 3, 3, $color_black);
@@ -825,10 +885,10 @@ class ExternalUserController extends BaseController
         $answer = [];
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $result = DB::select("SELECT * FROM $mainDB.contact_info WHERE user_id = ?", [$id]);
-        if (!$result) {
+        if ($result === false) {
             return false;
         } 
-        
+       
         foreach ($result as $row) {
             $answer[strtolower($row->address_type)] = $row;
         }
