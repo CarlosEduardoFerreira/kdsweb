@@ -225,17 +225,7 @@ if(!isset($app_prices))
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                		<input type="hidden" id="state-edit" value="{{$user->state}}">
-                    <select name="state" id="state" class="form-control" style="width:350px" required>
-                    <?php if(isset($states)) { ?>
-                        @foreach($states as $state)
-                        		<?php 
-                        		$selected = $user->state == $state->id ? "selected" : "";
-                        		?>
-                        		<option value="{{$state->id}}" <?=$selected ?>> {{$state->name}}</option>
-                        @endforeach
-                    <?php } ?>
-                    </select>
+                    <input id="state" name="state" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->state }}" required>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
@@ -257,48 +247,10 @@ if(!isset($app_prices))
                     <span class="required">*</span>
                 </label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select id="country" name="country" class="form-control" style="width:350px;" required>
-                        <option></option>
-                        @foreach($countries as $country)
-                    		<?php 
-                    		$selected = $user->country == $country->id ? "selected" : "";
-                    		?>
-                    		<option value="{{$country->id}}" country_code="{{$country->sortname}}" <?=$selected ?>>{{$country->name}}</option>
-                        @endforeach
-                    </select>
+                    <input id="country" name="country" type="text" class="form-control col-md-7 col-xs-12" value="{{ $user->country }}" required>
                     <ul class="parsley-errors-list filled"> <li class="parsley-required"></li> </ul>
                 </div>
             </div>
-            
-            <?php if ($obj == 'reseller') { ?>
-            <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3 col-xs-3" for="div-apps" >
-                    App Prices: <span class="required">*</span>
-                </label>
-
-                <div class="col-md-6 col-sm-6 col-xs-9">
-                    @foreach ($app_prices as $app_price)
-                    <div class="input-group col-lg-12 col-mg-12 col-sm-12" style="display: inline-block;">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <?php
-                                    $app_guid_hw = $app_price->app_guid . ($app_price->hardware === 1 ? "hw" : "");
-                                    if ($app_price->hardware === 1) {
-                                        echo $app_price->name . " + Hardware";
-                                    } else {
-                                        echo $app_price->name;
-                                    }
-                                ?>
-                            </span> 
-                        </div>
-  
-                        <input id="price_{{$app_guid_hw}}" name="price_{{$app_guid_hw}}" type="text" 
-                                class="form-control" value="{{$app_price->price}}" placeholder="Price" required>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            <?php } ?>
 
             <?php if ($obj == 'store') { ?>
             <div class="form-group">
@@ -371,7 +323,7 @@ if(!isset($app_prices))
                 
             <?php } ?>
 			
-			@if($user->exists)
+			@if(($user->exists) && ($me->roles[0]->weight == 1000))
                 <div class="form-group" >
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="active" >
                         {{ __('views.admin.users.edit.active') }}
@@ -471,17 +423,6 @@ if(!isset($app_prices))
 
     {{ Html::script(mix('assets/admin/js/firebase-api.js')) }}
     {{ Html::script(mix('assets/admin/js/ModalDelete.js')) }}
-
-    <script>
-        $(document).ready(function() {
-            <?php foreach ($app_prices as $app_price) { 
-                $app_guid_hw = $app_price->app_guid . ($app_price->hardware === 1 ? "hw" : "");
-            ?>
-                $("#price_<?= $app_guid_hw ?>").mask('#######0.00', {reverse: true});
-                $("#price_<?= $app_guid_hw ?>").val(parseFloat($("#price_<?= $app_guid_hw ?>").val()).toFixed(2));
-            <?php } ?>
-        });
-    </script>
     
     <script>
         function goBack() {

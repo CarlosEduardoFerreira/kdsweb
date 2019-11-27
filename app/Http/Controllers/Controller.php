@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Input;
 use App\Models\Auth\User\User;
 use App\Models\Settings\Plan;
 use App\Models\Settings\PlanXObject;
-
+use App\PDFWriter\PDFWriter;
 
 class Controller extends BaseController
 {
@@ -29,32 +29,10 @@ class Controller extends BaseController
         return view('admin.forbidden', []);
     }
     
-    function checkResellerAgreement(User $me) {
-        if ($me->roles[0]->weight !== 900) return true;
-        
-        $accepted_at = DB::select("SELECT accepted_at 
-                                    FROM agreement_acceptance 
-                                    WHERE email = ? 
-                                    ORDER BY accepted_at DESC 
-                                    LIMIT 1", [$me->email]);
-
-        $agreement_accepted = false;
-        if (count($accepted_at) > 0) {
-            $agreement_accepted = $accepted_at[0]->accepted_at > 0;
-        }
-
-        return $agreement_accepted;
-    }
-    
     function canIsee(User $me, $objectId) {
         $validObj   = $objectId != 0 && $me->id != $objectId;
         $notAdmin   = $me->roles[0]->name != 'administrator';
         $permission = $this->checkPermission($me, $objectId);
-        
-        // Resellers: Check for user's agreement acceptance
-        if (!$this->checkResellerAgreement($me)) {
-            return response()->view('admin.agreement');
-        }
     
         if ($validObj && !$permission && $notAdmin) {
             return response()->view('admin.forbidden');

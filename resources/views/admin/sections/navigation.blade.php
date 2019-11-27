@@ -40,6 +40,7 @@
             <div class="menu_section">
                 <h3>{{ __('views.backend.section.navigation.sub_header_0') }}</h3>
                 <ul class="nav side-menu">
+
                     <li>
                         <a href="{{ route('admin.dashboard') }}">
                             <i class="fa fa-home" aria-hidden="true"></i>

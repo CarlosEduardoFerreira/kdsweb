@@ -23,6 +23,7 @@ phpunit.phar
 public/assets/*
 !public/assets/includes
 public/mix-manifest.json
+public/agreements
 
 .env
 .env.*.php

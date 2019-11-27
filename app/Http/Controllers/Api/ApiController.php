@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Settings\Plan;
+use App\Models\TicketUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -150,6 +151,10 @@ class ApiController extends Controller
                 
                 case "DEVICE_REPLACE":
                     $this->response = $this->deviceReplace($this->request, $this->response);
+                    break;
+
+                case "KDSTICKETSYNC":
+                    $this->response = $this->insertTicketUser($this->request, $this->response);
                     break;
                 
                 default:
@@ -811,6 +816,62 @@ class ApiController extends Controller
             ->first();
 
         return isset($device);
+    }
+
+
+    public function insertTicketUser(array $request, array $response) {
+        
+        $response["error"] = null;
+
+        if (!isset($request["name"])) {
+            $response["error"] = "Undefined Name";
+            return $response;
+        }
+        $name = $request["name"];
+
+        if (!isset($request["business_name"])) {
+            $response["error"] = "Undefined Business Name";
+            return $response;
+        }
+        $business_name = $request["business_name"];
+
+        if (!isset($request["email"])) {
+            $response["error"] = "Undefined Email";
+            return $response;
+        }
+        $email = $request["email"];
+
+        if (!isset($request["phone_number"])) {
+            $response["error"] = "Undefined Phone Number";
+            return $response;
+        }
+        $phone_number = $request["phone_number"];
+
+        if (!isset($request["zipcode"])) {
+            $response["error"] = "Undefined Zipcode";
+            return $response;
+        }
+        $zipcode = $request["zipcode"];
+        
+        $app_version = isset($request["app_version"]) ? $request["app_version"] : 0;
+        $device_os = isset($request["device_os"]) ? $request["device_os"] : "";
+        $device_model = isset($request["device_model"]) ? $request["device_model"] : "";
+
+        $data = [
+            'name'          => $name,
+            'business_name' => $business_name,
+            'email'         => $email,
+            'zipcode'       => $zipcode,
+            'phone_number'  => $phone_number,
+            'device_os'     => $device_os,
+            'device_model'  => $device_model,
+            'app_version'   => $app_version,
+            'create_time'   => time()
+        ];
+
+        TicketUser::insert($data);
+
+        return $response;
     }
     
 }

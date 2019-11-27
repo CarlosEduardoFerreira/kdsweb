@@ -55,7 +55,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
     // Admin Settings
-    //Route::get('settings', 'SettingsController@index')->name('settings');
+                    Route::get('settings', 'SettingsController@index')->name('settings');
     
     // Admin Reports
     Route::get('reports', 'ReportController@index')->name('reports');
@@ -87,8 +87,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Plans X Stores
     Route::get('settings/plansXstores', 'PlanXStoreController@index')->name('settings.plansXstores');
     
-    
-    
     //      url will show                function on controller              how to call
     // Route::get('storegroups/0/form', 'StoreGroupController@create')->name('resellers.new');
     
@@ -102,7 +100,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Show View
     Route::get('resellers/{reseller}/show', 'ResellerController@show')->name('resellers.show');
     // Insert Action
-    Route::put('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
+    Route::post('resellers/0/insert', 'ResellerController@insert')->name('resellers.insert');
     // Update Action
     Route::put('resellers/{reseller}', 'ResellerController@update')->name('resellers.update');
     // Delete Action
@@ -111,8 +109,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('resellers/{reseller}/agreement', 'ResellerController@showAgreement')->name('resellers.agreement');
     // Confirm Agreement
     Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
+
     //Agreement Page
     Route::get('/agreement_page', 'AgreementController@agreement_page')->name('agreement_page');
+
+
+    // View Plans List / Add Plan
+    Route::get('resellers/0/plans', 'ResellerController@getPlans')->name('resellers.plans');
+    Route::get('resellers/0/add_plan', 'ResellerController@addPlan')->name('resellers.add_plan');
+
+
     // ------------------------------------------------------------------------------ Resellers //
 
     // Store Groups --------------------------------------------------------------------------- //
@@ -213,11 +219,23 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
 });
 
-
 Route::get('/', 'HomeController@index');
-
 Route::post('timezonesByCountry', 'Controller@timezonesByCountry')->name('timezonesByCountry');
 
+// Reseller fillable form / agreement view / agreement acceptance
+Route::get('external/form/{hash}', 'ExternalUserController@resellerShowForm')->name('external.show_reseller_form');
+Route::post('external/form/{hash}/update', 'ExternalUserController@resellerUpdateInfo')->name('resellers.update_info');
+Route::get('external/form/{hash}/pdf', 'ExternalUserController@resellerAgreementPDF')->name('resellers.agreement_pdf');
+Route::get('external/form/{hash}/agreement', 'ExternalUserController@resellerDisplayAgreement')->name('resellers.show_agreement');
+Route::post('external/form/{hash}/accept', 'ExternalUserController@resellerAcceptAgreement')->name('resellers.accept_agreement');
+
+// Reseller credit card number approval (by Customer Support)
+Route::get('external/authorize/{hash}', 'ExternalUserController@approvePaymentType')->name('resellers.approve_card');
+Route::get('external/authorize/{hash}/{approve}', 'ExternalUserController@approvePaymentType')->name('resellers.approve_card');
+
+// Reseller new username/password
+Route::get('external/user/{hash}', 'ExternalUserController@resellerNewUser')->name('resellers.new_username');
+Route::post('external/user/{hash}/set', 'ExternalUserController@resellerSetPassword')->name('resellers.set_password');
 
 /**
  * Membership

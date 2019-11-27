@@ -101,6 +101,11 @@ class LoginController extends Controller
     {
         $errors = [];
 
+        // Check if reseller is authorized
+        if ($this->isResellerAuthorized($user) == false) {
+            $errors = [$this->username() => "I'm sorry but your user is not yet authorized to log in."];
+        }
+        
         if (config('auth.users.confirm_email') && !$user->confirmed) {
             $errors = [$this->username() => __('auth.notconfirmed', ['url' => route('confirm.send', [$user->email])])];
         }
@@ -124,5 +129,34 @@ class LoginController extends Controller
         }
 
         return redirect()->intended($this->redirectPath());
+    }
+
+    public function isResellerAuthorized($user) {
+        // Not a reseller
+        if ($user->roles[0]->weight !== 900) {
+            return true;
+        }
+
+        // Check whether the reseller has his card authorized by Customer Support
+        $authorized = DB::select("SELECT COUNT(1) AS total
+                                    FROM users u
+                                    INNER JOIN agreement_acceptance aa
+                                    ON u.email = aa.email
+                                    INNER JOIN payment_info pi 
+                                    ON pi.user_id = u.id
+                                    WHERE u.id = ?
+                                    AND pi.authorized = 1", [$user->id]);
+
+        // Invalid result
+        if ($authorized === false) {
+            return false;
+        }
+
+        // Not authorized
+        if ($authorized[0]->total <= 0) {
+            return false;
+        }
+
+        return true;
     }
 }
