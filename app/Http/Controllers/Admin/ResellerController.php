@@ -330,7 +330,7 @@ class ResellerController extends Controller {
         // Get user info including State's name
         $user = $this->getUserInfo();
         $payment = $this->getPaymentInfo();
-        $licenses = $payment->number_licenses; // $this->getLicensesCount();
+        $licenses = 5; // $this->getLicensesCount();
         $reseller_prices = $this->getResellerPriceAgreement();
         $contact_info = $this->getContactInfo();
 
@@ -442,22 +442,7 @@ class ResellerController extends Controller {
 
         // Calculate the total recurring payment
         $totalPayment = ($payment->extended_support ? $extendedSupportAgreementPrice : 0);
-        switch ($payment->subscription) {
-            case "PREMIUM":
-                $pdf->box(1, 124, 49.5, 3, 3, $color_black); // Premium w/o HW
-                $totalPayment += $price_2 * $licenses;
-                break;
 
-            case "PREMIUM+HW":
-                $pdf->box(1, 64, 50, 3, 3, $color_black); // Premium w/ HW
-                $totalPayment += $price_1 * $licenses;
-                break;
-
-            default:
-                $pdf->box(1, 124, 45, 3, 3, $color_black); // Allee w/o HW
-                $totalPayment += $price_3 * $licenses;
-                break;
-        }
 
         // Credit Card information
         $pdf->writeAt(2, 45, 59, $payment->card_exp_date, $fsNormal); // Exp. Date

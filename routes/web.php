@@ -111,6 +111,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('resellers/{reseller}/agreement', 'ResellerController@showAgreement')->name('resellers.agreement');
     // Confirm Agreement
     Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
+    //Agreement Page
+    Route::get('/agreement_page', 'AgreementController@agreement_page')->name('agreement_page');
     // ------------------------------------------------------------------------------ Resellers //
 
     // Store Groups --------------------------------------------------------------------------- //
