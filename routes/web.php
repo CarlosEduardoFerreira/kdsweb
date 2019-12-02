@@ -110,9 +110,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     // Confirm Agreement
     Route::post('resellers/confirm_agreement', 'ResellerController@confirmAgreement')->name('resellers.confirm_agreement');
 
+    //Agreement Page
+    Route::get('/agreement_page', 'AgreementController@agreement_page')->name('agreement_page');
+
+
     // View Plans List / Add Plan
     Route::get('resellers/0/plans', 'ResellerController@getPlans')->name('resellers.plans');
     Route::get('resellers/0/add_plan', 'ResellerController@addPlan')->name('resellers.add_plan');
+
 
     // ------------------------------------------------------------------------------ Resellers //
 

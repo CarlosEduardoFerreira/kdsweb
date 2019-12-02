@@ -25,6 +25,15 @@
                                 <label class="lbl-menu-top-right"> &nbsp;Profile</label>
                             </a>
                         	</li>
+
+                            <li>
+                            <a id="profile-link" href="{{ route('admin.agreement_page') }}">
+                            <img src="/images/output-onlinepngtools.png" title="" style="margin:auto;height:20px;cursor:hand;">
+                            <label class="lbl-menu-top-right"> &nbsp;Agreement</label>
+                            </a>
+                        	</li>
+                            
+
                         	<li>
                             <a href="{{ route('logout') }}">
                                 <i class="fa fa-sign-out pull-left" style="font-size:20px;"></i>
