@@ -657,12 +657,13 @@ class ExternalUserController extends BaseController
         }
         
         // 1. SUBSCRIPTION: Price agreement
-        $pdf->box(1, 130, 44.5, 50, 3.2, $color_white);
-        $pdf->box(1, 130, 48.7, 50, 3.8, $color_white);
-        $pdf->box(1, 70, 48.7, 42, 3.8, $color_white);
-        $pdf->writeAt(1, 130, 44.2 + 2, "N/A", $fsNormal);
-        $pdf->writeAt(1, 130, 49.2 + 2, "N/A", $fsNormal);
-        $pdf->writeAt(1, 70, 49.2 + 2, "N/A", $fsNormal);
+        $pdf_page = 1;
+        $pdf->box($pdf_page, 130, 45.4, 50, 3.2, $color_white);
+        $pdf->box($pdf_page, 130, 50, 50, 3.8, $color_white);
+        $pdf->box($pdf_page, 70, 50, 42, 3.8, $color_white);
+        $pdf->writeAt($pdf_page, 130, 47.2, "N/A", $fsNormal);
+        $pdf->writeAt($pdf_page, 130, 52.5, "N/A", $fsNormal);
+        $pdf->writeAt($pdf_page, 79, 52.5, "N/A", $fsNormal);
         $payment_frequency = "";
         $longevity_months = 0;
         foreach ($reseller_prices as $plan) {
@@ -690,148 +691,152 @@ class ExternalUserController extends BaseController
             switch ($plan->app . "-" . $plan->hardware) {
                 // Allee
                 case "0fbaafa7-7194-4ce7-b45d-3ffc69b2486f-0":
-                    $pdf->box(1, 124, 44.5, 3.8, 3.8, $color_black);
-                    $pdf->box(1, 130, 44.5, 50, 3.2, $color_white);
-                    $pdf->writeAt(1, 130, 44.2 + 2, $price, $fsNormal);
+                    $pdf->box($pdf_page, 124, 45.5, 3.8, 3.8, $color_black);
+                    $pdf->box($pdf_page, 130, 45.5, 50, 3.2, $color_white);
+                    $pdf->writeAt($pdf_page, 130, 47.2, $price, $fsNormal);
                     break;
 
                 // Premium
                 case "bc68f95c-1af5-47b1-a76b-e469f151ec3f-0":
-                    $pdf->box(1, 124, 49.5, 3.8, 3.8, $color_black);
-                    $pdf->box(1, 130, 48.7, 50, 3.8, $color_white);
-                    $pdf->writeAt(1, 130, 49.2 + 2, $price, $fsNormal);
+                    $pdf->box($pdf_page, 124, 50.5, 3.8, 3.8, $color_black);
+                    $pdf->box($pdf_page, 130, 50.5, 50, 3.8, $color_white);
+                    $pdf->writeAt($pdf_page, 130, 52, $price, $fsNormal);
                     break;
                 
                 // Premium + Hardware
                 case "bc68f95c-1af5-47b1-a76b-e469f151ec3f-1":
-                    $pdf->box(1, 64, 49.5, 3.8, 3.8, $color_black);
-                    $pdf->box(1, 70, 48.7, 42, 3.8, $color_white);
-                    $pdf->writeAt(1, 70, 49.2 + 2, $price, $fsNormal);
+                    $pdf->box($pdf_page, 64, 50.5, 3.8, 3.8, $color_black);
+                    $pdf->box($pdf_page, 70, 50, 42, 3.8, $color_white);
+                    $pdf->writeAt($pdf_page, 70, 52.5, $price, $fsNormal);
                     break;
             }
         }
         
         // 1. SUBSCRIPTION: Extended Support Agreement
         $extendedSupportAgreementPrice = number_format(Parameters::getValue("@reseller_external_support_price", 10), 2);
-        $pdf->box(1, 53.5, 59, 100, 3.5, $color_white);
-        $pdf->writeAt(1, 53.9, 59 + 2.1, "Extended Support Package - Extra US$" . $extendedSupportAgreementPrice . "/Month", $fsNormal);
+        $pdf->box($pdf_page, 53.5, 60.3, 100, 3.5, $color_white);
+        $pdf->writeAt($pdf_page, 53.9, 61.7, "Extended Support Package - Extra US$" . $extendedSupportAgreementPrice . "/Month", $fsNormal);
         if ($payment->extended_support == 1) {
-            $pdf->box(1, 40, 59.7, 3, 3, $color_black);
+            $pdf->box($pdf_page, 40, 60.5, 3, 3, $color_black);
         }
         
         // 1. SUBSCRIPTION: On site training
         if ($payment->onsite_training) {
-            $pdf->box(1, 40, 63.7, 3, 3, $color_black);
+            $pdf->box($pdf_page, 40, 64.5, 3, 3, $color_black);
         }
 
         // 1. SUBSCRIPTION: Length of Agreement
-        $pdf->writeAt(1, 38, 70.4, $longevity_months, $fsNormal);
+        $pdf->writeAt($pdf_page, 38, 71.2, $longevity_months, $fsNormal);
 
         // 2. SITE INFORMATION
         $userFullName = $user->name . " " . $user->last_name;
-        $pdf->writeAt(1, 58, 145 + 0.5, $user->business_name, $fsNormal);
-        $pdf->writeAt(1, 58, 152 + 0.5, $company["address1"], $fsNormal);
-        $pdf->writeAt(1, 58, 157 + 0.5, $company["address2"], $fsNormal);
-        $pdf->writeAt(1, 58, 161.5 + 1, $company["city"], $fsNormal);
-        $pdf->writeAt(1, 119, 161.5 + 1, $company["state"], $fsNormal);
-        $pdf->writeAt(1, 153, 161.5 + 1, $company["zipcode"], $fsNormal);
-        $pdf->writeAt(1, 58, 167 + 0.5, $userFullName, $fsNormal);
-        $pdf->writeAt(1, 58, 172 + 0.5, $company["email"], $fsNormal);
-        $pdf->writeAt(1, 58, 177 + 0.5, $company["phone"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 146, $user->business_name, $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 153.3, $company["address1"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 158.3,  $company["address2"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 163.8, $company["city"], $fsNormal);
+        $pdf->writeAt($pdf_page, 119, 163.8, $company["state"], $fsNormal);
+        $pdf->writeAt($pdf_page, 153, 163.8, $company["zipcode"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 168.5, $userFullName, $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 173.5, $company["email"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 179, $company["phone"], $fsNormal);
 
         // 2. SITE INFORMATION: Shipping
         if (array_key_exists("shipping", $contact_info)) {
-            $pdf->writeAt(1, 58, 187 + 1, $contact_info["shipping"]->address_1, $fsNormal);
-            $pdf->writeAt(1, 58, 192 + 1, $contact_info["shipping"]->address_2, $fsNormal);
-            $pdf->writeAt(1, 58, 197.5 + 1, $contact_info["shipping"]->city, $fsNormal);
-            $pdf->writeAt(1, 119, 197.5 + 1, $contact_info["shipping"]->state, $fsNormal);
-            $pdf->writeAt(1, 154, 197.5 + 1, $contact_info["shipping"]->zipcode, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 190, $contact_info["shipping"]->address_1, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 195, $contact_info["shipping"]->address_2, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 200, $contact_info["shipping"]->city, $fsNormal);
+            $pdf->writeAt($pdf_page, 119, 200, $contact_info["shipping"]->state, $fsNormal);
+            $pdf->writeAt($pdf_page, 154, 200, $contact_info["shipping"]->zipcode, $fsNormal);
         }
 
         // 2. SITE INFORMATION: Bill-To Address
         if (array_key_exists("billing", $contact_info)) {
-            $pdf->writeAt(1, 58, 223 + 1, $user->business_name, $fsNormal);
-            $pdf->writeAt(1, 58, 230 + 1, $contact_info["billing"]->address_1, $fsNormal);
-            $pdf->writeAt(1, 58, 235 + 1, $contact_info["billing"]->address_2, $fsNormal);
-            $pdf->writeAt(1, 58, 239.8 + 1, $contact_info["billing"]->city, $fsNormal);
-            $pdf->writeAt(1, 119.5, 239.8 + 1, $contact_info["billing"]->state, $fsNormal);
-            $pdf->writeAt(1, 154, 239.8 + 1, $contact_info["billing"]->zipcode, $fsNormal);
-            $pdf->writeAt(1, 58, 245 + 1, $contact_info["billing"]->care_of, $fsNormal);
-            $pdf->writeAt(1, 58, 250 + 1, $contact_info["billing"]->email, $fsNormal);
-            $pdf->writeAt(1, 58, 255 + 1, $contact_info["billing"]->phone, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 225, $user->business_name, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 232, $contact_info["billing"]->address_1, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 237, $contact_info["billing"]->address_2, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 242, $contact_info["billing"]->city, $fsNormal);
+            $pdf->writeAt($pdf_page, 119.5, 242, $contact_info["billing"]->state, $fsNormal);
+            $pdf->writeAt($pdf_page, 154, 242, $contact_info["billing"]->zipcode, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 247, $contact_info["billing"]->care_of, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 252, $contact_info["billing"]->email, $fsNormal);
+            $pdf->writeAt($pdf_page, 58, 257, $contact_info["billing"]->phone, $fsNormal);
         }
 
         // 3. CREDIT CARD - Brand
+        $pdf_page = 2;
         switch ($payment->card_type) {
             case "VISA":
-                $pdf->box(2, 89, 50, 3, 3, $color_black); // Visa
+                $pdf->box($pdf_page, 89, 50, 3, 3, $color_black); // Visa
                 break;
 
             case "AMEX":
-                $pdf->box(2, 113, 50, 3, 3, $color_black); // AmEx
+                $pdf->box($pdf_page, 113, 50, 3, 3, $color_black); // AmEx
                 break;
 
             case "DISCOVER":
-                $pdf->box(2, 144, 50, 3, 3, $color_black); // Discover
+                $pdf->box($pdf_page, 144, 50, 3, 3, $color_black); // Discover
                 break;
 
             default:
-                $pdf->box(2, 51, 50, 3, 3, $color_black); // MasterCard
+                $pdf->box($pdf_page, 51, 50, 3, 3, $color_black); // MasterCard
                 break;
         }
 
         // 3. CREDIT CARD - Credit Card information
-        $pdf->writeAt(2, 45, 59, $payment->card_exp_date, $fsNormal); // Exp. Date
-        $pdf->writeAt(2, 115, 59, $payment->card_cvv, $fsNormal); // CVV
-        $pdf->writeAt(2, 89, 67, "**** **** **** " . $payment->card_last4, $fsNormal); // Last 4 digits
+        $pdf->writeAt($pdf_page, 45, 59, $payment->card_exp_date, $fsNormal); // Exp. Date
+        $pdf->writeAt($pdf_page, 115, 59, $payment->card_cvv, $fsNormal); // CVV
+        $pdf->writeAt($pdf_page, 89, 67, "**** **** **** " . $payment->card_last4, $fsNormal); // Last 4 digits
         
         // 3. CREDIT CARD - Frequency
         if ($payment_frequency == "") {
-            $pdf->box(2, 87, 73, 3, 3, $color_black);
+            $pdf->box($pdf_page, 87, 73, 3, 3, $color_black);
         } else {
-            $pdf->box(2, 151, 73, 3, 3, $color_black);
+            $pdf->box($pdf_page, 151, 73, 3, 3, $color_black);
         }
 
         // 3. CREDIT CARD - Billing Address
         if (array_key_exists("billing", $contact_info)) {
-            $pdf->writeAt(2, 26, 104 + 8, $contact_info["billing"]->address_1 . " " . $contact_info["billing"]->address_2, $fsNormal);
-            $pdf->writeAt(2, 35, 110.5 + 6.8, $contact_info["billing"]->city, $fsNormal);
-            $pdf->writeAt(2, 110, 110.5 + 6.8, $contact_info["billing"]->state, $fsNormal);
-            $pdf->writeAt(2, 153, 110.5 + 6.8, $contact_info["billing"]->zipcode, $fsNormal);
+            $pdf->writeAt($pdf_page, 26, 112, $contact_info["billing"]->address_1 . " " . $contact_info["billing"]->address_2, $fsNormal);
+            $pdf->writeAt($pdf_page, 35, 118, $contact_info["billing"]->city, $fsNormal);
+            $pdf->writeAt($pdf_page, 110, 118, $contact_info["billing"]->state, $fsNormal);
+            $pdf->writeAt($pdf_page, 153, 118, $contact_info["billing"]->zipcode, $fsNormal);
         }
 
         // 3. CREDIT CARD - Name, Date and Electronic Signature box
-        $pdf->writeAt(2, 30, 120 + 8, $userFullName, $fsNormal);
-        $pdf->writeAt(2, 142, 142 + 7.5, date("d F Y"), $fsNormal);
-        $pdf->box(2, 30, 149, 60, 8, [150, 200, 255], 0.2, [0, 0, 0]);
-        $pdf->writeAt(2, 33, 153, ($signature_timestamp > 0 ? "SIGNED ELECTRONICALLY" : "TO BE SIGNED ELECTRONICALLY"), $fsSmall);
+        $pdf->writeAt($pdf_page, 30, 120 + 8, $userFullName, $fsNormal);
+        $pdf->writeAt($pdf_page, 142, 142 + 7.5, date("d F Y"), $fsNormal);
+        $pdf->box($pdf_page, 30, 149, 60, 8, [150, 200, 255], 0.2, [0, 0, 0]);
+        $pdf->writeAt($pdf_page, 33, 153, ($signature_timestamp > 0 ? "SIGNED ELECTRONICALLY" : "TO BE SIGNED ELECTRONICALLY"), $fsSmall);
 
         // AGREEMENT page 1
+        $pdf_page = 3;
         $fullAddress = $company["address1"] . " " . $company["address2"] . " " . $company["city"] . " " . 
                         $company["state"] . " " . $company["zipcode"];
         $fontSizeFullAddress = Min($fsSmall, $fsSmall * 56 / (strlen($fullAddress) + 1)); # Try to optimize address font size
-        $pdf->writeAt(3, 90, 55, $user->business_name, $fsSmall);
-        $pdf->writeAt(3, 50, 59, $fullAddress, $fontSizeFullAddress);
+        $pdf->writeAt($pdf_page, 106, 56.7, $user->business_name, $fsSmall);
+        $pdf->writeAt($pdf_page, 48, 61, $fullAddress, $fontSizeFullAddress);
 
         // AGREEMENT page 7
-        $pdf->writeAt(9, 110, 147, $user->business_name, $fsSmall);
-        $pdf->writeAt(9, 110, 152, $company["address1"] . " " . $company["address2"], $fsSmall); 
-        $pdf->writeAt(9, 110, 156, $company["city"] . " " . $company["state"], $fsSmall);
-        $pdf->writeAt(9, 110, 160.5, $company["zipcode"], $fsSmall); 
-        $pdf->writeAt(9, 117, 166, $company["phone"], $fsSmall); 
-        $pdf->writeAt(9, 123, 172, $company["email"], $fsSmall); 
+        $pdf_page = 10;
+        $pdf->writeAt($pdf_page, 110, 142, $user->business_name, $fsSmall);
+        $pdf->writeAt($pdf_page, 110, 146.5, $company["address1"] . " " . $company["address2"], $fsSmall); 
+        $pdf->writeAt($pdf_page, 110, 150.5, $company["city"] . " " . $company["state"], $fsSmall);
+        $pdf->writeAt($pdf_page, 110, 155.5, $company["zipcode"], $fsSmall); 
+        $pdf->writeAt($pdf_page, 117, 161, $company["phone"], $fsSmall); 
+        $pdf->writeAt($pdf_page, 123, 167, $company["email"], $fsSmall); 
 
         // AGREEMENT page 8
-        $pdf->writeAt(10, 27.5, 150, $user->business_name, $fsNormal);
-        $pdf->writeAt(10, 37, 168, $userFullName, $fsNormal);
-        $pdf->writeAt(10, 20, 178.5, date("d F Y"), $fsNormal);
-        $pdf->writeAt(10, 120, 178.5, date("d F Y"), $fsNormal);
+        $pdf_page = 11;
+        $pdf->writeAt($pdf_page, 28, 154, $user->business_name, $fsNormal);
+        $pdf->writeAt($pdf_page, 37, 173, $userFullName, $fsNormal);
+        $pdf->writeAt($pdf_page, 20, 183, date("d F Y"), $fsNormal);
+        $pdf->writeAt($pdf_page, 120, 183, date("d F Y"), $fsNormal);
 
         // AGREEMENT page 10
-        $pdf->box(10, 29, 154, 60, 8, [150, 200, 255], 0.2, [0, 0, 0]);
-        $pdf->writeAt(10, 32, 158, ($signature_timestamp > 0 ? "SIGNED ELECTRONICALLY" : "TO BE SIGNED ELECTRONICALLY"), $fsSmall);
+        $pdf->box($pdf_page, 28, 160, 60, 8, [150, 200, 255], 0.2, [0, 0, 0]);
+        $pdf->writeAt($pdf_page, 31, 164, ($signature_timestamp > 0 ? "SIGNED ELECTRONICALLY" : "TO BE SIGNED ELECTRONICALLY"), $fsSmall);
         $title = $signature_timestamp > 0 ? "DOCUMENT SIGNED ELECTRONICALLY" : "";
-        $pdf->stampElectronicSignature($id, $signature_timestamp, 10, 8, 200, $title);
+        $pdf->stampElectronicSignature($id, $signature_timestamp, $pdf_page, 8, 200, $title);
 
         return $pdf;
     }
