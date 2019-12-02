@@ -4,7 +4,7 @@
 
 @section('content')
     <?php
-        include "assets/admin/modal.new.plan.php";
+        include "assets/includes/modal.new.plan.php";
 
         $error = filter_input(INPUT_GET, "error");
         if (isset($error)) {
