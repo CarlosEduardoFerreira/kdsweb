@@ -68,8 +68,7 @@ class StoreController extends Controller {
         }
         // ------------------------------------------------------- StoreGroups //
         
-        $countries = DB::select("select * from countries order by name");
-        
+     
         $store->country = 231;   // United States
         $store->timezone = Vars::$timezoneDefault;
         
@@ -78,10 +77,18 @@ class StoreController extends Controller {
         
         // Environments
         $envs = $this->getStoreEnvironments();
+
+        // If store group, check if there is already an active live store
+        $total_live = DB::select("SELECT COUNT(1) count
+                                    FROM users u
+                                    INNER JOIN store_environment se
+                                    ON se.store_guid = u.store_guid
+                                    WHERE u.parent_id = ?
+                                    AND u.deleted_at IS NULL
+                                    AND se.environment_guid = 'b78ba4b7-6534-4e3e-87a5-ee496b1b4264'", [$me->id])[0]->count;
         
-        return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'me' => $me, 
-            'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => ''
+        return view('admin.stores.form', ['obj' => 'store', 'total_live' => $total_live, 'user' => $store, 'parents' => $storegroups, 
+            'me' => $me, 'apps' => $apps, 'envs' => $envs,  'app_guid' => '', 'env_guid' => ''
         ]);
     }
     
@@ -114,6 +121,7 @@ class StoreController extends Controller {
             'zipcode'         => $request->get('zipcode'),
             'timezone'        => $request->get('timezone'),
             'username'        => $request->get('username'),
+            'hardware'        => $request->get('hardware'),
             'created_at'      => $now,
             'updated_at'     => $now
         ];
@@ -148,15 +156,7 @@ class StoreController extends Controller {
         $settingsTable->insert($dataSettings);
         // ---------------------------------------------------------------------------- //
         
-        // Relation between Default Plan and Store -------------------------------------------- //
-        $defaultPlan = Plan::where([['delete_time', '=', 0], ['owner_id', '=', $request->get('parent_id')], ['default', '=', 1]])->get()->first();
-
-        $dataPlan = [
-            'plan_guid' => $defaultPlan->guid,
-            'user_id'   => $id
-        ];
-        
-        PlanXObject::create($dataPlan);
+       
         // -------------------------------------------- Relation between Defaut Plan and Store //
         
         // Update App/Store Environments
@@ -192,14 +192,7 @@ class StoreController extends Controller {
             $storegroups  = Controller::filterUsers(null, 3, $me->id, true);
         }
         // ------------------------------------------------------- StoreGroups //
-        
-        $countries  = DB::select("select * from countries order by name");
-        
-        $states     = [];
-        if (isset($store->country) && $store->country != "") {
-            $states     = DB::select("select * from states where country_id = $store->country order by name");
-        }
-        
+  
         // Applications
         $apps = Controller::getSystemApps();
         
@@ -216,14 +209,13 @@ class StoreController extends Controller {
 
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
-        return view('admin.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 
-            'countries' => $countries, 'states' => $states, 'me' => $me,
+        return view('admin.stores.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 'me' => $me,
             'apps' => $apps, 'envs' => $envs, 'app_guid' => $store_apps, 'env_guid' => $store_envs]);
     }
     
     
     public function update(Request $request, User $store)
-    {
+    { 
         $store->parent_id       = $request->get('parent_id');
         $store->business_name   = $request->get('business_name');
         $store->dba             = $request->get('dba');
@@ -237,6 +229,7 @@ class StoreController extends Controller {
         $store->country         = $request->get('country');
         $store->zipcode         = $request->get('zipcode');
         $store->timezone        = $request->get('timezone');
+        $store->hardware        = $request->get('hardware');
         $store->username        = $request->get('username');
         
         if ($request->get('password') != "") {
@@ -419,7 +412,7 @@ class StoreController extends Controller {
             
             $deviceSettings["settings_local"] = $settingsLocal;
             
-            // Settings Line Display
+            // Settings Line Displays
             $settingsLineDisplay = DB::select("SELECT * FROM settings_line_display
                 WHERE is_deleted = 0
                 AND device_guid = '$request->deviceGuid'
@@ -1153,39 +1146,29 @@ class StoreController extends Controller {
         }
 
         $storeToRemoveGuid = $request->post('guids')[0];
+        
+        // Update users
+        $rows = DB::update("UPDATE users
+                            SET deleted_at = ?,
+                                licenses_quantity = 0
+                            WHERE store_guid = ?", [date('Y-m-d H:i:s', time()), $storeToRemoveGuid]);
+        if ($rows <= 0) {
+            return "Store not found!";
+        }
 
-        $stores = DB::table('users')
-            ->where('store_guid', '=', $storeToRemoveGuid);
+        // Update settings
+        DB::update("UPDATE settings
+                    SET update_time = ?,
+                        licenses_quantity = 0
+                    WHERE store_guid = ?
+                    AND is_deleted = 0", [time(), $storeToRemoveGuid]);
 
-        if(count($stores) > 0) {
-            $data = [
-                'deleted_at' => date('Y-m-d H:i:s', time()),
-                'licenses_quantity' => 0
-            ];
+        $devices = DB::select("SELECT * FROM devices
+                                WHERE store_guid = ?
+                                AND is_deleted = 0", [$storeToRemoveGuid]);
 
-            $stores->update($data);
-
-            $settings = DB::table('settings')
-                ->where('store_guid', '=', $storeToRemoveGuid)
-                ->where('is_deleted', '=', 0);
-
-            if (count($settings) > 0) {
-                $settings->update([
-                    'update_time' => time(),
-                    'licenses_quantity' => 0
-                ]);
-            }
-
-            $devices = DB::table('devices')
-                ->where('store_guid', '=', $storeToRemoveGuid)
-                ->where('is_deleted', '=', 0);
-
-            if(count($devices) > 0) {
-                $this->removeDevices($storeToRemoveGuid, $devices);
-            }
-
-        } else {
-            return "Store not found.";
+        if(count($devices) > 0) {
+            $this->removeDevices($storeToRemoveGuid, $devices);
         }
 
         return "";
