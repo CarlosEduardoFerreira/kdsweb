@@ -119,7 +119,7 @@ class StoreGroupController extends Controller {
         
         $storegroup->country = 231;   // United States
         
-        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup , 'parents' => $resellers, 
+        return view('admin.storegroups.form', ['obj' => 'storegroup', 'user' => $storegroup , 'parents' => $resellers, 
             'countries' => $countries, 'me' => $me]);
     }
     
@@ -250,16 +250,7 @@ class StoreGroupController extends Controller {
         }
         // ------------------------------------------------------- Resellers //
         
-        $countries  = DB::select("select * from countries order by name");
-        
-        $states     = [];
-        if (isset($storegroup->country) && $storegroup->country != "") {
-            $states     = DB::select("select * from states where country_id = $storegroup->country order by name");
-        }
-        
-        return view('admin.form', ['obj' => 'storegroup', 'user' => $storegroup, 'parents' => $resellers,
-            'countries' => $countries, 'states' => $states, 'me' => $me]);
-        //return view('admin.users.edit', ['user' => $user, 'roles' => Role::get()]);
+        return view('admin.storegroups.form', ['obj' => 'storegroup', 'user' => $storegroup, 'parents' => $resellers, 'me' => $me]);
     }
 
     /**
