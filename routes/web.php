@@ -55,7 +55,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/', 'DashboardController@index')->name('dashboard');
     
     // Admin Settings
-                    Route::get('settings', 'SettingsController@index')->name('settings');
+    Route::get('settings', 'SettingsController@index')->name('settings');
     
     // Admin Reports
     Route::get('reports', 'ReportController@index')->name('reports');
@@ -241,7 +241,8 @@ Route::post('external/user/{hash}/set', 'ExternalUserController@resellerSetPassw
  * Membership
  */
 Route::group(['as' => 'protection.'], function () {
-    Route::get('membership', 'MembershipController@index')->name('membership')->middleware('protection:' . config('protection.membership.product_module_number') . ',protection.membership.failed');
+    Route::get('membership', 'MembershipController@index')->name('membership')
+            ->middleware('protection:' . config('protection.membership.product_module_number') . ',protection.membership.failed');
     Route::get('membership/access-denied', 'MembershipController@failed')->name('membership.failed');
     Route::get('membership/clear-cache/', 'MembershipController@clearValidationCache')->name('membership.clear_validation_cache');
 });

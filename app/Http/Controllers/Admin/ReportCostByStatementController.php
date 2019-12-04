@@ -34,6 +34,54 @@ class ReportCostByStatementController extends Controller {
     }
     
     
+    public static function getAdminReport($me, Request $request) {
+        $live_store_guid = 'b78ba4b7-6534-4e3e-87a5-ee496b1b4264';
+        $role = $me->roles[0]->weight;
+
+        if ($role != 1000) {
+            return [];
+        }
+
+        $sql = "SELECT 
+                    u.name, u.last_name, u.business_name, u.dba, u.email, u.id,
+                    aa.accepted_at,
+                    p.app, p.hardware, p.cost, p.payment_freq, p.payment_type, p.longevity_months
+                FROM
+                    users u
+                INNER JOIN users u_parent
+                    ON u.parent_id = u_parent.id
+                INNER JOIN users u_reseller
+                    ON u_reseller.id = u_parent.parent_id
+                INNER JOIN store_app sa
+                    ON sa.store_guid = u.store_guid
+                INNER JOIN plans p
+                    ON p.app = sa.app_guid
+                INNER JOIN plans_x_objects po
+                    ON po.user_id = u.id AND po.plan_guid = p.guid
+                INNER JOIN agreement_acceptance aa
+                    ON aa.email = u.email
+                INNER JOIN store_environment se
+                    ON se.store_guid = u.store_guid AND se.environment_guid = '$live_store_guid' ";
+
+        $result = DB::select($sql);
+
+        // No result
+        if (!$result) {
+            return [];
+        }
+
+        // No results
+        if (count($result) == 0) {
+            return [];
+        }
+
+        // Calculate pro-rata, format result...
+        
+    }
+
+
+
+
     public static function getStoresForStatements($me, Request $request) {
         
         $liveStoreGuid = 'b78ba4b7-6534-4e3e-87a5-ee496b1b4264';
