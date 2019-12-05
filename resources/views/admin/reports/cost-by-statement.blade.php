@@ -26,9 +26,7 @@
 			data-show-export="true"
 			data-export-data-type="all"
 			data-export-types="['excel','csv','xml']"
-			data-export-options='{
-             		"fileName": "statements"
-        		}'
+			data-export-options='{"fileName": "statements"}'
 			data-click-to-select="true"
 			data-pagination="true"
 			class="table table-striped table-hover">
@@ -39,7 +37,7 @@
     			<th width="15%" data-field="store" 		data-sortable="true">Store</th>
 				<th width="5%"  data-field="licenses"  	data-sortable="true">Licenses</th>
 				<th width="10%" data-field="price"  	data-sortable="true">Price</th>
-				<th width="5%" data-field="freq"  		data-sortable="true">Frequency</th>
+				<th width="5%"  data-field="freq"  		data-sortable="true">Frequency</th>
 				<th width="35%" data-field="remarks"  	data-sortable="true">Remarks</th>
     		</tr>
     	</thead>
@@ -53,7 +51,7 @@
 								$stores = $store_group->getStores();
 								if (count($stores) > 0) {
 									foreach ($stores as $store) {
-										echo "<tr>";
+										echo "<tr class='tr-data'>";
 										echo "<td>" . $reseller->getBusinessName() . "</td>";
 										echo "<td>" . $store_group->getBusinessName() . "</td>";
 										echo "<td>" . $store->getBusinessName() . "</td>";
@@ -106,13 +104,10 @@
 <script>
 
     $(function () {
-
     	var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-
 	 	$('#report-table').fadeIn();
 
 	 	var $filters = $('#statement-filters').css({'width':'250px', 'margin-top':'10px', 'margin-right':'10px'});
-
 	 	var $toolbar = $('.fixed-table-toolbar').css({'width':'510px', 'float':'right'});
 
 	 	$toolbar.find('.export').css({'width':'40px'});
@@ -127,44 +122,39 @@
         $('#statement-filter-month').val("<?= $month ?>");
         
         // Set filter search
-        $(function(){
-        	$(".fixed-table-toolbar .search .form-control").val("<?= $search ?>").blur();
-		});
-
-
+        $(".fixed-table-toolbar .search .form-control").val("<?= $search ?>").blur();
+		
 		f$trDataLength = $('.tr-data').length;
 		$trDataLoaded = 0;
 
 		$imgDownload = $('<img src="/images/cloud-download.png" title="Download">')
-    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-    		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
-    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-    	
-    		$toolbar.find('.export').html($imgDownload.fadeIn());
-    		$toolbar.find('.export').append($imgLoading);
+			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
+			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+	
+		$toolbar.find('.export').html($imgDownload.fadeIn());
+		$toolbar.find('.export').append($imgLoading);
 
-    		$imgDownload.click(function(){
-    			$imgDownload.hide();
-    			$imgLoading.show();
-    			
-    			$.ajax({
-        		 	headers: token,
-                url: 'reports/getStatementListExcelFile',
-                type: 'GET',
-                data: {
-                		search: $('.fixed-table-toolbar .search .form-control').val(),
-                		month: $('#statement-filter-month').val()
-                	},
-                success: function (response) {
-                		$imgLoading.hide();
-                		$imgDownload.fadeIn();
-                		
-                	    window.location.href = response;
-
-                	    downloadCompleted(response);
-                }
-            });
-    		});
+		$imgDownload.click(function(){
+			$imgDownload.hide();
+			$imgLoading.show();
+			
+			$.ajax({
+				headers: token,
+				url: 'reports/getStatementListExcelFile',
+				type: 'GET',
+				data: {
+						search: $('.fixed-table-toolbar .search .form-control').val(),
+						month: $('#statement-filter-month').val()
+					},
+				success: function (response) {
+					$imgLoading.hide();
+					$imgDownload.fadeIn();
+					window.location.href = response;
+					downloadCompleted(response);
+					}
+			});
+		});
 
 		$loaded = false;
 		function handleTrDataLoaded() {
@@ -181,7 +171,6 @@
 			var search = $('.fixed-table-toolbar .search .form-control').val();
 			
 			filter = "?month=" + month + "&search=" + search;
-			
 			SyncPage.getContent("{{ route('admin.reports.costByStatement') }}" + filter, $('#reports-container'), '');
 		});
 
@@ -209,8 +198,6 @@
 			    }
 			});
 		}
-		
-
     });
 
 </script>
