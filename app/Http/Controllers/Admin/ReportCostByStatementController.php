@@ -65,6 +65,7 @@ class ReportElementStoreGroup {
 }
 
 class ReportElementStore {
+    private $guid = "";
     private $business_name = "";
     private $licenses = 0;
     private $app = null;
@@ -73,6 +74,15 @@ class ReportElementStore {
     private $referenceTimestamp = 0;
     private $accepted_at = 0;
     private $pilot_to_live = 60;
+
+    public function setGuid($val) {
+        $this->guid = $val;
+        return $this;
+    }
+
+    public function getGuid() {
+        return $this->guid;
+    }
 
     public function setBusinessName($val) {
         $this->business_name = $val;
@@ -422,6 +432,7 @@ class ReportCostByStatementController extends Controller {
                     u_reseller.id AS reseller_id, 
                     u_storegroup.id AS store_group_id, 
                     u.id AS store_id,
+                    u.store_guid AS store_guid,
 
                     -- Names
                     u_reseller.business_name AS bn_reseller, 
@@ -509,7 +520,8 @@ class ReportCostByStatementController extends Controller {
             $store_id = $row->store_id;
             if ($last_store_id != $store_id) {
                 $store = new ReportElementStore();
-                $store->setBusinessName($row->bn_store)
+                $store->setGuid($row->store_guid)
+                      ->setBusinessName($row->bn_store)
                       ->setLiveStore($row->environment_guid == $live_store_guid)
                       ->setLicenses($row->licenses)
                       ->calculateDaysSinceLive($row->accepted_at, $referenceTimestamp, Parameters::getValue("@days_pilot_to_live", 60));

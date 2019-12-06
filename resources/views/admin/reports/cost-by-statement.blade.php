@@ -51,12 +51,15 @@
 								$stores = $store_group->getStores();
 								if (count($stores) > 0) {
 									foreach ($stores as $store) {
-										echo "<tr class='tr-data'>";
+										echo "<tr class='tr-data' data-store-guid='" . $store->getGuid() . "'>";
 										echo "<td>" . $reseller->getBusinessName() . "</td>";
 										echo "<td>" . $store_group->getBusinessName() . "</td>";
 										echo "<td>" . $store->getBusinessName() . "</td>";
 										echo "<td>" . $store->getLicenses() . "</td>";
-										echo "<td>US$" . number_format($store->getTotalCost(), 2) . "</td>";
+
+										$price = $store->getTotalCost();
+										$price_str = $price == 0 ? "---" : "US$" . number_format($price, 2);
+										echo "<td>$price_str</td>";
 										echo "<td>" . $reseller->getFrequencyText() . "</td>";
 										echo "<td>" . $store->getRemarks() . "</td>";
 										echo "</tr>";
@@ -104,7 +107,8 @@
 <script>
 
     $(function () {
-    	var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+		var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+		$('#report-table').bootstrapTable({});
 	 	$('#report-table').fadeIn();
 
 	 	var $filters = $('#statement-filters').css({'width':'250px', 'margin-top':'10px', 'margin-right':'10px'});
