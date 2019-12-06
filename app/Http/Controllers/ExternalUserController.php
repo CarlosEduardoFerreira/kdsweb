@@ -733,9 +733,9 @@ class ExternalUserController extends BaseController
         $pdf->writeAt($pdf_page, 58, 146, $user->business_name, $fsNormal);
         $pdf->writeAt($pdf_page, 58, 153.3, $company["address1"], $fsNormal);
         $pdf->writeAt($pdf_page, 58, 158.3,  $company["address2"], $fsNormal);
-        $pdf->writeAt($pdf_page, 58, 163.8, $company["city"], $fsNormal);
-        $pdf->writeAt($pdf_page, 119, 163.8, $company["state"], $fsNormal);
-        $pdf->writeAt($pdf_page, 153, 163.8, $company["zipcode"], $fsNormal);
+        $pdf->writeAt($pdf_page, 58, 163.8, $company["city"], $fsSmall);
+        $pdf->writeAt($pdf_page, 118, 163.8, $company["state"], $fsSmall);
+        $pdf->writeAt($pdf_page, 153, 163.8, $company["zipcode"], $fsSmall);
         $pdf->writeAt($pdf_page, 58, 168.5, $userFullName, $fsNormal);
         $pdf->writeAt($pdf_page, 58, 173.5, $company["email"], $fsNormal);
         $pdf->writeAt($pdf_page, 58, 179, $company["phone"], $fsNormal);
@@ -791,7 +791,7 @@ class ExternalUserController extends BaseController
         if ($payment_frequency == "") {
             $pdf->box($pdf_page, 87, 73, 3, 3, $color_black);
         } else {
-            $pdf->box($pdf_page, 151, 73, 3, 3, $color_black);
+            $pdf->box($pdf_page, 152.5, 73, 3, 3, $color_black);
         }
 
         // 3. CREDIT CARD - Billing Address
@@ -817,7 +817,7 @@ class ExternalUserController extends BaseController
         $pdf->writeAt($pdf_page, 48, 61, $fullAddress, $fontSizeFullAddress);
 
         // AGREEMENT page 7
-        $pdf_page = 10;
+        $pdf_page = 9;
         $pdf->writeAt($pdf_page, 110, 142, $user->business_name, $fsSmall);
         $pdf->writeAt($pdf_page, 110, 146.5, $company["address1"] . " " . $company["address2"], $fsSmall); 
         $pdf->writeAt($pdf_page, 110, 150.5, $company["city"] . " " . $company["state"], $fsSmall);
@@ -826,7 +826,7 @@ class ExternalUserController extends BaseController
         $pdf->writeAt($pdf_page, 123, 167, $company["email"], $fsSmall); 
 
         // AGREEMENT page 8
-        $pdf_page = 11;
+        $pdf_page = 10;
         $pdf->writeAt($pdf_page, 28, 154, $user->business_name, $fsNormal);
         $pdf->writeAt($pdf_page, 37, 173, $userFullName, $fsNormal);
         $pdf->writeAt($pdf_page, 20, 183, date("d F Y"), $fsNormal);
