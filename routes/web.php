@@ -113,6 +113,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     //Agreement Page
     Route::get('/agreement_page', 'AgreementController@agreement_page')->name('agreement_page');
 
+    //Help Page
+    Route::get('/help_page', 'HelpController@help_page')->name('help_page');
+
 
     // View Plans List / Add Plan
     Route::get('resellers/0/plans', 'ResellerController@getPlans')->name('resellers.plans');

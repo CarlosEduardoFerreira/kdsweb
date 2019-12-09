@@ -28,8 +28,16 @@
 
                             <li>
                             <a id="profile-link" href="{{ route('admin.agreement_page') }}">
-                            <img src="/images/output-onlinepngtools.png" title="" style="margin:auto;height:20px;cursor:hand;">
-                            <label class="lbl-menu-top-right"> &nbsp;Agreement</label>
+                            <img src="/images/output-onlinepngtools.png" title="" style="margin:auto;width:20px;cursor:hand;">
+                            <label class="lbl-menu-top-right" style="padding-left:18px;"> &nbsp;Agreement</label>
+                            </a>
+                            </li>
+                            
+                            <li>
+                            <a id="profile-link" href="{{ route('admin.help_page') }}">
+                            <i class="fa fa-question" style="font-size:20px;"></i>    
+                            <img src="" title="" style="margin:auto;height:20px;cursor:hand;">
+                            <label class="lbl-menu-top-right"> &nbsp;Help</label>
                             </a>
                         	</li>
                             
