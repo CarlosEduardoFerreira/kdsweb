@@ -49,6 +49,7 @@
             	<th>@sortablelink('business_name',  'Reseller Name',['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('email', __('views.admin.users.index.table_header_0'),['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('active', __('views.admin.users.index.table_header_3'),['page' => $resellers->currentPage()])</th>
+                <th>Authorized</th>
                 <th>@sortablelink('created_at', __('views.admin.users.index.table_header_5'),['page' => $resellers->currentPage()])</th>
                 <th>@sortablelink('updated_at', __('views.admin.users.index.table_header_6'),['page' => $resellers->currentPage()])</th>
                 <th>Actions</th>
@@ -65,6 +66,19 @@
                             <span class="label label-primary">{{ __('views.admin.users.index.active') }}</span>
                         @else
                             <span class="label label-danger">{{ __('views.admin.users.index.inactive') }}</span>
+                        @endif
+                    </td>
+                    <td>
+                        <?php 
+                            $auth = false;
+                            if (array_key_exists("rs" . $reseller->id, $authorized)) {
+                                $auth = $authorized["rs" . $reseller->id];
+                            }
+                        ?>
+                        @if($auth)
+                            <i class='fa fa-check fa-lg text-success'></i>
+                        @else
+                            <i class='fa fa-ban fa-lg text-danger'></i>
                         @endif
                     </td>
                     <td>{{ $reseller->created_at }}</td>
