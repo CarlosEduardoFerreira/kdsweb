@@ -36,8 +36,17 @@ class ResellerController extends Controller {
         }
 
         $resellers = Controller::filterUsers($request, 2, $adminId, $request->filter);
+        $authorized = DB::select("SELECT user_id, authorized FROM payment_info");
+        $authorized_map = [];
+        if ($authorized) {
+            if (count($authorized) > 0) {
+                foreach ($authorized as $payment_info) {
+                    $authorized_map["rs" . $payment_info->user_id] = ($payment_info->authorized == 1);
+                }
+            }
+        }
 
-        return view('admin.resellers.index', ['obj' => 'reseller', 'resellers' => $resellers]);
+        return view('admin.resellers.index', ['obj' => 'reseller', 'resellers' => $resellers, 'authorized' => $authorized_map]);
     }
 
     /**
