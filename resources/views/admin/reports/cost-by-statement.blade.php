@@ -1,8 +1,8 @@
-
 <?php 
-$adm = $me->hasRole('administrator');
-$res = $me->hasRole('reseller');
-$stg = $me->hasRole('storegroup');
+	$adm = $me->hasRole('administrator');
+	if (!$adm) {
+		die("You are not allowed to access this page");
+	}
 ?>
 
 <div id="statement-filters">
@@ -26,45 +26,50 @@ $stg = $me->hasRole('storegroup');
 			data-show-export="true"
 			data-export-data-type="all"
 			data-export-types="['excel','csv','xml']"
-			data-export-options='{
-             "fileName": "statements"
-        		}'
+			data-export-options='{"fileName": "statements"}'
 			data-click-to-select="true"
 			data-pagination="true"
 			class="table table-striped table-hover">
     	<thead>
     		<tr>
-    		<?php if ($adm) { ?>
-    			<th width="15%" data-field="reseller" 	  data-sortable="true">Reseller</th>
-    		<?php } 
-    		      if ($adm || $res) { ?>
-    			<th width="15%" data-field="storegroup" 	  data-sortable="true">Store Group</th>
-    		<?php } ?>
-    			<th width="15%" data-field="store" 		  data-sortable="true">Store</th>
-    			<th width="15%" data-field="license-type"  data-sortable="true">License <br>Type</th>
-    			<th width="5%"  data-field="devices-count" data-sortable="true" class="text-right">Stations<br>Quantity</th>
-    			<th width="10%" data-field="license-cost"  data-sortable="true" class="text-right">Price per<br>License</th>
-    			<th width="10%" data-field="Total Cost" 	  data-sortable="true" class="text-right">Total <br>Price</th>
+     			<th width="15%" data-field="reseller" 	data-sortable="true">Reseller</th>
+    			<th width="15%" data-field="storegroup" data-sortable="true">Store Group</th>
+    			<th width="15%" data-field="store" 		data-sortable="true">Store</th>
+				<th width="5%"  data-field="licenses"  	data-sortable="true">Licenses</th>
+				<th width="10%" data-field="price"  	data-sortable="true">Price</th>
+				<th width="5%"  data-field="freq"  		data-sortable="true">Frequency</th>
+				<th width="35%" data-field="remarks"  	data-sortable="true">Remarks</th>
     		</tr>
     	</thead>
     	<tbody>
-    		<?php 
-    		foreach($stores as $store) {
+			<?php 
+				if ($report !== false) {
+					foreach($report as $reseller) {
+						$store_groups = $reseller->getStoreGroups();
+						if (count($store_groups) > 0) {
+							foreach ($store_groups as $store_group) {
+								$stores = $store_group->getStores();
+								if (count($stores) > 0) {
+									foreach ($stores as $store) {
+										echo "<tr class='tr-data' data-store-guid='" . $store->getGuid() . "'>";
+										echo "<td>" . $reseller->getBusinessName() . "</td>";
+										echo "<td>" . $store_group->getBusinessName() . "</td>";
+										echo "<td>" . $store->getBusinessName() . "</td>";
+										echo "<td>" . $store->getLicenses() . "</td>";
+
+										$price = $store->getTotalCost();
+										$price_str = $price == 0 ? "---" : "US$" . number_format($price, 2);
+										echo "<td>$price_str</td>";
+										echo "<td>" . $reseller->getFrequencyText() . "</td>";
+										echo "<td>" . $store->getRemarks() . "</td>";
+										echo "</tr>";
+									}
+								}
+							}
+						}
+					}
+				}
     		?>
-    		<tr class="tr-data" data-store-guid="<?=$store->store_guid?>" data-live="<?=$store->live?>">
-    		<?php if ($adm) { ?>
-    			<td><?=$store->resellerBName?></td>
-    		<?php } 
-    		      if ($adm || $res) { ?>
-    			<td><?=$store->storegroupBName?></td>
-    		<?php } ?>
-    			<td><?=$store->storeBName?></td>
-    			<td><?=$store->planName?></td>
-    			<td class="licenses-total"><?=$store->licensesQuantity?></td>
-    			<td class="price-per-license text-right"><?=number_format($store->planCost, 2, '.', '')?></td>
-    			<td class="total-price text-right"><?=number_format($store->licensesQuantity * $store->planCost, 2, '.', '')?></td>
-    		</tr>
-    		<?php } ?>
     	</tbody>
 </table>
 
@@ -102,75 +107,58 @@ $stg = $me->hasRole('storegroup');
 <script>
 
     $(function () {
+		var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+		$('#report-table').bootstrapTable({});
+	 	$('#report-table').fadeIn();
 
-    		var token = { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+	 	var $filters = $('#statement-filters').css({'width':'250px', 'margin-top':'10px', 'margin-right':'10px'});
+	 	var $toolbar = $('.fixed-table-toolbar').css({'width':'510px', 'float':'right'});
 
-    		$('#report-table').bootstrapTable({
-//     		    onSearch: function (text) {
-//     		    		loadLicensesQuantity();
-//     		    },
-// 			onPageChange: function (number, size) {
-//     				loadLicensesQuantity();
-//     		    },
-// 			onSort: function (number, size) {
-//     				loadLicensesQuantity();
-//     		    }
-        	});
-		$('#report-table').fadeIn();
-
-		var $filters = $('#statement-filters').css({'width':'250px', 'margin-top':'10px', 'margin-right':'10px'});
-
-		var $toolbar = $('.fixed-table-toolbar').css({'width':'510px', 'float':'right'});
-
-		$toolbar.find('.export').css({'width':'40px'});
+	 	$toolbar.find('.export').css({'width':'40px'});
 		
-		$('#toolbarContainer').append($toolbar.append($filters.fadeIn()).fadeIn());
+	 	$('#toolbarContainer').append($toolbar.append($filters.fadeIn()).fadeIn());
 
 		$('#report-table').on("click", "tr", function() {
         		$(this).toggleClass("bold-blue");
         });
 
 		// Set filter month
-        $('#statement-filter-month').val("<?=$month?>");
+        $('#statement-filter-month').val("<?= $month ?>");
         
         // Set filter search
-        $(function(){
-        		$(".fixed-table-toolbar .search .form-control").val("<?=$search?>").blur();
-        });
-
+        $(".fixed-table-toolbar .search .form-control").val("<?= $search ?>").blur();
+		
 		f$trDataLength = $('.tr-data').length;
 		$trDataLoaded = 0;
 
 		$imgDownload = $('<img src="/images/cloud-download.png" title="Download">')
-    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-    		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
-    			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
-    	
-    		$toolbar.find('.export').html($imgDownload.fadeIn());
-    		$toolbar.find('.export').append($imgLoading);
+			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+		$imgLoading = $('<img src="/images/loading2.gif" title="Please Wait">')
+			.css({'display':'none','margin-left':'10px','height':'30px','cursor':'pointer'});
+	
+		$toolbar.find('.export').html($imgDownload.fadeIn());
+		$toolbar.find('.export').append($imgLoading);
 
-    		$imgDownload.click(function(){
-    			$imgDownload.hide();
-    			$imgLoading.show();
-    			
-    			$.ajax({
-        		 	headers: token,
-                url: 'reports/getStatementListExcelFile',
-                type: 'GET',
-                data: {
-                		search: $('.fixed-table-toolbar .search .form-control').val(),
-                		month: $('#statement-filter-month').val()
-                	},
-                success: function (response) {
-                		$imgLoading.hide();
-                		$imgDownload.fadeIn();
-                		
-                	    window.location.href = response;
-
-                	    downloadCompleted(response);
-                }
-            });
-    		});
+		$imgDownload.click(function(){
+			$imgDownload.hide();
+			$imgLoading.show();
+			
+			$.ajax({
+				headers: token,
+				url: 'reports/getStatementListExcelFile',
+				type: 'GET',
+				data: {
+						search: $('.fixed-table-toolbar .search .form-control').val(),
+						month: $('#statement-filter-month').val()
+					},
+				success: function (response) {
+					$imgLoading.hide();
+					$imgDownload.fadeIn();
+					window.location.href = response;
+					downloadCompleted(response);
+					}
+			});
+		});
 
 		$loaded = false;
 		function handleTrDataLoaded() {
@@ -187,7 +175,6 @@ $stg = $me->hasRole('storegroup');
 			var search = $('.fixed-table-toolbar .search .form-control').val();
 			
 			filter = "?month=" + month + "&search=" + search;
-			
 			SyncPage.getContent("{{ route('admin.reports.costByStatement') }}" + filter, $('#reports-container'), '');
 		});
 
@@ -215,8 +202,6 @@ $stg = $me->hasRole('storegroup');
 			    }
 			});
 		}
-		
-
     });
 
 </script>
