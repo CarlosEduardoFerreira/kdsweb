@@ -25,7 +25,8 @@ class AgreementController extends Controller
       $ip = Request::ip();
       $page = 10;
       $time = DB::select("SELECT * FROM  kdsweb.agreement_acceptance WHERE email = ?", [$useremail]);
-     
+      $sig = "x";
+      
                             
                             foreach($time as $t)
                             {
