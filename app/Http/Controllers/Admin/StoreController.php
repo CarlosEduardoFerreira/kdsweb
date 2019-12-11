@@ -1175,7 +1175,7 @@ class StoreController extends Controller {
     }
 
 
-    function removeDevices($storeGuid, $devices) {
+    public function removeDevices($storeGuid, $devices) {
         // Remove Device
         $data = [
             'is_deleted' => 1,
@@ -1184,13 +1184,13 @@ class StoreController extends Controller {
             'update_time' => time()
         ];
 
-        foreach($devices->get() as $device) {
+        foreach($devices as $device) {
 
             // Remove Settings Local
             $settingsLocal = DB::table('settings_local')
                 ->where('store_guid', '=', $storeGuid)
                 ->where('is_deleted', '=', 0)
-                ->where('device_guid', '=', $device->guid);
+                ->where('device_guid', '=', $device->guid)->get();
 
             if(count($settingsLocal) > 0) {
                 $settingsLocal->update(['is_deleted' => 1]);
@@ -1200,7 +1200,7 @@ class StoreController extends Controller {
             $settingsLineDisplay = DB::table('settings_line_display')
                 ->where('store_guid', '=', $storeGuid)
                 ->where('is_deleted', '=', 0)
-                ->where('device_guid', '=', $device->guid);
+                ->where('device_guid', '=', $device->guid)->get();
 
             if(count($settingsLineDisplay) > 0) {
                 $settingsLineDisplay->update(['is_deleted' => 1]);
@@ -1217,7 +1217,7 @@ class StoreController extends Controller {
 
         }
 
-        $devices->update($data);
+        DB::table("devices")->update($data);
     }
     
     
