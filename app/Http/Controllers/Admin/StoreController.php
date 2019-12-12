@@ -69,7 +69,7 @@ class StoreController extends Controller {
         // ------------------------------------------------------- StoreGroups //
         
      
-        $store->country = 231;   // United States
+        $store->country = "United States";   // United States
         $store->timezone = Vars::$timezoneDefault;
         
         // Applications
@@ -98,9 +98,17 @@ class StoreController extends Controller {
         $me = Auth::user();
         
         $now = new DateTime();
-        
         $dateTimezone = new DateTime();
-        $dateTimezone->setTimezone(new DateTimeZone($request->get('timezone')));
+
+        // No timezone or empty timezone => revert to default timezone
+        $timezone = $request->get('timezone');
+        if (!isset($timezone)) {
+            $timezone = Vars::$timezoneDefault;
+        }
+        if (strlen($timezone) > 0) {
+            $timezone = Vars::$timezoneDefault;
+        }
+        $dateTimezone->setTimezone(new DateTimeZone($timezone));
         $dateTimezone->setTime(4,0);
         
         $usersTable = DB::table('users');

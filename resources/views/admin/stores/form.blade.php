@@ -8,6 +8,8 @@
 @section('content')
 
 <?php
+        use App\Http\Controllers\Vars;
+
         function print_field($id, $title, $value, $required = false, $readonly = false, $placeholder = "", $inputExtraClasses = "", $password = false) {
             $required_string1 = $required ? "required" : "";
             $required_string2 = $required ? "<span class='required'>*</span>" : "";
@@ -163,7 +165,7 @@
                 print_field("state", "State", $user->state, false, true, "", "");
                 print_field("country", "Country", $user->country, false, true, "", "");
                 print_field("zipcode", "Zip Code", $user->zipcode, false, true, "", "");
-                print_field("timezone", "Timezone", "", false, true, "", "");
+                print_field("timezone", "Timezone", $user->timezone, false, true, "", "");
 
                 $options = [];
                 $values = [];
@@ -258,7 +260,6 @@
 
     @parent
     {{ Html::script(mix('assets/admin/js/users/edit.js')) }}
-    {{ Html::script(mix('assets/admin/js/location.js')) }}
     {{ Html::script(mix('assets/admin/js/validation.js')) }}
     {{ Html::script(mix('assets/admin/js/bootstrap-select.min.js')) }}
 
@@ -312,6 +313,8 @@
                 console.log(data);
                 if (data.status == "OK") {
                     document.querySelector('#timezone').value = data.zoneName;
+                } else {
+                    document.querySelector('#timezone').value = '<?= Vars::$timezoneDefault ?>';
                 }
             });
         });
