@@ -248,11 +248,13 @@ class ExternalUserController extends BaseController
                         $ip = $already_accepted[0]->ip;
                         $time = $already_accepted[0]->accepted_at;
                         $sig = sprintf("%08d", $reseller->id) . sprintf("%04d", $page) . md5($reseller->id . $ip . $page . $time);
-                        return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
+                        if (file_exists("./agreements/$sig.pdf")) {
+                            return view('external.resellers.agreement', ["accepted" => true, "sig" => $sig]);
+                        }
                     }
                 }
             }         
-
+            
             // Or is it the first time accepting the agreement?
             $now = time();
 
