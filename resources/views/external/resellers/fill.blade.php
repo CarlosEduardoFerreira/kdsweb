@@ -117,7 +117,7 @@
         <BR>
 
         <!-- Company Address -->
-        <div class="group-title col-9">Company Information</div>
+        <div class="group-title col-9">Reseller Information</div>
         <?php
             print_field("business_name", "Business Name", $basic->business_name, true, false);
             print_field("company_dba", "Doing Business As", $basic->dba, false, false);
