@@ -523,7 +523,7 @@ class ExternalUserController extends BaseController
         return $this->sendEmail(Parameters::getValue("@email_system_from", "system@kdsgo.com"), 
                                 Parameters::getValue("@email_system_reply_to", "do-not-reply@kdsgo.com"),
                                 $email,
-                                Parameters::getValue("@reseller_set_password_email_subject", "KitchenGo: Set your password"),
+                                Parameters::getValue("@reseller_set_password_email_subject", "Lets set up your KitchenGo password"),
                                 Parameters::getValue("@reseller_set_password_email_body_html_file", 
                                                           "assets/includes/email_set_password.html"), 
                                 $data);
@@ -543,7 +543,7 @@ class ExternalUserController extends BaseController
         return $this->sendEmail(Parameters::getValue("@email_system_from", "system@kdsgo.com"), 
                                 Parameters::getValue("@email_system_reply_to", "do-not-reply@kdsgo.com"),
                                 Parameters::getValue("@email_customer_support", ""),
-                                Parameters::getValue("@reseller_form_email_customer_support_subject", "KitchenGo: Action needed"),
+                                Parameters::getValue("@reseller_form_email_customer_support_subject", "Welcome to the Logic Controls family!"),
                                 Parameters::getValue("@reseller_form_email_customer_support_body_html_file", 
                                                     "assets/includes/email_approve_reseller.html"), 
                                 $data);
