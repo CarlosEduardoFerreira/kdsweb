@@ -1131,12 +1131,12 @@ class StoreController extends Controller {
         
         $storeGuid = $request->post('storeGuid');
         $deviceSerial = $request->post('deviceSerial');
-
-        $devices = DB::table('devices')
-            ->where('store_guid', '=', $storeGuid)
-            ->where('is_deleted', '=', 0)
-            ->where('serial', '=', $deviceSerial);
         
+        $devices = DB::select("SELECT * FROM devices
+            WHERE store_guid = ?
+            AND is_deleted = 0
+            AND `serial` = ?", [$storeGuid, $deviceSerial]);
+
         if(count($devices) > 0) {
             $this->removeDevices($storeGuid, $devices);
             
@@ -1200,7 +1200,7 @@ class StoreController extends Controller {
                 ->where('is_deleted', '=', 0)
                 ->where('device_guid', '=', $device->guid)->get();
 
-            if(count($settingsLocal) > 0) {
+            if($settingsLocal->count() > 0) {
                 $settingsLocal->update(['is_deleted' => 1]);
             }
 
@@ -1210,7 +1210,7 @@ class StoreController extends Controller {
                 ->where('is_deleted', '=', 0)
                 ->where('device_guid', '=', $device->guid)->get();
 
-            if(count($settingsLineDisplay) > 0) {
+            if($settingsLineDisplay->count() > 0) {
                 $settingsLineDisplay->update(['is_deleted' => 1]);
             }
 
@@ -1223,9 +1223,13 @@ class StoreController extends Controller {
             // Remove from Dependent Devices as Transfer
             $this->removeFromDependentDevicesAsTransfer($storeGuid, $device->id);
 
+            DB::update("UPDATE devices
+                        SET `is_deleted` = 1,
+                            `license` = 0,
+                            `login` = 0,
+                            `update_time` = ?
+                        WHERE `guid` = ?", [time(), $device->guid]);
         }
-
-        DB::table("devices")->update($data);
     }
     
     
