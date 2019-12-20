@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
+use PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class ApiController extends Controller
 {
@@ -42,9 +44,9 @@ class ApiController extends Controller
         
         // TOKEN - THIS CANNOT BE CHANGED!!! -------------------------------------------------------------------------- //
         if (!isset($this->request[0]["tok"])) {
-            $this->requestError  = "Your application has no permission to do this!";
+            $this->requestError  = "Your application has no permission to connect.";
         } else if ($this->request[0]["tok"] != "c0a6r1l1o9sL6t2h4gjhak7hf3uf9h2jnkjdq37qh2jk3fbr1706") {
-            $this->requestError  = "Your application has no permission to do this!";
+            $this->requestError  = "Wrong token.";
         } else {
             $this->request = $this->request[1];
         }
@@ -54,7 +56,7 @@ class ApiController extends Controller
          *  req = Resquest/Function
          */
         if (!isset($this->request["req"])) {
-            $this->requestError  = "Your application has no permission to do this!";
+            $this->requestError  = "No request sent.";
             $this->method = "";
         } else {
             $this->method = $this->request["req"];
@@ -871,7 +873,71 @@ class ApiController extends Controller
 
         TicketUser::insert($data);
 
+        $pin = rand(1000, 9999);
+
+        $this->sendEmail($name, $email, $pin);
+
+        $response["pin"] = $pin;
+
         return $response;
+    }
+
+
+    public function sendEmail($name, $email, $pin) {
+        $lcEmail = "dev@logiccontrols.com";
+
+        $subject = 'KitchenGo Ticket Activation';
+
+        // Message
+        $message     = "Hi $name,<br><br>";
+        $message    .= "Thank you for register on KitchenGo Ticket App!<br><br>";
+        $message    .= "KitchenGo Ticket is one of the best App that you can have for Free!<br><br>";
+        $message    .= "This is the PIN Number to Activate your KitchenGo Ticket App: <b>$pin</b><br><br>";
+        $message    .= "<b>Feel free to contact us for support:</b> support.bematechus.com<br><br><br>";
+        $message    .= "Thank you!<br>";
+        $message    .= "Logic Controls Software Team";
+
+        $headers[] = "MIME-Version: 1.0";
+        $headers[] = "Content-type: text/html; charset=iso-8859-1";
+        $headers[] = "To: $name <$email>";
+        $headers[] = "From: Logic Controls <$lcEmail>";
+        // $headers[] = "Cc: ";
+        // $headers[] = "Bcc: ";
+
+        // Mail it
+        mail($email, $subject, $message, implode("\r\n", $headers));
+
+        // $mail = new PHPMailer\PHPMailer();
+
+        // try {
+        //     // Settings
+        //     $mail->isSMTP();
+        //     $mail->setFrom("dev@logiccontrols.com", "Logic Controls");
+        //     $mail->addCustomHeader('X-SES-CONFIGURATION-SET', 'SendEmail');
+        //     $mail->addAddress($email);
+        //     $mail->Username   = "UtJQVdRRU9BSzc3TUFaTTdCN0o="; // SMTP account username
+        //     $mail->Password   = "UGJ4Y0YrdUR2NWgrblVGd1NidXNTdlc1d1RCRFZPRXkvTjVocTg5dA=="; // SMTP account password
+        //     $mail->Host       = "email-smtp.us-west-2.amazonaws.com"; // SMTP server
+        //     $mail->Port       = 587;
+        //     $mail->SMTPAuth   = true;
+        //     $mail->SMTPSecure = 'tls';
+
+        //     // Content
+        //     $mail->isHTML(true); // Set email format to HTML
+        //     $mail->Subject  = "KitchenGo Ticket Activation";
+        //     $mail->Body     = "Hi $name,<br><br>";
+        //     $mail->Body    .= "Thank you for register on KitchenGo Ticket!<br>";
+        //     $mail->Body    .= "KitchenGo Ticket is one of the best App that you can have for Free!<br><br>";
+        //     $mail->Body    .= "This is the PIN Number to Activate your KitchenGo Ticket App: <b>$pin</b><br><br>";
+        //     $mail->Body    .= "Feel free to contact us for support: support.bematechus.com<br><br><br>";
+        //     $mail->AltBody  = "Thank you!";
+        //     $mail->AltBody .= "Logic Controls Software Team";
+
+        //     return $mail->send();
+
+        // } catch (Exception $e) {
+        //     echo "Email not sent. {$mail->ErrorInfo}", PHP_EOL; //Catch errors from Amazon SES.
+        // }
     }
     
 }
