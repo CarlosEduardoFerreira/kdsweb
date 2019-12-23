@@ -875,9 +875,10 @@ class ApiController extends Controller
 
         $pin = rand(1000, 9999);
 
-        $this->sendEmail($name, $email, $pin);
+        $sendEmail = $this->sendEmail($name, $email, $pin);
 
         $response["pin"] = $pin;
+        $response["sendEmailResponse"] = $sendEmail;
 
         return $response;
     }
@@ -905,7 +906,7 @@ class ApiController extends Controller
         // $headers[] = "Bcc: ";
 
         // Mail it
-        mail($email, $subject, $message, implode("\r\n", $headers));
+        return mail($email, $subject, $message, implode("\r\n", $headers));
 
         // $mail = new PHPMailer\PHPMailer();
 
