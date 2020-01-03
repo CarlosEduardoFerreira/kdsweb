@@ -878,19 +878,9 @@ class StoreController extends Controller {
     
     public function reportByStation(Request $request)
     {
-        $error = array();
-        
         $storeId = $request->get('storeId');
         $storeGuid = $request->get('storeGuid');
         
-        $planXObject = PlanXObject::where("user_id", "=", $storeId)->get()->first();
-        if(empty($planXObject)) {
-            $error["error"]["msg"] = "There is no plan defined for this store.";
-            return response()->json($error);
-        }
-        
-        //$plan = Plan::where("guid", "=", $planXObject->plan_guid)->get()->first();
-        //$app = App::where("guid", "=", $store->app)->get()->first();
         $isAppPremium = false;
         $app_guid_result = DB::table("store_app")->where('store_guid', '=', $storeGuid)->get()->first();
         if (isset($app_guid_result->app_guid)) {
@@ -922,21 +912,7 @@ class StoreController extends Controller {
                 array_push($devicesIds, $device->id);
             }
         }
-
-        // // Convert Start and End times to store's timezone      
-        // $storeTimezoneValue = DB::select("SELECT timezone FROM users WHERE store_guid = '$storeGuid'")[0]->timezone;
-        // $storeTimezoneObject = new DateTimeZone(isset($storeTimezoneValue) ? $storeTimezoneValue : Vars::$timezoneDefault);
         
-        // $date = new DateTime();
-        // $date->setTimezone($storeTimezoneObject);
-        // $date->setTimestamp(strtotime($request->get('startDatetime')));
-        // $startDatetime = $date->getTimestamp();
-
-        // $date = new DateTime();
-        // $date->setTimezone($storeTimezoneObject);
-        // $date->setTimestamp(strtotime($request->get('endDatetime')));
-        // $endDatetime = $date->getTimestamp();
-
         $startDatetime = strtotime($request->get('startDatetime'));
         $endDatetime = strtotime($request->get('endDatetime'));
 
