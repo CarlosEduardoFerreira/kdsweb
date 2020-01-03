@@ -275,12 +275,17 @@ class ResellerController extends Controller {
         if ($accessDenied) {
             return $accessDenied;
         }
+
+        # Legacy support
+        if (is_numeric($reseller->state)) {
+            $state   = DB::table('states')->where(['id' => $reseller->state])->first();
+            $reseller->state   = $state->name;
+        }
         
-        $state   = DB::table('states')->where(['id' => $reseller->state])->first();
-        $country = DB::table('countries')->where(['id' => $reseller->country])->first();
-      
-        $reseller->state   = $state->name;
-        $reseller->country = $country->name;
+        if (is_numeric($reseller->country)) {
+            $country = DB::table('countries')->where(['id' => $reseller->country])->first();
+            $reseller->country = $country->name;
+        }
         
         return view('admin.resellers.show', ['obj' => 'reseller', 'reseller' => $reseller]);
     }
