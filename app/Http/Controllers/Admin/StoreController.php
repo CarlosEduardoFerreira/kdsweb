@@ -975,7 +975,7 @@ class StoreController extends Controller {
                 $sql .= " AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE')
                                 then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
                 
-                if($devicesIds != "") {
+                if(count($devicesIds) > 0) {
                     $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
                 }
                 
@@ -1015,7 +1015,7 @@ class StoreController extends Controller {
                             AND ( (case when (dn.`function` = 'EXPEDITOR' OR dn.`function` = 'BACKUP_EXPE') 
                                 then ib.done_local_time else ib.prepared_local_time end) BETWEEN $startDatetime AND $endDatetime)";
 
-                if($devicesIds != "") {
+                if(count($devicesIds) > 0) {
                     $sql .=     " AND dn.id IN (" . implode(",", $devicesIds) . ") ";
                 }
 
