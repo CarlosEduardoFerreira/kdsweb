@@ -32,7 +32,7 @@
                     $title $required_string2
                 </label>
                 <div class='col-md-7 col-sm-7 col-xs-12'>
-                    <select id='$id name='$id' class='form-control select2 umb6' style='width: 100%' $required_string1 $readonly_string>";
+                    <select id='$id' name='$id' class='form-control select2 umb6' style='width: 100%' $required_string1 $readonly_string>";
                     
                         if ((count($options) > 0) && (count($options) == count($values))) {
                             for ($k = 0; $k < count($options); $k++) {
