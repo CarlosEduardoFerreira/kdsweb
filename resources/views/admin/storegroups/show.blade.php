@@ -33,7 +33,7 @@
             
 			<tr>
                 <th>Reseller Name</th>
-                <td>{{ $reseller->business_name }}</td>
+                <td>{{ isset($reseller) ? $reseller->business_name : '??? Unassigned ???' }}</td>
             </tr>
             <tr>
                 <th>Store Group Name</th>
