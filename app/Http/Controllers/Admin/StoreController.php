@@ -1105,7 +1105,7 @@ class StoreController extends Controller {
     
     
     public function removeDevice(Request $request, User $store) {
-        
+
         if($request->post('deviceSerial') === null) {
             return "KDS Station Serial Number not provided.";
         }
@@ -1179,9 +1179,9 @@ class StoreController extends Controller {
             $settingsLocal = DB::table('settings_local')
                 ->where('store_guid', '=', $storeGuid)
                 ->where('is_deleted', '=', 0)
-                ->where('device_guid', '=', $device->guid)->get();
+                ->where('device_guid', '=', $device->guid);
 
-            if($settingsLocal->count() > 0) {
+            if($settingsLocal->get()->count() > 0) {
                 $settingsLocal->update(['is_deleted' => 1]);
             }
 
@@ -1189,9 +1189,9 @@ class StoreController extends Controller {
             $settingsLineDisplay = DB::table('settings_line_display')
                 ->where('store_guid', '=', $storeGuid)
                 ->where('is_deleted', '=', 0)
-                ->where('device_guid', '=', $device->guid)->get();
+                ->where('device_guid', '=', $device->guid);
 
-            if($settingsLineDisplay->count() > 0) {
+            if($settingsLineDisplay->get()->count() > 0) {
                 $settingsLineDisplay->update(['is_deleted' => 1]);
             }
 
