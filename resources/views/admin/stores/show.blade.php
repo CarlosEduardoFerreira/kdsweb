@@ -118,12 +118,20 @@
 
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_6') }}</th>
-                <td>{{ $store->created_at }} ({{ $store->created_at->diffForHumans() }})</td>
+                <td>
+                    @if (isset($store->created_at))
+                    {{ $store->created_at }} ({{ $store->created_at->diffForHumans() }})
+                    @endif
+                </td>
             </tr>
 
             <tr>
                 <th>{{ __('views.admin.users.show.table_header_7') }}</th>
-                <td>{{ $store->updated_at }} ({{ $store->updated_at->diffForHumans() }})</td>
+                <td>
+                    @if (isset($store->updated_at))
+                    {{ $store->updated_at }} ({{ $store->updated_at->diffForHumans() }})
+                    @endif
+                </td>
             </tr>
             </tbody>
         </table>
