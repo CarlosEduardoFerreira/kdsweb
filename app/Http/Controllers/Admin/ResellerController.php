@@ -275,7 +275,8 @@ class ResellerController extends Controller {
         if ($accessDenied) {
             return $accessDenied;
         }
-        
+
+        # Legacy support
         $state = $reseller->state;
         if (is_numeric($reseller->state)) {
             $state   = DB::table('states')->where(['id' => $reseller->state])->first();

@@ -286,11 +286,16 @@ class StoreController extends Controller {
             return $accessDenied;
         }
         
-        $state   = DB::table('states')->where(['id' => $store->state])->first();
-        $country = DB::table('countries')->where(['id' => $store->country])->first();
+        # Legacy support
+        if (is_numeric($store->state)) {
+            $state   = DB::table('states')->where(['id' => $store->state])->first();
+            $store->state   = $state->name;
+        }
         
-        $store->state   = $state->name;
-        $store->country = $country->name;
+        if (is_numeric($store->country)) {
+            $country = DB::table('countries')->where(['id' => $store->country])->first();
+            $store->country = $country->name;
+        }
         
         $storegroup = DB::table('users')->where(['id' => $store->parent_id])->first();
         

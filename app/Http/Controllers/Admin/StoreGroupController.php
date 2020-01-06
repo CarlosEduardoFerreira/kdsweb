@@ -213,12 +213,17 @@ class StoreGroupController extends Controller {
             return $accessDenied;
         }
         
-        $state   = DB::table('states')->where(['id' => $storegroup->state])->first();
-        $country = DB::table('countries')->where(['id' => $storegroup->country])->first();
+        # Legacy support
+        if (is_numeric($storegroup->state)) {
+            $state   = DB::table('states')->where(['id' => $storegroup->state])->first();
+            $storegroup->state   = $state->name;
+        }
         
-        $storegroup->state   = $state->name;
-        $storegroup->country = $country->name;
-        
+        if (is_numeric($storegroup->country)) {
+            $country = DB::table('countries')->where(['id' => $storegroup->country])->first();
+            $storegroup->country = $country->name;
+        }
+
         $reseller = DB::table('users')->where(['id' => $storegroup->parent_id])->first();
         
         return view('admin.storegroups.show', ['obj' => 'storegroup', 'storegroup' => $storegroup, 'reseller' => $reseller]);
