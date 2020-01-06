@@ -277,11 +277,13 @@ class ResellerController extends Controller {
         }
 
         # Legacy support
+        $state = $reseller->state;
         if (is_numeric($reseller->state)) {
             $state   = DB::table('states')->where(['id' => $reseller->state])->first();
             $reseller->state   = $state->name;
         }
         
+        $country = $reseller->country;
         if (is_numeric($reseller->country)) {
             $country = DB::table('countries')->where(['id' => $reseller->country])->first();
             $reseller->country = $country->name;
@@ -307,10 +309,7 @@ class ResellerController extends Controller {
 
         
         $states     = [];
-        if (isset($reseller->country) && $reseller->country != "") {
-            $states     = DB::select("select * from states where country_id = $reseller->country order by name");
-        }
-        
+
         # max 3 different apps/hardware
         $mainDB = env('DB_DATABASE', 'kdsweb');
         $sql_app_prices = "SELECT b1.user_id, b1.app_guid, a.`name`, b1.hardware, b1.price
