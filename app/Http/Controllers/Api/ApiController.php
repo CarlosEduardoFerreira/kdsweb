@@ -13,6 +13,11 @@ use Ramsey\Uuid\Uuid;
 use PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+class Platform {
+    const iOS = "0fbaafa7-7194-4ce7-b45d-3ffc69b2486f";
+    const Android = "bc68f95c-1af5-47b1-a76b-e469f151ec3f";
+}
+
 class ApiController extends Controller
 {
     /**
@@ -30,6 +35,7 @@ class ApiController extends Controller
     
     private $error_exist_device_in_another_store = "There is another KDS Station with the same serial number active in another store.";
     
+    private $platform = Platform::iOS;
     
     public function __construct() {
         $this->DB = DB::class;
@@ -75,6 +81,8 @@ class ApiController extends Controller
     
     
     public function indexPremium() {
+
+        $this->platform = Platform::Android;
         
         $this->getRequest();
         
@@ -219,7 +227,13 @@ class ApiController extends Controller
                             $response[0]["error"] = "This KDS Station needs to be updated. Go to App Store to update the KDS app.";
                         }
                     }
-                    
+
+                    // Check apps conflict
+                    $storeApp = collect(DB::select("SELECT app_guid FROM store_app WHERE store_guid = '". $result[0]->store_guid ."'"))->first();
+                    if($storeApp->app_guid != $this->platform) {
+                        $response[0]["error"] = "This store is not configured for this platform";
+                    }
+
                     if(!isset($response[0]["error"])) {
                         $response[0]["store_guid"] = $result[0]->store_guid;
                         $response[0]["store_name"] = $result[0]->business_name;
