@@ -217,13 +217,15 @@ class StoreController extends Controller {
 
         $store->timezone = isset($store->timezone) ? $store->timezone : Vars::$timezoneDefault;
         
-        return view('admin.stores.form', ['obj' => 'store', 'user' => $store, 'parents' => $storegroups, 'me' => $me,
+        return view('admin.stores.form', ['obj' => $obj, 'user' => $store, 'parents' => $storegroups, 'me' => $me,
             'apps' => $apps, 'envs' => $envs, 'app_guid' => $store_apps, 'env_guid' => $store_envs]);
     }
     
     
     public function update(Request $request, User $store)
     { 
+        $me = Auth::user();
+
         $store->parent_id       = $request->get('parent_id');
         $store->business_name   = $request->get('business_name');
         $store->dba             = $request->get('dba');
@@ -258,11 +260,13 @@ class StoreController extends Controller {
             }
         }
         
-        // Store Apps
-        $this->updateApp($store->store_guid, $request->get('user_apps'));
-        
-        // Store Environments
-        $this->updateEnv($store->store_guid, $request->get('user_envs'));
+        if ($me->roles[0]->id == 4) {
+            // Store Apps
+            $this->updateApp($store->store_guid, $request->get('user_apps'));
+            
+            // Store Environments
+            $this->updateEnv($store->store_guid, $request->get('user_envs'));
+        }
         
         if ($store->id == Auth::user()->id) {
             return redirect()->intended(route('admin.dashboard'));
